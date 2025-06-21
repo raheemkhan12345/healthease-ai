@@ -1,0 +1,30 @@
+<footer class="footer">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-4 mb-4 mb-md-0">
+                <h5>HealthEase AI</h5>
+                <p>Your complete healthcare solution powered by AI.</p>
+            </div>
+            <div class="col-md-4 mb-4 mb-md-0">
+                <h5>Quick Links</h5>
+                <ul class="list-unstyled">
+                    <li><a href="{% url 'home' %}">Home</a></li>
+                    <li><a href="{% url 'about' %}">About Us</a></li>
+                    <li><a href="{% url 'services' %}">Services</a></li>
+                    <li><a href="{% url 'contact' %}">Contact</a></li>
+                </ul>
+            </div>
+            <div class="col-md-4">
+                <h5>Contact</h5>
+                <address>
+                    <i class="fas fa-map-marker-alt me-2"></i> 123 Medical Drive, Health City<br>
+                    <i class="fas fa-phone me-2"></i> +1 (555) 123-4567<br>
+                    <i class="fas fa-envelope me-2"></i> info@healtheaseai.com
+                </address>
+            </div>
+        </div>
+        <div class="text-center mt-4 pt-3 border-top">
+            <p>&copy; {% now "Y" %} HealthEase AI. All rights reserved.</p>
+        </div>
+    </div>
+</footer>

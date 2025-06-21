@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Doctor Profile - HealthEase AI{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Doctor Menu</h5>
+                </div>
+                <div class="list-group list-group-flush">
+                    <a href="{% url 'accounts:doctor_dashboard' %}" class="list-group-item list-group-item-action">Dashboard</a>
+                    <a href="{% url 'accounts:doctor_profile' %}" class="list-group-item list-group-item-action active">Profile</a>
+                    <a href="#" class="list-group-item list-group-item-action">Appointments</a>
+                   <a href="{% url 'accounts:user_logout' %}" class="list-group-item list-group-item-action text-danger">Logout</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-9">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">Doctor Profile</h4>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4 text-center">
+                            <img src="{% static 'images/doctor-avatar.png' %}" class="img-fluid rounded-circle mb-3" width="150" alt="Doctor Avatar">
+                            <h4>Dr. {{ doctor.username }}</h4>
+                            <p class="text-muted">{{ profile.specialization }}</p>
+                        </div>
+                        <div class="col-md-8">
+                            <div class="table-responsive">
+                                <table class="table table-bordered">
+                                    <tbody>
+                                        <tr>
+                                            <th>Username</th>
+                                            <td>{{ doctor.username }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Email</th>
+                                            <td>{{ doctor.email }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Specialization</th>
+                                            <td>{{ profile.specialization }}</td>
+                                        </tr>
+                                      
+                                        <tr>
+                                            <th>Hospital/Clinic</th>
+                                            <td>{{ profile.hospital }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Experience</th>
+                                            <td>{{ profile.experience }} years</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="text-end mt-3">
+                                <a href="#" class="btn btn-primary">Edit Profile</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

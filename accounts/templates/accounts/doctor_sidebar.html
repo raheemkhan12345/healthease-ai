@@ -1,0 +1,22 @@
+<div class="card mb-3">
+    <div class="card-header bg-primary text-white">
+        <h5 class="mb-0">Doctor Menu</h5>
+    </div>
+    <div class="list-group list-group-flush">
+        <a href="{% url 'accounts:doctor_dashboard' %}" class="list-group-item list-group-item-action">
+            <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+        </a>
+        <a href="{% url 'accounts:doctor_profile' %}" class="list-group-item list-group-item-action active">
+            <i class="fas fa-user me-2"></i>Profile
+        </a>
+        <a href="#" class="list-group-item list-group-item-action">
+            <i class="fas fa-calendar-check me-2"></i>Appointments
+        </a>
+        <a href="#" class="list-group-item list-group-item-action">
+            <i class="fas fa-users me-2"></i>Patients
+        </a>
+        <a href="{% url 'accounts:logout' %}" class="list-group-item list-group-item-action text-danger">
+            <i class="fas fa-sign-out-alt me-2"></i>Logout
+        </a>
+    </div>
+</div>

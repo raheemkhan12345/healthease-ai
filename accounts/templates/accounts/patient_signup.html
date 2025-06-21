@@ -1,0 +1,203 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Patient Sign Up - HealthEase AI{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card border-0 shadow-lg overflow-hidden">
+                <div class="row g-0">
+                    <!-- Left side - Patient Illustration -->
+                    <div class="col-md-6 d-none d-md-flex bg-success-light align-items-center">
+                        <div class="p-4 text-center">
+                            <img src="{% static 'images/logo.JPG' %}" alt="Patient Illustration" class="img-fluid" style="max-height: 300px;">
+                            <h4 class="text-success mt-3">Join HealthEase AI</h4>
+                            <p class="text-muted">Take control of your health journey</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Right side - Signup Form -->
+                    <div class="col-md-6">
+                        <div class="card-body p-4 p-xl-5">
+                            <div class="text-center mb-4">
+                                <h2 class="h4 text-gray-900 mb-3">Patient Registration</h2>
+                                <p class="text-muted">Create your personal health account</p>
+                            </div>
+                            
+                            <form method="post" class="needs-validation" novalidate>
+                                {% csrf_token %}
+                                
+                                {% if form.non_field_errors %}
+                                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                    {{ form.non_field_errors }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                </div>
+                                {% endif %}
+                                
+                                <!-- Username and Email -->
+                                <div class="responsive-row">
+                                    <div class="responsive-col">
+                                        <div class="floating-label mb-4">
+                                            <label for="{{ form.username.id_for_label }}">Username</label>
+                                            <div class="input-group input-group-custom">
+                                                <span class="input-group-text">
+                                                    <i class="fas fa-user"></i>
+                                                </span>
+                                                <input type="text" 
+                                                       class="form-control form-control-custom" 
+                                                       id="{{ form.username.id_for_label }}" 
+                                                       name="{{ form.username.html_name }}" 
+                                                       value="{{ form.username.value|default:'' }}"
+                                                       placeholder=" "
+                                                       required>
+                                            </div>
+                                            <div class="invalid-feedback">
+                                                {{ form.username.errors }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="responsive-col">
+                                        <div class="floating-label mb-4">
+                                            <label for="{{ form.email.id_for_label }}">Email</label>
+                                            <div class="input-group input-group-custom">
+                                                <span class="input-group-text">
+                                                    <i class="fas fa-envelope"></i>
+                                                </span>
+                                                <input type="email" 
+                                                       class="form-control form-control-custom" 
+                                                       id="{{ form.email.id_for_label }}" 
+                                                       name="{{ form.email.html_name }}" 
+                                                       value="{{ form.email.value|default:'' }}"
+                                                       placeholder=" "
+                                                       required>
+                                            </div>
+                                            <div class="invalid-feedback">
+                                                {{ form.email.errors }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Password and Confirm Password -->
+                                <div class="responsive-row">
+                                    <div class="responsive-col">
+                                        <div class="floating-label mb-4">
+                                            <label for="{{ form.password1.id_for_label }}">Password</label>
+                                            <div class="input-group input-group-custom">
+                                                <span class="input-group-text">
+                                                    <i class="fas fa-lock"></i>
+                                                </span>
+                                                <input type="password" 
+                                                       class="form-control form-control-custom" 
+                                                       id="{{ form.password1.id_for_label }}" 
+                                                       name="{{ form.password1.html_name }}"
+                                                       placeholder=" "
+                                                       required>
+                                                <button class="btn btn-outline-secondary toggle-password" type="button">
+                                                    <i class="fas fa-eye"></i>
+                                                </button>
+                                            </div>
+                                            <div class="invalid-feedback">
+                                                {{ form.password1.errors }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="responsive-col">
+                                        <div class="floating-label mb-4">
+                                            <label for="{{ form.password2.id_for_label }}">Confirm Password</label>
+                                            <div class="input-group input-group-custom">
+                                                <span class="input-group-text">
+                                                    <i class="fas fa-lock"></i>
+                                                </span>
+                                                <input type="password" 
+                                                       class="form-control form-control-custom" 
+                                                       id="{{ form.password2.id_for_label }}" 
+                                                       name="{{ form.password2.html_name }}"
+                                                       placeholder=" "
+                                                       required>
+                                            </div>
+                                            <div class="invalid-feedback">
+                                                {{ form.password2.errors }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Date of Birth (full width) -->
+                                <div class="floating-label mb-4">
+                                    <label for="{{ form.date_of_birth.id_for_label }}">Date of Birth</label>
+                                    <div class="input-group input-group-custom">
+                                        <span class="input-group-text">
+                                            <i class="fas fa-calendar-alt"></i>
+                                        </span>
+                                        <input type="date" 
+                                               class="form-control form-control-custom" 
+                                               id="{{ form.date_of_birth.id_for_label }}" 
+                                               name="{{ form.date_of_birth.html_name }}" 
+                                               value="{{ form.date_of_birth.value|default:'' }}"
+                                               placeholder=" "
+                                               required>
+                                    </div>
+                                    <div class="invalid-feedback">
+                                        {{ form.date_of_birth.errors }}
+                                    </div>
+                                </div>
+                                
+                                <div class="d-grid mb-3">
+                                    <button type="submit" class="btn btn-success btn-lg py-3">
+                                        <i class="fas fa-user-plus me-2"></i> Register
+                                    </button>
+                                </div>
+                                
+                                <div class="text-center mt-4">
+                                    <p class="text-muted">Already have an account? 
+                                        <a href="{% url 'accounts:patient_login' %}" class="text-success fw-bold">Login here</a>
+                                    </p>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Toggle password visibility
+document.querySelectorAll('.toggle-password').forEach(button => {
+    button.addEventListener('click', function() {
+        const input = this.closest('.input-group').querySelector('input');
+        const icon = this.querySelector('i');
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.classList.replace('fa-eye', 'fa-eye-slash');
+        } else {
+            input.type = 'password';
+            icon.classList.replace('fa-eye-slash', 'fa-eye');
+        }
+    });
+});
+
+// Form validation
+(function () {
+    'use strict'
+    const forms = document.querySelectorAll('.needs-validation')
+    Array.from(forms).forEach(form => {
+        form.addEventListener('submit', event => {
+            if (!form.checkValidity()) {
+                event.preventDefault()
+                event.stopPropagation()
+            }
+            form.classList.add('was-validated')
+        }, false)
+    })
+})()
+</script>
+{% endblock %}

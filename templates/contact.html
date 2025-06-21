@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block title %}Contact Us - HealthEase AI{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">  <!-- Added justify-content-center -->
+        <div class="col-md-8 col-lg-6">  <!-- Adjusted column width for better centering -->
+            <div class="card">
+                <div class="card-body text-center">  <!-- Added text-center -->
+                    <h3 class="card-title">Contact Information</h3>
+                    <address class="mt-4">
+                        <strong>HealthEase AI Headquarters</strong><br>
+                        123 Medical Drive<br>
+                        Health City, HC 12345<br>
+                        <i class="fas fa-phone me-2"></i> +1 (555) 123-4567<br>
+                        <i class="fas fa-envelope me-2"></i> info@healtheaseai.com
+                    </address>
+                    
+                    <h4 class="mt-4">Business Hours</h4>
+                    <ul class="list-unstyled">
+                        <li><strong>Monday-Friday:</strong> 8:00 AM - 8:00 PM</li>
+                        <li><strong>Saturday:</strong> 9:00 AM - 5:00 PM</li>
+                        <li><strong>Sunday:</strong> Emergency only</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{# Removed the entire extra_js block containing map-related code #}

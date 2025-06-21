@@ -1,0 +1,40 @@
+<!-- templates/includes/navbar.html -->
+<ul class="navbar-nav">
+    {% if user.is_authenticated %}
+        <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+                <i class="fas fa-user-circle me-1"></i> {{ user.username }}
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end">
+                {% if user.is_doctor %}
+                    <li><a class="dropdown-item" href="{% url 'accounts:doctor_dashboard' %}">Dashboard</a></li>
+                    <li><a class="dropdown-item" href="#">Profile</a></li>
+                {% elif user.is_patient %}
+                    <li><a class="dropdown-item" href="{% url 'accounts:patient_dashboard' %}">Dashboard</a></li>
+                    <li><a class="dropdown-item" href="#">Profile</a></li>
+                {% endif %}
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item" href="{% url 'accounts:user_logout' %}">Logout</a></li>
+            </ul>
+        </li>
+    {% else %}
+        <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="loginDropdown" role="button" data-bs-toggle="dropdown">
+                Login
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end">
+                <li><a class="dropdown-item" href="{% url 'accounts:doctor_login' %}">Doctor Login</a></li>
+                <li><a class="dropdown-item" href="{% url 'accounts:patient_login' %}">Patient Login</a></li>
+            </ul>
+        </li>
+        <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="signupDropdown" role="button" data-bs-toggle="dropdown">
+                Sign Up
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end">
+                <li><a class="dropdown-item" href="{% url 'accounts:doctor_signup' %}">Doctor Sign Up</a></li>
+                <li><a class="dropdown-item" href="{% url 'accounts:patient_signup' %}">Patient Sign Up</a></li>
+            </ul>
+        </li>
+    {% endif %}
+</ul>

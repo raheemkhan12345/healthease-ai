@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+{% load static %}  <!-- Add this line at the top -->
+
+{% block title %}About Us - HealthEase AI{% endblock %}
+
+{% block content %}
+<div class="about-page">
+    <!-- Hero Section -->
+    <section class="hero-section py-5 bg-primary text-white">
+        <div class="container text-center">
+            <h1 class="display-4 mb-4">About HealthEase AI</h1>
+            <p class="lead">Revolutionizing healthcare through innovative technology</p>
+        </div>
+    </section>
+
+    <!-- Mission Section -->
+    <section class="mission-section py-5">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-6 mb-4 mb-lg-0">
+                    <h2 class="mb-4">Our Mission</h2>
+                    <p class="lead">To make quality healthcare accessible, affordable, and convenient for everyone through AI-powered solutions.</p>
+                    <p>HealthEase AI was founded in 2023 with a vision to bridge the gap between patients and healthcare providers using cutting-edge technology.</p>
+                </div>
+                <div class="col-lg-6">
+                    <img src="{% static 'images/about-mission.jpg' %}" alt="Our Mission" class="img-fluid rounded shadow">
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- Values Section -->
+    <section class="values-section py-5">
+        <div class="container">
+            <h2 class="text-center mb-5">Our Core Values</h2>
+            <div class="row">
+                <div class="col-md-4 mb-4">
+                    <div class="card value-card h-100 border-0 text-center p-4 shadow-sm">
+                        <div class="value-icon mb-3">
+                            <i class="fas fa-heartbeat fa-3x text-primary"></i>
+                        </div>
+                        <h4>Patient-Centered</h4>
+                        <p>We put patients at the heart of everything we do, ensuring their needs are always prioritized.</p>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <div class="card value-card h-100 border-0 text-center p-4 shadow-sm">
+                        <div class="value-icon mb-3">
+                            <i class="fas fa-lightbulb fa-3x text-primary"></i>
+                        </div>
+                        <h4>Innovation</h4>
+                        <p>We continuously push boundaries to develop groundbreaking healthcare solutions.</p>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <div class="card value-card h-100 border-0 text-center p-4 shadow-sm">
+                        <div class="value-icon mb-3">
+                            <i class="fas fa-shield-alt fa-3x text-primary"></i>
+                        </div>
+                        <h4>Integrity</h4>
+                        <p>We maintain the highest ethical standards in all our practices and technologies.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="stats-section py-5 bg-primary text-white">
+        <div class="container">
+            <div class="row text-center">
+                <div class="col-md-3 mb-4 mb-md-0">
+                    <div class="stat-item">
+                        <h3 class="display-4">10,000+</h3>
+                        <p>Patients Served</p>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-4 mb-md-0">
+                    <div class="stat-item">
+                        <h3 class="display-4">500+</h3>
+                        <p>Healthcare Partners</p>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-4 mb-md-0">
+                    <div class="stat-item">
+                        <h3 class="display-4">24/7</h3>
+                        <p>Support Availability</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-item">
+                        <h3 class="display-4">95%</h3>
+                        <p>Patient Satisfaction</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta-section py-5">
+        <div class="container text-center">
+            <h2 class="mb-4">Ready to Experience Better Healthcare?</h2>
+            <a href="{% url 'chat:services' %}" class="btn btn-primary btn-lg me-3">Our Services</a>
+            <a href="{% url 'chat:contact' %}" class="btn btn-outline-primary btn-lg">Contact Us</a>
+        </div>
+    </section>
+</div>
+{% endblock %}
