@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-body text-center">
+                    <img src="{{ doctor.user.profile_picture.url|default:'/static/images/default_doctor.png' }}" 
+                         class="rounded-circle mb-3" width="150" height="150">
+                    <h3>Dr. {{ doctor.user.get_full_name|default:doctor.user.username }}</h3>
+                    <p class="text-muted">{{ doctor.get_specialization_display }}</p>
+                    <p><i class="fas fa-hospital"></i> {{ doctor.hospital }}</p>
+                    <p><i class="fas fa-briefcase"></i> {{ doctor.experience }} years experience</p>
+                    <p><i class="fas fa-money-bill-wave"></i> Rs. {{ doctor.consultation_fee }} per consultation</p>
+                </div>
+            </div>
+            
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Availability</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Monday - Friday
+                            <span class="badge bg-primary rounded-pill">9:00 AM - 5:00 PM</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Saturday
+                            <span class="badge bg-primary rounded-pill">9:00 AM - 1:00 PM</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Sunday
+                            <span class="badge bg-danger rounded-pill">Closed</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">About Dr. {{ doctor.user.get_full_name|default:doctor.user.username }}</h4>
+                </div>
+                <div class="card-body">
+                    <div class="mb-4">
+                        <h5>Biography</h5>
+                        <p>{{ doctor.bio|default:"No biography available." }}</p>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <h5>Book Appointment</h5>
+                        <form method="post" action="{% url 'book_appointment' doctor.id %}">
+                            {% csrf_token %}
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label class="form-label">Date</label>
+                                    <input type="date" name="date" class="form-control" min="{{ today }}" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Time</label>
+                                    <select name="time" class="form-select" required>
+                                        <option value="" selected disabled>Select time</option>
+                                        {% for hour in hours %}
+                                        <option value="{{ hour }}:00">{{ hour }}:00 - {{ hour|add:1 }}:00</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Reason for Appointment</label>
+                                <textarea name="reason" class="form-control" rows="3" required></textarea>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-primary w-100">
+                                <i class="fas fa-calendar-check me-2"></i> Book Appointment
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

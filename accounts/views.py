@@ -9,50 +9,79 @@ from django.http import HttpResponse
 from django.shortcuts import render, get_object_or_404
 from .models import DoctorProfile
 from django.db.models import Q
-
+from django.core.exceptions import ObjectDoesNotExist
+from .models import User 
 
 def doctor_signup(request):
-    if request.user.is_authenticated:
-        return redirect('doctor_dashboard')
-        
     if request.method == 'POST':
-        form = DoctorSignUpForm(request.POST)
+        form = DoctorSignUpForm(request.POST, request.FILES)
         if form.is_valid():
-            try:
-                if User.objects.filter(email=form.cleaned_data['email']).exists():
-                    form.add_error('email', 'This email is already registered')
-                elif User.objects.filter(username=form.cleaned_data['username']).exists():
-                    form.add_error('username', 'This username is taken')
-                else:
-                    user = form.save()
-                    login(request, user)
-                    return redirect('doctor_dashboard')
-            except Exception as e:
-                form.add_error(None, f"Account creation failed: {str(e)}")
-        # Remove this else clause completely - let it fall through to render at bottom
+            user = form.save()
+            login(request, user)
+            messages.success(request, 'Registration successful!')
+            return redirect('accounts:doctor_dashboard')
+        else:
+            messages.error(request, 'Please correct the errors below.')
     else:
         form = DoctorSignUpForm()
-    
-    # Single return statement at the end
     return render(request, 'accounts/doctor_signup.html', {'form': form})
+
+@login_required
+def doctor_dashboard(request):
+    if not request.user.user_type == 'doctor':
+        messages.error(request, 'You are not authorized to view this page.')
+        return redirect('accounts:user_logout')
+    
+    try:
+        profile = DoctorProfile.objects.get(user=request.user)
+    except ObjectDoesNotExist:
+        messages.error(request, 'Profile not found.')
+        return redirect('accounts:user_logout')
+    
+    # You'll need to implement appointments logic based on your app
+    appointments = []  # Replace with actual appointments query
+    
+    context = {
+        'doctor': request.user,
+        'profile': profile,
+        'appointments': appointments,
+    }
+    return render(request, 'doctor_dashboard.html', context)
+
+def user_logout(request):
+    logout(request)
+    messages.success(request, 'You have been logged out successfully.')
+    return redirect('home')  #  your home URL name
 def patient_signup(request):
     if request.method == 'POST':
         form = PatientSignUpForm(request.POST)
         if form.is_valid():
-            user = form.save(commit=False)
-            user.is_patient = True
-            user.save()
-            
-            PatientProfile.objects.create(
-                user=user,
-                date_of_birth=form.cleaned_data['date_of_birth']
-            )
+            user = form.save()
             login(request, user)
-            return redirect('patient_dashboard')
+            messages.success(request, 'Registration successful!')
+            return redirect('patient_dashboard')  # Update with your patient dashboard URL
+        else:
+            messages.error(request, 'Please correct the errors below.')
     else:
         form = PatientSignUpForm()
     return render(request, 'accounts/patient_signup.html', {'form': form})
 
+@login_required
+def patient_dashboard(request):
+    if not request.user.user_type == 'patient':
+        messages.error(request, 'You are not authorized to view this page.')
+        return redirect('accounts:user_logout')
+    
+    try:
+        profile = request.user.patientprofile
+    except:
+        profile = None
+    
+    context = {
+        'patient': request.user,
+        'profile': profile,
+    }
+    return render(request, 'patient_dashboard.html', context)
 
 def doctor_login(request):
     if request.user.is_authenticated and request.user.is_doctor:

@@ -1,48 +1,61 @@
-# accounts/models.py
 from django.db import models
 from django.contrib.auth.models import AbstractUser
-from django.contrib.auth import get_user_model
+from django.core.validators import MinValueValidator
+from django.conf import settings
+import os
+from django.utils import timezone
 
 class User(AbstractUser):
+    USER_TYPE_CHOICES = (
+        ('doctor', 'Doctor'),
+        ('patient', 'Patient'),
+    )
+    auth_user = models.CharField(max_length=10, choices=USER_TYPE_CHOICES, default='patient')
     is_doctor = models.BooleanField(default=False)
-    is_patient = models.BooleanField(default=False)
-    
-class DoctorProfile(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
-    specialization = models.CharField(max_length=100)
-    hospital = models.CharField(max_length=100)
-    experience = models.IntegerField(default=0)  # Simple integer field
-    
-    def __str__(self):
-        return f"{self.user.username}'s Profile"
+    is_patient = models.BooleanField(default=True)
     
     class Meta:
-        # Add this if your table name has a typo
-        db_table = 'accounts_doctorprofile' 
-        
-    def __str__(self):
-        return f"{self.user.username}'s Profile"
+        db_table = 'auth_user'
+    
+
+class DoctorProfile(models.Model):
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE, 
+        primary_key=True
+    )
+    specialization = models.CharField(max_length=100)
+    hospital = models.CharField(max_length=100)
+    experience = models.IntegerField()
+    profile_picture = models.ImageField(
+        upload_to='doctor_profile_pictures/',
+        default='default.jpg'
+    )
 
 class PatientProfile(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        primary_key=True
+    )
     date_of_birth = models.DateField()
+    # Removed duplicate username field (already in User model)
 
     def __str__(self):
-        return f"{self.user.username}'s Profile"
-    
-    
-    User = get_user_model()
+        return f"{self.user.username}'s Patient Profile"
 
 class LoginLog(models.Model):
-    """Tracks user login/logout activity"""
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='login_logs')
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='login_logs'
+    )
     login_time = models.DateTimeField(auto_now_add=True)
     logout_time = models.DateTimeField(null=True, blank=True)
     session_key = models.CharField(max_length=40)
+    ip_address = models.GenericIPAddressField(null=True, blank=True)
+    user_agent = models.CharField(max_length=255, null=True, blank=True)
     
     class Meta:
-        db_table = 'login_log'  # Matches your existing table
+        db_table = 'login_log'
         ordering = ['-login_time']
-        
-    def __str__(self):
-        return f"{self.user.username} logged in at {self.login_time}"

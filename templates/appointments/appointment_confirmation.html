@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="card">
+        <div class="card-header bg-success text-white">
+            <h4 class="mb-0">Appointment Confirmed</h4>
+        </div>
+        <div class="card-body">
+            <div class="alert alert-success">
+                <h5><i class="fas fa-check-circle me-2"></i> Your appointment has been successfully booked!</h5>
+            </div>
+            
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <h5>Appointment Details</h5>
+                    <p><strong>Doctor:</strong> Dr. {{ appointment.doctor.user.get_full_name|default:appointment.doctor.user.username }}</p>
+                    <p><strong>Specialization:</strong> {{ appointment.doctor.get_specialization_display }}</p>
+                    <p><strong>Date:</strong> {{ appointment.date|date:"F j, Y" }}</p>
+                    <p><strong>Time:</strong> {{ appointment.start_time|time:"g:i A" }} - {{ appointment.end_time|time:"g:i A" }}</p>
+                    <p><strong>Reason:</strong> {{ appointment.reason }}</p>
+                </div>
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0">Video Consultation</h5>
+                        </div>
+                        <div class="card-body">
+                            <p>Your Zoom meeting has been scheduled. Click the button below to join at your appointment time.</p>
+                            <a href="{{ appointment.zoom_join_url }}" class="btn btn-primary w-100" target="_blank">
+                                <i class="fas fa-video me-2"></i> Join Video Consultation
+                            </a>
+                            <p class="mt-2 small text-muted">Meeting ID: {{ appointment.zoom_meeting_id }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="d-grid gap-2">
+                <a href="{% url 'home' %}" class="btn btn-outline-primary">
+                    <i class="fas fa-home me-2"></i> Return to Home
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
