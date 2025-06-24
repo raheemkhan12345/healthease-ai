@@ -27,7 +27,8 @@
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-4 text-center">
-                            <img src="{% static 'images/doctor-avatar.png' %}" class="img-fluid rounded-circle mb-3" width="150" alt="Doctor Avatar">
+                          <img src="{{ profile.profile_picture.url }}" alt="Doctor Avatar" width="150" class="rounded-circle">
+
                             <h4>Dr. {{ doctor.username }}</h4>
                             <p class="text-muted">{{ profile.specialization }}</p>
                         </div>

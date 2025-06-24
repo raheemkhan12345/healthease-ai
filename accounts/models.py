@@ -10,18 +10,17 @@ class User(AbstractUser):
         ('doctor', 'Doctor'),
         ('patient', 'Patient'),
     )
-    auth_user = models.CharField(max_length=10, choices=USER_TYPE_CHOICES, default='patient')
+    user_type = models.CharField(max_length=10, choices=USER_TYPE_CHOICES, default='patient')
     is_doctor = models.BooleanField(default=False)
     is_patient = models.BooleanField(default=True)
+
     
-    class Meta:
-        db_table = 'auth_user'
     
 
-class DoctorProfile(models.Model):
+class DoctorProfile(models.Model): 
     user = models.OneToOneField(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE, 
+        settings.AUTH_USER_MODEL,     # Automatically uses 'accounts.User'
+        on_delete=models.CASCADE,
         primary_key=True
     )
     specialization = models.CharField(max_length=100)
@@ -29,15 +28,16 @@ class DoctorProfile(models.Model):
     experience = models.IntegerField()
     profile_picture = models.ImageField(
         upload_to='doctor_profile_pictures/',
-        default='default.jpg'
+        default='default.jpg',
+        blank=True, null=True
     )
 
+    def __str__(self):
+        return f"{self.user.username} - {self.specialization}"
+
 class PatientProfile(models.Model):
-    user = models.OneToOneField(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE,
-        primary_key=True
-    )
+    
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     date_of_birth = models.DateField()
     # Removed duplicate username field (already in User model)
 
