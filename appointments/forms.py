@@ -5,6 +5,7 @@ from django import forms
 from .models import Appointment
 from django.utils import timezone
 from datetime import datetime, timedelta
+from datetime import time
 
 class DoctorSignUpForm(UserCreationForm):
     # Add doctor-specific fields
@@ -23,36 +24,35 @@ class PatientLoginForm(forms.Form):
     password = forms.CharField(widget=forms.PasswordInput)
     
     
+    
+# search doctors.
 
+class DoctorSearchForm(forms.Form):
+    specialization = forms.CharField(required=False)
+    location = forms.CharField(required=False)
+    query = forms.CharField(required=False, label='Search')
 
 class AppointmentForm(forms.ModelForm):
     class Meta:
         model = Appointment
-        fields = ['date', 'time', 'reason']
+        fields = ['date', 'start_time', 'reason']  # Changed from 'time' to 'start_time'
         widgets = {
-            'date': forms.DateInput(attrs={'type': 'date', 'min': timezone.now().date()}),
-            'time': forms.TimeInput(attrs={'type': 'time'}),
+            'date': forms.DateInput(attrs={
+                'type': 'date', 
+                'min': timezone.now().date()
+            }),
+            'start_time': forms.TimeInput(attrs={'type': 'time'}),
             'reason': forms.Textarea(attrs={'rows': 3}),
         }
-    
+
     def clean_date(self):
         date = self.cleaned_data.get('date')
-        if date and date < timezone.now().date():
-            raise forms.ValidationError("Appointment date cannot be in the past.")
+        if date < timezone.now().date():
+            raise forms.ValidationError("Appointment date cannot be in the past")
         return date
-    
-    def clean(self):
-        cleaned_data = super().clean()
-        date = cleaned_data.get('date')
-        time = cleaned_data.get('time')
-        
-        if date and time:
-            appointment_datetime = datetime.combine(date, time)
-            if appointment_datetime < timezone.now():
-                raise forms.ValidationError("Appointment time cannot be in the past.")
-        
-        return cleaned_data
-    
-    
-    
-    
+
+    def clean_start_time(self):
+        start_time = self.cleaned_data.get('start_time')
+        if start_time < time(9, 0) or start_time > time(17, 0):
+            raise forms.ValidationError("Appointments must be between 9 AM and 5 PM")
+        return start_time
