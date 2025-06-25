@@ -53,19 +53,25 @@ class DoctorSignUpForm(UserCreationForm):
             raise forms.ValidationError("Password must contain at least one special character.")
         return password1
     
-    def save(self, commit=True):
-        user = super().save(commit=False)
-        user.user_type = 'doctor'
-        if commit:
-            user.save()
-            DoctorProfile.objects.create(
-                user=user,
-                specialization=self.cleaned_data['specialization'],
-                hospital=self.cleaned_data['hospital'],
-                experience=self.cleaned_data['experience'],
-                profile_picture=self.cleaned_data['profile_picture']
-            )
-        return user
+def save(self, commit=True):
+    user = super().save(commit=False)
+    experience = self.cleaned_data.get('experience') or 0
+
+    user.user_type = 'doctor'
+    user.is_doctor = True
+    user.is_patient = False
+
+    if commit:
+        user.save()
+        DoctorProfile.objects.create(
+            user=user,
+            specialization=self.cleaned_data['specialization'],
+            hospital=self.cleaned_data['hospital'],
+            experience=experience,
+            profile_picture=self.cleaned_data.get('profile_picture') or 'default.jpg'
+        )
+    return user
+
     
 class PatientSignUpForm(UserCreationForm):
     date_of_birth = forms.DateField(
@@ -90,6 +96,8 @@ class PatientSignUpForm(UserCreationForm):
     def save(self, commit=True):
         user = super().save(commit=False)
         user.user_type = 'patient'
+        user.is_doctor = False
+        user.is_patient = True
         if commit:
             user.save()
             PatientProfile.objects.create(
