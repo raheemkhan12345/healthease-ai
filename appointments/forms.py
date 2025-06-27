@@ -35,7 +35,7 @@ class DoctorSearchForm(forms.Form):
 class AppointmentForm(forms.ModelForm):
     class Meta:
         model = Appointment
-        fields = ['date', 'start_time', 'reason']  # Changed from 'time' to 'start_time'
+        fields = ['doctor', 'patient', 'date', 'start_time', 'end_time', 'reason', 'status', 'notes']
         widgets = {
             'date': forms.DateInput(attrs={
                 'type': 'date', 

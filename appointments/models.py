@@ -4,6 +4,7 @@ from django.utils.translation import gettext_lazy as _
 from accounts.models import User, DoctorProfile, PatientProfile
 from django.core.validators import MinValueValidator
 from datetime import datetime, timedelta
+from accounts.models import TimeSlot
 
 
 
@@ -77,9 +78,8 @@ class Patient(models.Model):
         return self.user.get_full_name()
     
     # doctor selection  functionality.
-
-
-
+     
+# ─────────────── APPOINTMENT ─────────────── #
 class Appointment(models.Model):
     STATUS_CHOICES = [
         ('pending', 'Pending'),
@@ -88,20 +88,21 @@ class Appointment(models.Model):
         ('cancelled', 'Cancelled'),
     ]
     
-    patient = models.ForeignKey(PatientProfile, on_delete=models.CASCADE)
-    doctor = models.ForeignKey(DoctorProfile, on_delete=models.CASCADE)
+    doctor = models.ForeignKey(DoctorProfile, on_delete=models.CASCADE, related_name='appointments')
+    patient = models.ForeignKey(PatientProfile, on_delete=models.CASCADE, related_name='appointments')
     date = models.DateField()
     start_time = models.TimeField()
-    end_time = models.TimeField()
+    end_time = models.TimeField(blank=True, null=True)
     reason = models.TextField()
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    notes = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     zoom_meeting_id = models.CharField(max_length=100, blank=True, null=True)
     zoom_join_url = models.URLField(blank=True, null=True)
-    
+
     class Meta:
         ordering = ['date', 'start_time']
-    
+
     def __str__(self):
         return f"{self.patient.user.username} with Dr. {self.doctor.user.username} on {self.date} at {self.start_time}"
 

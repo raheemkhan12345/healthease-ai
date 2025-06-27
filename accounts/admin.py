@@ -3,8 +3,8 @@ from django.contrib.auth.admin import UserAdmin
 from .models import User, DoctorProfile, PatientProfile
 
 class CustomUserAdmin(UserAdmin):
-    list_display = ('username', 'email', 'is_doctor', 'is_patient', 'is_staff')
-    list_filter = ('is_doctor', 'is_patient', 'is_staff')  # Now works with real fields
+    list_display = ('username', 'email', 'user_type')  # ✅ Correct
+    list_filter = ('user_type',)
     fieldsets = (
         (None, {'fields': ('username', 'password')}),
         ('Personal info', {'fields': ('email',)}),

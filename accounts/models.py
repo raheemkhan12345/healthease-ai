@@ -1,61 +1,55 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
-from django.core.validators import MinValueValidator
 from django.conf import settings
-import os
-from django.utils import timezone
 
+# ─────────────── USER ─────────────── #
 class User(AbstractUser):
     USER_TYPE_CHOICES = (
         ('doctor', 'Doctor'),
         ('patient', 'Patient'),
     )
     user_type = models.CharField(max_length=10, choices=USER_TYPE_CHOICES, default='patient')
-    is_doctor = models.BooleanField(default=False)
-    is_patient = models.BooleanField(default=True)
 
-    
-    
-
-class DoctorProfile(models.Model): 
-    user = models.OneToOneField(
-        settings.AUTH_USER_MODEL,     # Automatically uses 'accounts.User'
-        on_delete=models.CASCADE,
-        primary_key=True
-    )
+# ─────────────── DOCTOR PROFILE ─────────────── #
+class DoctorProfile(models.Model):
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     specialization = models.CharField(max_length=100)
     hospital = models.CharField(max_length=100)
-    experience = models.IntegerField()
-    profile_picture = models.ImageField(
-        upload_to='doctor_profile_pictures/',
-        default='default.jpg',
-        blank=True, null=True
-    )
+    experience = models.PositiveIntegerField()
+    profile_picture = models.ImageField(upload_to='doctor_profile_pictures/', blank=True, null=True, default='default.jpg')
 
     def __str__(self):
-        return f"{self.user.username} - {self.specialization}"
+        return f"{self.user.get_full_name()} - {self.specialization}"
 
+# ─────────────── PATIENT PROFILE ─────────────── #
 class PatientProfile(models.Model):
-    
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     date_of_birth = models.DateField()
-    # Removed duplicate username field (already in User model)
 
     def __str__(self):
-        return f"{self.user.username}'s Patient Profile"
+        return f"{self.user.get_full_name()}'s Profile"
 
+# ─────────────── TIME SLOT ─────────────── #
+class TimeSlot(models.Model):
+    doctor = models.ForeignKey(DoctorProfile, on_delete=models.CASCADE)
+    date = models.DateField()
+    start_time = models.TimeField()
+    end_time = models.TimeField()
+    is_booked = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"{self.doctor.user.get_full_name()} - {self.date} {self.start_time}-{self.end_time}"
+
+
+# ─────────────── LOGIN LOG ─────────────── #
 class LoginLog(models.Model):
-    user = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE,
-        related_name='login_logs'
-    )
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='login_logs')
     login_time = models.DateTimeField(auto_now_add=True)
     logout_time = models.DateTimeField(null=True, blank=True)
     session_key = models.CharField(max_length=40)
     ip_address = models.GenericIPAddressField(null=True, blank=True)
     user_agent = models.CharField(max_length=255, null=True, blank=True)
-    
+
     class Meta:
         db_table = 'login_log'
         ordering = ['-login_time']
