@@ -3,6 +3,12 @@ from django.contrib.auth.forms import UserCreationForm
 from django.core.validators import MinValueValidator
 from django.contrib.auth import get_user_model
 from .models import DoctorProfile, PatientProfile
+from django.shortcuts import render, redirect
+from django.contrib.auth import login
+from django.urls import reverse
+
+from django.contrib.auth.forms import UserCreationForm
+from .models import User
 
 import re
 
@@ -60,6 +66,9 @@ class DoctorSignUpForm(UserCreationForm):
         return user
 
 # ─────────────────── Patient Signup ─────────────────── #
+
+User = get_user_model()
+
 class PatientSignUpForm(UserCreationForm):
     date_of_birth = forms.DateField(
         widget=forms.DateInput(attrs={'type': 'date'}),
@@ -68,14 +77,14 @@ class PatientSignUpForm(UserCreationForm):
 
     class Meta:
         model = User
-        fields = ['username', 'email', 'password1', 'password2']
+        fields = ['username', 'email', 'password1', 'password2', 'date_of_birth']
 
     def clean_password1(self):
         password1 = self.cleaned_data.get('password1')
         if len(password1) < 8:
-            raise forms.ValidationError("Password must be at least 8 characters long.")
+            raise forms.ValidationError("Password must be at least 8 characters.")
         if not re.search(r'\d', password1):
-            raise forms.ValidationError("Password must contain at least one number.")
+            raise forms.ValidationError("Password must contain at least one digit.")
         if not re.search(r'[^A-Za-z0-9]', password1):
             raise forms.ValidationError("Password must contain at least one special character.")
         return password1
@@ -85,13 +94,9 @@ class PatientSignUpForm(UserCreationForm):
         user.user_type = 'patient'
         if commit:
             user.save()
-            PatientProfile.objects.create(
-                user=user,
-                date_of_birth=self.cleaned_data['date_of_birth']
-            )
+            PatientProfile.objects.create(user=user)
         return user
 
-# ─────────────────── Login Forms ─────────────────── #
 class DoctorLoginForm(forms.Form):
     username = forms.CharField()
     password = forms.CharField(widget=forms.PasswordInput)

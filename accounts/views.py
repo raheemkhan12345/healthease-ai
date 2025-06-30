@@ -55,14 +55,23 @@ def patient_signup(request):
 
                     login(request, user)
                     messages.success(request, 'Registration successful!')
-                    return redirect('accounts:patient_dashboard')
+
+                    # ✅ Handle redirect with ?next=...
+                    next_url = request.GET.get('next')
+                    if next_url:
+                        return redirect(next_url)
+                    return redirect('home')
+
             except Exception as e:
                 messages.error(request, f'Error: {str(e)}')
         else:
             messages.error(request, 'Please correct the errors below.')
     else:
         form = PatientSignUpForm()
+
     return render(request, 'accounts/patient_signup.html', {'form': form})
+
+
 
 # ─────────────── Login Views ─────────────── #
 def doctor_login(request):
@@ -99,7 +108,7 @@ def patient_login(request):
             if user and user.user_type == 'patient':
                 login(request, user)
                 messages.success(request, f'Welcome, {user.username}!')
-                return redirect('accounts:patient_dashboard')
+                return redirect('home')
             else:
                 messages.error(request, 'Invalid credentials or not a patient account')
     else:
@@ -111,14 +120,14 @@ def patient_login(request):
 def user_logout(request):
     logout(request)
     messages.success(request, 'You have been logged out successfully.')
-    return redirect('chat:home')
+    return redirect('home')
 
 # ─────────────── Dashboards ─────────────── #
 @login_required
 def doctor_dashboard(request):
     if request.user.user_type != 'doctor':
         messages.error(request, 'You are not authorized to view this page.')
-        return redirect('chat:home')
+        return redirect('home')
 
     profile, _ = DoctorProfile.objects.get_or_create(user=request.user)
     context = {
@@ -133,7 +142,7 @@ def doctor_dashboard(request):
 def patient_dashboard(request):
     if request.user.user_type != 'patient':
         messages.error(request, 'You are not authorized to view this page.')
-        return redirect('chat:home')
+        return redirect('home')
 
     profile, _ = PatientProfile.objects.get_or_create(user=request.user)
     context = {
@@ -148,7 +157,7 @@ def patient_dashboard(request):
 def doctor_profile(request):
     if request.user.user_type != 'doctor':
         messages.error(request, 'You are not authorized to view this page.')
-        return redirect('chat:home')
+        return redirect('home')
 
     profile, _ = DoctorProfile.objects.get_or_create(user=request.user)
     return render(request, 'accounts/doctor_profile.html', {'doctor': request.user, 'profile': profile})
@@ -158,7 +167,7 @@ def doctor_profile(request):
 def patient_profile(request):
     if request.user.user_type != 'patient':
         messages.error(request, 'You are not authorized to view this page.')
-        return redirect('chat:home')
+        return redirect('home')
 
     profile, _ = PatientProfile.objects.get_or_create(user=request.user)
     return render(request, 'accounts/patient_profile.html', {'patient': request.user, 'profile': profile})

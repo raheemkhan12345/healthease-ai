@@ -1,48 +1,76 @@
 import requests
 import json
 from django.conf import settings
-from datetime import datetime, timedelta
+from datetime import datetime
+import base64
 
 class ZoomAPI:
     def __init__(self):
         self.client_id = settings.ZOOM_CLIENT_ID
         self.client_secret = settings.ZOOM_CLIENT_SECRET
         self.account_id = settings.ZOOM_ACCOUNT_ID
-        self.token_url = "https://zoom.us/oauth/token"
-        self.api_base_url = "https://api.zoom.us/v2"
-        self.access_token = self.get_access_token()
+        self.token = self.get_access_token()
     
     def get_access_token(self):
-        auth = requests.auth.HTTPBasicAuth(self.client_id, self.client_secret)
+        """Get OAuth access token using Server-to-Server OAuth"""
+        auth_str = f"{self.client_id}:{self.client_secret}"
+        auth_bytes = auth_str.encode('ascii')
+        auth_b64 = base64.b64encode(auth_bytes).decode('ascii')
+        
         headers = {
+            'Authorization': f'Basic {auth_b64}',
             'Content-Type': 'application/x-www-form-urlencoded'
         }
+        
         data = {
             'grant_type': 'account_credentials',
             'account_id': self.account_id
         }
-        response = requests.post(self.token_url, auth=auth, headers=headers, data=data)
-        return response.json().get('access_token')
+        
+        response = requests.post(
+            'https://zoom.us/oauth/token',
+            headers=headers,
+            data=data
+        )
+        
+        if response.status_code == 200:
+            return response.json().get('access_token')
+        else:
+            raise Exception(f"Zoom OAuth failed: {response.text}")
     
-    def create_meeting(self, topic, start_time, duration=30):
-        url = f"{self.api_base_url}/users/me/meetings"
+    def create_meeting(self, topic, start_time, duration=30, timezone='UTC'):
+        """Create a new Zoom meeting"""
         headers = {
-            'Authorization': f'Bearer {self.access_token}',
+            'Authorization': f'Bearer {self.token}',
             'Content-Type': 'application/json'
         }
+        
         payload = {
-            "topic": topic,
-            "type": 2,  # Scheduled meeting
-            "start_time": start_time.isoformat(),
-            "duration": duration,
-            "settings": {
-                "host_video": True,
-                "participant_video": True,
-                "join_before_host": False,
-                "mute_upon_entry": True,
-                "waiting_room": True,
-                "approval_type": 0  # Automatically approve
+            'topic': topic,
+            'type': 2,  # Scheduled meeting
+            'start_time': start_time.isoformat(),
+            'duration': duration,
+            'timezone': timezone,
+            'settings': {
+                'host_video': True,
+                'participant_video': True,
+                'join_before_host': False,
+                'mute_upon_entry': False,
+                'waiting_room': True,
+                'approval_type': 0,  # Automatically approve
+                'audio': 'both',  # Both telephony and VoIP
+                'auto_recording': 'cloud',
+                'enforce_login': False
             }
         }
-        response = requests.post(url, headers=headers, data=json.dumps(payload))
-        return response.json()
+        
+        response = requests.post(
+            'https://api.zoom.us/v2/users/me/meetings',
+            headers=headers,
+            json=payload
+        )
+        
+        if response.status_code == 201:
+            return response.json()
+        else:
+            raise Exception(f"Zoom API error: {response.text}")

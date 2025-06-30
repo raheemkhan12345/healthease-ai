@@ -2,6 +2,8 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.conf import settings
 
+
+
 # ─────────────── USER ─────────────── #
 class User(AbstractUser):
     USER_TYPE_CHOICES = (
@@ -12,15 +14,25 @@ class User(AbstractUser):
 
 # ─────────────── DOCTOR PROFILE ─────────────── #
 class DoctorProfile(models.Model):
+    SPECIALIZATION_CHOICES = [
+        ('cardiology', 'cardiology'),
+        ('dermatology', 'dermatology'),
+        ('neurology', 'neurology'),
+        ('pediatrics', 'pediatrics'),
+        ('orthopedics', 'orthopedics'),
+        ('gynecology', 'gynecology'),
+        ('general', 'general Physician'),
+        ('ENT Specialist', 'ENT Specialist'),
+    ]
+
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    specialization = models.CharField(max_length=100)
+    specialization = models.CharField(max_length=100, choices=SPECIALIZATION_CHOICES)
     hospital = models.CharField(max_length=100)
     experience = models.PositiveIntegerField()
     profile_picture = models.ImageField(upload_to='doctor_profile_pictures/', blank=True, null=True, default='default.jpg')
 
     def __str__(self):
         return f"{self.user.get_full_name()} - {self.specialization}"
-
 # ─────────────── PATIENT PROFILE ─────────────── #
 class PatientProfile(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)

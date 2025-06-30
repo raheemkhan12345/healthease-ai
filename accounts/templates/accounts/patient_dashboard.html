@@ -12,11 +12,8 @@
                     <h5 class="mb-0">Patient Menu</h5>
                 </div>
                 <div class="list-group list-group-flush">
-                    <a href="{% url 'accounts:patient_dashboard' %}" class="list-group-item list-group-item-action active">Dashboard</a>
-                    <a href="#" class="list-group-item list-group-item-action">My Profile</a>
-                    <a href="#" class="list-group-item list-group-item-action">Appointments</a>
-                    <a href="#" class="list-group-item list-group-item-action">Doctors</a>
-                    <a href="#" class="list-group-item list-group-item-action">Health Records</a>
+                    <!-- <a href="{% url 'accounts:patient_dashboard' %}" class="list-group-item list-group-item-action active">Dashboard</a> -->
+                    <a href="{% url 'accounts:patient_profile' %}" class="list-group-item list-group-item-action">My Profile</a>
                     <a href="{% url 'accounts:user_logout' %}" class="list-group-item list-group-item-action text-danger">Logout</a>
                 </div>
             </div>

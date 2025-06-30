@@ -30,7 +30,9 @@ INSTALLED_APPS = [
     # Local apps
     'accounts.apps.AccountsConfig',
     'appointments.apps.AppointmentsConfig',
-    'chat.apps.ChatConfig',
+    # 'chat.apps.ChatConfig',
+    "widget_tweaks",
+
 ]
 
 MIDDLEWARE = [
@@ -128,3 +130,5 @@ if not DEBUG:
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
     SECURE_HSTS_PRELOAD = True
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+

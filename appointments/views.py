@@ -2,7 +2,8 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from .forms import DoctorSignUpForm, PatientSignUpForm, DoctorLoginForm, PatientLoginForm
-from .models import User, Doctor, Patient, Appointment
+from accounts.models import User, DoctorProfile as Doctor, PatientProfile as Patient
+from .models import Appointment
 from django.shortcuts import render, redirect, get_object_or_404
 from django.db.models import Q
 from django.utils import timezone
@@ -12,6 +13,9 @@ from accounts.models import User, DoctorProfile, PatientProfile
 from .models import Appointment 
 from django.core.paginator import Paginator
 from .zoom import ZoomAPI
+from django.db import transaction
+
+
 
 def home(request):
     return render(request, 'home.html')
@@ -21,7 +25,7 @@ def about(request):
 
 def services(request):
     return render(request, 'services.html')
-
+968
 def contact(request):
     return render(request, 'contact.html')
 
@@ -91,72 +95,195 @@ def user_logout(request):
 # Remove the index view or keep it as a redirect if needed
 
 def home(request):
-    if request.user.is_authenticated:
-        if request.user.is_doctor:
-            return redirect('doctor_dashboard')
-        else:
-            return redirect('patient_dashboard')
-    return render(request, 'auth/landing.html')
+    form = DoctorSearchForm()
+    context = {
+        'form': form,
+        'specializations': DoctorProfile.SPECIALIZATION_CHOICES, 
+    }
+    return render(request, 'home.html', context)
 
 def patient_signup(request):
-    # Your patient registration implementation
-    form = PatientSignUpForm()
     if request.method == 'POST':
         form = PatientSignUpForm(request.POST)
         if form.is_valid():
-            user = form.save()
-            login(request, user)
-            return redirect('patient_dashboard')
-    return render(request, 'registration/patient_signup.html', {'form': form})
+            try:
+                with transaction.atomic():
+                    user = form.save(commit=False)
+                    user.user_type = 'patient'
+                    user.save()
+
+                    PatientProfile.objects.create(
+                        user=user,
+                        date_of_birth=form.cleaned_data.get('date_of_birth')
+                    )
+
+                    login(request, user)
+                    messages.success(request, 'Registration successful!')
+
+                    # Handle redirect with 'next' parameter (for search)
+                    next_url = request.GET.get('next')
+                    if next_url:
+                        return redirect(next_url)
+                    return redirect('home')
+
+            except Exception as e:
+                messages.error(request, f'Error: {str(e)}')
+        else:
+            messages.error(request, 'Please correct the errors below.')
+    else:
+        form = PatientSignUpForm()
+
+    # Ensure this always runs in both POST (invalid) and GET
+    return render(request, 'accounts/patient_signup.html', {'form': form})
   
 # search doctors.
 
 def doctor_search(request):
-    query = request.GET.get('q')
+    form = DoctorSearchForm(request.GET or None)
+    doctors = DoctorProfile.objects.select_related('user').all()
+
     specialization = request.GET.get('specialization')
     location = request.GET.get('location')
-    
-    doctors = DoctorProfile.objects.select_related('user').all()
-    
-    if query:
-        doctors = doctors.filter(
-            Q(user__username__icontains=query) |
-            Q(hospital__icontains=query) |
-            Q(specialization__icontains=query)
-        )
-    
+    query = request.GET.get('query')
+
     if specialization:
         doctors = doctors.filter(specialization=specialization)
-    
     if location:
         doctors = doctors.filter(hospital__icontains=location)
+    if query:
+        doctors = doctors.filter(
+            Q(user__first_name__icontains=query) |
+            Q(user__last_name__icontains=query) |
+            Q(specialization__icontains=query)
+        )
+
+    # 🔒 Check login
+@login_required(login_url='accounts:patient_signup')
+def doctor_search(request):
+    form = DoctorSearchForm(request.GET or None)
+    doctors = DoctorProfile.objects.select_related('user').all()
     
-    # Get all specializations for filter
-    specializations = DoctorProfile.SPECIALIZATION_CHOICES
+    specialization = ''
+    location = ''
+    query = ''
     
+    if form.is_valid():
+        specialization = form.cleaned_data.get('specialization', '')
+        location = form.cleaned_data.get('location', '')
+        query = form.cleaned_data.get('query', '')
+
+        # Save filters and redirect to signup if not authenticated
+        if not request.user.is_authenticated:
+            request.session['search_specialization'] = specialization
+            request.session['search_location'] = location
+            request.session['search_query'] = query
+            return redirect('accounts:patient_signup')
+
+        # Apply filters
+        if specialization:
+            doctors = doctors.filter(specialization=specialization)
+        if location:
+            doctors = doctors.filter(hospital__icontains=location)
+        if query:
+            doctors = doctors.filter(
+                Q(user__first_name__icontains=query) |
+                Q(user__last_name__icontains=query) |
+                Q(specialization__icontains=query)
+            )
+
+    # Sort and paginate
+    doctors = doctors.order_by('-experience')
     paginator = Paginator(doctors, 6)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
-    
-    return render(request, 'appointments/doctor_list.html', {
+
+    context = {
+        'form': form,
         'doctors': page_obj,
-        'specializations': specializations,
+        'specializations': DoctorProfile.SPECIALIZATION_CHOICES,
         'selected_specialization': specialization,
         'selected_location': location,
         'query': query
-    })
+    }
+    return render(request, 'appointments/doctor_list.html', context)
 
+@login_required
 def doctor_detail(request, doctor_id):
     doctor = get_object_or_404(DoctorProfile, id=doctor_id)
-    return render(request, 'appointments/doctor_detail.html', {
-        'doctor': doctor
+    
+    if request.method == 'POST':
+        form = AppointmentForm(request.POST)
+        if form.is_valid():
+            appointment = form.save(commit=False)
+            appointment.patient = request.user.patientprofile
+            appointment.doctor = doctor
+            
+            try:
+                # Create Zoom meeting
+                zoom = ZoomAPI()
+                start_datetime = datetime.combine(appointment.date, appointment.start_time)
+                meeting = zoom.create_meeting(
+                    topic=f"Consultation with Dr. {doctor.user.username}",
+                    start_time=start_datetime
+                )
+                
+                # Update appointment with Zoom details
+                appointment.zoom_meeting_id = meeting.get('id')
+                appointment.zoom_join_url = meeting.get('join_url')
+                appointment.save()
+                
+                messages.success(request, 'Appointment booked successfully!')
+                return redirect('appointment_confirmation', appointment.id)
+                
+            except Exception as e:
+                messages.error(request, f'Error booking appointment: {str(e)}')
+                return redirect('appointments:doctor_detail', doctor_id=doctor.id)
+    else:
+        form = AppointmentForm()
+    
+    context = {
+        'doctor': doctor,
+        'form': form
+    }
+    return render(request, 'appointments/doctor_detail.html', context)
+
+@login_required
+def appointment_confirmation(request, appointment_id):
+    appointment = get_object_or_404(Appointment, id=appointment_id)
+    return render(request, 'appointments/appointment_confirmation.html', {
+        'appointment': appointment
     })
+
+@login_required
+def video_consultation(request, appointment_id):
+    appointment = get_object_or_404(
+        Appointment, 
+        id=appointment_id,
+        patient=request.user.patientprofile
+    )
     
+    if not appointment.zoom_join_url:
+        messages.error(request, "No Zoom meeting link found for this appointment")
+        return redirect('appointment_confirmation', appointment_id=appointment_id)
     
+    # Check if the appointment time is within the next 15 minutes or has started
+    appointment_datetime = datetime.combine(appointment.date, appointment.start_time)
+    now = timezone.now()
     
+    if now < appointment_datetime - timedelta(minutes=15):
+        messages.warning(request, "Your consultation will begin at " + appointment_datetime.strftime("%I:%M %p"))
+        return redirect('appointment_confirmation', appointment_id=appointment_id)
+    
+    return render(request, 'appointments/video_consultation.html', {
+        'appointment': appointment,
+        'now': now,
+        'appointment_datetime': appointment_datetime
+    })
+
+
 @login_required
 def book_appointment(request, doctor_id):
-     if request.method == 'POST':
+    if request.method == 'POST':
         doctor = get_object_or_404(DoctorProfile, id=doctor_id)
         patient = request.user.patientprofile
         
@@ -194,37 +321,4 @@ def book_appointment(request, doctor_id):
             messages.error(request, f'Error booking appointment: {str(e)}')
             return redirect('doctor_detail', doctor_id=doctor.id)
     
-     return redirect('doctor_search')
-
-def appointment_confirmation(request, appointment_id):
-    appointment = get_object_or_404(Appointment, id=appointment_id)
-    return render(request, 'appointments/appointment_confirmation.html', {
-        'appointment': appointment
-    })
-    
-    
-@login_required
-def video_consultation(request, appointment_id):
-    appointment = get_object_or_404(
-        Appointment, 
-        id=appointment_id,
-        patient=request.user.patientprofile
-    )
-    
-    if not appointment.zoom_join_url:
-        messages.error(request, "No Zoom meeting link found for this appointment")
-        return redirect('appointment_confirmation', appointment_id=appointment_id)
-    
-    # Check if the appointment time is within the next 15 minutes or has started
-    appointment_datetime = datetime.combine(appointment.date, appointment.start_time)
-    now = timezone.now()
-    
-    if now < appointment_datetime - timedelta(minutes=15):
-        messages.warning(request, "Your consultation will begin at " + appointment_datetime.strftime("%I:%M %p"))
-        return redirect('appointment_confirmation', appointment_id=appointment_id)
-    
-    return render(request, 'appointments/video_consultation.html', {
-        'appointment': appointment,
-        'now': now,
-        'appointment_datetime': appointment_datetime
-    })
+    return redirect('doctor_search')

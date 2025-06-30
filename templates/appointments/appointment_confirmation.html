@@ -4,42 +4,72 @@
 <div class="container py-5">
     <div class="card">
         <div class="card-header bg-success text-white">
-            <h4 class="mb-0">Appointment Confirmed</h4>
+            <h2 class="mb-0">Appointment Confirmation</h2>
         </div>
         <div class="card-body">
             <div class="alert alert-success">
-                <h5><i class="fas fa-check-circle me-2"></i> Your appointment has been successfully booked!</h5>
+                <h4 class="alert-heading">Your appointment has been booked!</h4>
+                <p>You'll receive a confirmation email with all the details.</p>
             </div>
             
-            <div class="row mb-4">
+            <div class="row">
                 <div class="col-md-6">
-                    <h5>Appointment Details</h5>
-                    <p><strong>Doctor:</strong> Dr. {{ appointment.doctor.user.get_full_name|default:appointment.doctor.user.username }}</p>
-                    <p><strong>Specialization:</strong> {{ appointment.doctor.get_specialization_display }}</p>
-                    <p><strong>Date:</strong> {{ appointment.date|date:"F j, Y" }}</p>
-                    <p><strong>Time:</strong> {{ appointment.start_time|time:"g:i A" }} - {{ appointment.end_time|time:"g:i A" }}</p>
-                    <p><strong>Reason:</strong> {{ appointment.reason }}</p>
+                    <h4>Appointment Details</h4>
+                    <ul class="list-group list-group-flush mb-4">
+                        <li class="list-group-item">
+                            <strong>Doctor:</strong> Dr. {{ appointment.doctor.user.get_full_name }}
+                        </li>
+                        <li class="list-group-item">
+                            <strong>Specialization:</strong> {{ appointment.doctor.specialization }}
+                        </li>
+                        <li class="list-group-item">
+                            <strong>Date:</strong> {{ appointment.date|date:"D, M j, Y" }}
+                        </li>
+                        <li class="list-group-item">
+                            <strong>Time:</strong> {{ appointment.start_time|time:"g:i A" }} - {{ appointment.end_time|time:"g:i A" }}
+                        </li>
+                        <li class="list-group-item">
+                            <strong>Reason:</strong> {{ appointment.reason }}
+                        </li>
+                        <li class="list-group-item">
+                            <strong>Status:</strong> 
+                            <span class="badge bg-{% if appointment.status == 'confirmed' %}success{% else %}warning{% endif %}">
+                                {{ appointment.get_status_display }}
+                            </span>
+                        </li>
+                    </ul>
                 </div>
+                
                 <div class="col-md-6">
+                    <h4>Next Steps</h4>
                     <div class="card">
-                        <div class="card-header bg-primary text-white">
-                            <h5 class="mb-0">Video Consultation</h5>
-                        </div>
                         <div class="card-body">
-                            <p>Your Zoom meeting has been scheduled. Click the button below to join at your appointment time.</p>
-                            <a href="{{ appointment.zoom_join_url }}" class="btn btn-primary w-100" target="_blank">
-                                <i class="fas fa-video me-2"></i> Join Video Consultation
-                            </a>
-                            <p class="mt-2 small text-muted">Meeting ID: {{ appointment.zoom_meeting_id }}</p>
+                            <ul class="list-unstyled">
+                                <li class="mb-3">
+                                    <i class="fas fa-calendar-check text-primary me-2"></i>
+                                    The appointment will be confirmed by the doctor's office
+                                </li>
+                                <li class="mb-3">
+                                    <i class="fas fa-envelope text-primary me-2"></i>
+                                    You'll receive a confirmation email with Zoom link
+                                </li>
+                                <li class="mb-3">
+                                    <i class="fas fa-video text-primary me-2"></i>
+                                    Join the consultation 5 minutes before the scheduled time
+                                </li>
+                            </ul>
+                            
+                            <div class="d-grid gap-2">
+                                <a href="{% url 'appointments:doctor_search' %}" class="btn btn-outline-primary">
+                                    Find Another Doctor
+                                </a>
+                                <a href="{% url 'patient_dashboard' %}" class="btn btn-primary">
+                                    Go to Dashboard
+                                </a>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-            
-            <div class="d-grid gap-2">
-                <a href="{% url 'home' %}" class="btn btn-outline-primary">
-                    <i class="fas fa-home me-2"></i> Return to Home
-                </a>
             </div>
         </div>
     </div>

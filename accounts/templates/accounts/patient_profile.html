@@ -5,71 +5,69 @@
 
 {% block content %}
 <div class="container py-5">
-    <div class="row">
+    <div class="row g-4">
+        <!-- Sidebar -->
         <div class="col-md-3">
-            <div class="card">
-                <div class="card-header bg-success text-white">
-                    <h5 class="mb-0">Patient Menu</h5>
+            <div class="card shadow-sm rounded-3 border-0">
+                <div class="card-header bg-success text-white rounded-top">
+                    <h5 class="mb-0 text-center">Patient Menu</h5>
                 </div>
                 <div class="list-group list-group-flush">
-                    <a href="{% url 'accounts:patient_dashboard' %}" class="list-group-item list-group-item-action">Dashboard</a>
-                    <a href="{% url 'accounts:patient_profile' %}" class="list-group-item list-group-item-action active">Profile</a>
-                    <a href="#" class="list-group-item list-group-item-action">Appointments</a>
-                    <a href="#" class="list-group-item list-group-item-action">Doctors</a>
-                    <a href="{% url 'accounts:logout' %}" class="list-group-item list-group-item-action text-danger">Logout</a>
+                    <a href="{% url 'accounts:patient_profile' %}" class="list-group-item list-group-item-action border-0">
+                        <i class="fas fa-user me-2 text-success"></i> My Profile
+                    </a>
+                    <a href="{% url 'accounts:user_logout' %}" class="list-group-item list-group-item-action border-0 text-danger">
+                        <i class="fas fa-sign-out-alt me-2"></i> Logout
+                    </a>
                 </div>
             </div>
         </div>
+
+        <!-- Profile Section -->
         <div class="col-md-9">
-            <div class="card">
-                <div class="card-header bg-success text-white">
+            <div class="card shadow-sm rounded-3 border-0">
+                <div class="card-header bg-success text-white rounded-top d-flex justify-content-between align-items-center">
                     <h4 class="mb-0">Patient Profile</h4>
                 </div>
                 <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-4 text-center">
-                            <img src="{% static 'images/patient-avatar.png' %}" class="img-fluid rounded-circle mb-3" width="150" alt="Patient Avatar">
-                            <h4>{{ patient.username }}</h4>
-                        </div>
-                        <div class="col-md-8">
-                            <div class="table-responsive">
-                                <table class="table table-bordered">
-                                    <tbody>
-                                        <tr>
-                                            <th>Username</th>
-                                            <td>{{ patient.username }}</td>
-                                        </tr>
-                                        <tr>
-                                            <th>Email</th>
-                                            <td>{{ patient.email }}</td>
-                                        </tr>
-                                        <tr>
-                                            <th>Date of Birth</th>
-                                            <td>{{ profile.date_of_birth }}</td>
-                                        </tr>
-                                        <tr>
-                                            <th>Blood Group</th>
-                                            <td>{{ profile.blood_group }}</td>
-                                        </tr>
-                                        <tr>
-                                            <th>Allergies</th>
-                                            <td>{{ profile.allergies|default:"None" }}</td>
-                                        </tr>
-                                        <tr>
-                                            <th>Medical History</th>
-                                            <td>{{ profile.medical_history|default:"None" }}</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                            <div class="text-end mt-3">
-                                <a href="#" class="btn btn-success">Edit Profile</a>
-                            </div>
-                        </div>
+
+                    <!-- Profile Details Table -->
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-striped mb-0">
+                            <tbody>
+                                <tr>
+                                    <th>Username</th>
+                                    <td>{{ patient.username }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Email</th>
+                                    <td>{{ patient.email }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Date of Birth</th>
+                                    <td>{{ profile.date_of_birth }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Edit Button -->
+                    <div class="text-end mt-4">
+                        <a href="#" class="btn btn-outline-success">
+                            <i class="fas fa-edit me-2"></i> Edit Profile
+                        </a>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<style>
+    /* Prevent card movement on click */
+    .list-group-item:active {
+        background-color: #f8f9fa !important;
+        transform: none !important;
+    }
+</style>
 {% endblock %}
