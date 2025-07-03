@@ -10,7 +10,7 @@ urlpatterns = [
     path('', appointment_views.home, name='home'),  # ✅ Make sure this line exists
     path('accounts/', include('accounts.urls', namespace='accounts')),
     path('appointments/', include('appointments.urls', namespace='appointments')),
-    # path('chat/', include('chat.urls', namespace='chat')),
+    
 ]
 
 # Media config

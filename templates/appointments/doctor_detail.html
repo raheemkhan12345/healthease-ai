@@ -1,4 +1,6 @@
 {% extends 'base.html' %}
+{% load widget_tweaks %}
+
 {% block content %}
 
 <div class="container py-5">
@@ -27,74 +29,98 @@
         <!-- Tabs Section -->
         <div class="col-md-8">
             <div class="card border-0 shadow rounded-4">
-              <div class="card-header bg-white border-bottom pb-0 rounded-top-4 shadow-sm" 
-     style="background: linear-gradient(90deg, #10df8c, #dbeafe);">
-    <ul class="nav nav-tabs card-header-tabs justify-content-start" id="doctorTab" role="tablist">
+<div class="card-header rounded-top-4 shadow-sm px-0 border-0">
+    <ul class="nav nav-tabs nav-justified card-header-tabs" id="doctorTab" role="tablist">
         <li class="nav-item" role="presentation">
-            <button class="nav-link active text-success fw-semibold border-0 border-bottom border-success border-3"
-                id="about-tab" data-bs-toggle="tab" data-bs-target="#about"
-                type="button" role="tab" aria-controls="about" aria-selected="true">
-                <i class="fas fa-info-circle me-1"></i> About
+            <button class="nav-link active tab-btn-custom"
+                    id="about-tab" data-bs-toggle="tab" data-bs-target="#about"
+                    type="button" role="tab" aria-controls="about" aria-selected="true">
+                <i class="fas fa-user-md me-1"></i> About
             </button>
         </li>
         <li class="nav-item" role="presentation">
-            <button class="nav-link text-success fw-semibold border-0 border-bottom"
-                id="book-tab" data-bs-toggle="tab" data-bs-target="#book"
-                type="button" role="tab" aria-controls="book" aria-selected="false">
+            <button class="nav-link tab-btn-custom"
+                    id="book-tab" data-bs-toggle="tab" data-bs-target="#book"
+                    type="button" role="tab" aria-controls="book" aria-selected="false">
                 <i class="fas fa-calendar-check me-1"></i> Book Appointment
             </button>
         </li>
     </ul>
 </div>
 
+
                 <div class="card-body tab-content p-4" id="doctorTabContent">
                     <!-- About Tab -->
                     <div class="tab-pane fade show active" id="about" role="tabpanel" aria-labelledby="about-tab">
-                        <h4 class="mb-3 text-success">About Dr. {{ doctor.user.username }}</h4>
-                        <div class="text-muted fs-6">
-                           {% if doctor.specialization == "cardiology" %}
-    <p>Dr. {{ doctor.user.username }} is an experienced cardiologist with {{ doctor.experience }} years of experience in diagnosing and treating a wide range of heart conditions. Specializing in hypertension, heart failure, and coronary artery disease, Dr. {{ doctor.user.username }} is committed to improving cardiovascular health through advanced treatments and preventive care strategies. Patients appreciate their calm approach, clear communication, and dedication to long-term heart wellness.</p>
+    <h3 class="mb-3 text-success"><b>Doctor Information</b></h3>
+    <table class="table table-borderless fs-6">
+        <tbody>
+            <tr>
+                <th scope="row" class="text-muted">Name</th>
+                <td>Dr. {{ doctor.user.username }}</td>
+            </tr>
+            <tr>
+                <th scope="row" class="text-muted">Specialization</th>
+                <td>{{ doctor.specialization }}</td>
+            </tr>
+            <tr>
+                <th scope="row" class="text-muted">Experience</th>
+                <td>{{ doctor.experience }} years</td>
+            </tr>
+            <tr>
+                <th scope="row" class="text-muted">Hospital</th>
+                <td>{{ doctor.hospital }}</td>
+            </tr>
+            <tr>
+                <th scope="row" class="text-muted">Qualification</th>
+                <td>{{ doctor.qualification|default:"MBBS, FCPS" }}</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
 
-{% elif doctor.specialization == "dermatology" %}
-    <p>Dr. {{ doctor.user.username }} is a skilled dermatologist with {{ doctor.experience }} years of expertise in skin care. They specialize in treating acne, eczema, psoriasis, fungal infections, and performing cosmetic procedures like chemical peels and laser therapy. Dr. {{ doctor.user.username }} believes in a holistic approach to skin health, offering personalized treatment plans tailored to each patient's unique needs.</p>
-
-{% elif doctor.specialization == "neurology" %}
-    <p>Dr. {{ doctor.user.username }} is a respected neurologist with {{ doctor.experience }} years of experience managing complex brain, spine, and nerve conditions. From migraines and epilepsy to Parkinson’s and stroke rehabilitation, Dr. {{ doctor.user.username }} combines diagnostic precision with compassionate care to ensure better neurological outcomes for patients of all ages.</p>
-
-{% elif doctor.specialization == "pediatrics" %}
-    <p>Dr. {{ doctor.user.username }} is a compassionate pediatrician with {{ doctor.experience }} years of dedicated service in child healthcare. Specializing in childhood development, immunizations, nutrition, and common illnesses, Dr. {{ doctor.user.username }} works closely with parents to ensure every child thrives physically, mentally, and emotionally in every stage of growth.</p>
-
-{% elif doctor.specialization == "orthopedics" %}
-    <p>Dr. {{ doctor.user.username }} is a trusted orthopedic surgeon with {{ doctor.experience }} years of experience treating bone, joint, and muscular issues. Their areas of expertise include sports injuries, arthritis, joint replacements, and spinal disorders. Dr. {{ doctor.user.username }} uses both surgical and non-surgical techniques to restore mobility and reduce pain.</p>
-
-{% elif doctor.specialization == "gynecology" %}
-    <p>Dr. {{ doctor.user.username }} is a dedicated gynecologist with {{ doctor.experience }} years of experience in women’s health. From prenatal care and fertility counseling to menstrual disorders and menopause support, Dr. {{ doctor.user.username }} provides a safe, respectful, and confidential environment for women at every stage of life.</p>
-
-{% elif doctor.specialization == "general" %}
-    <p>Dr. {{ doctor.user.username }} is a highly experienced general physician with {{ doctor.experience }} years of practice in diagnosing and managing a wide range of common medical conditions. Whether it’s routine checkups, chronic disease management, or urgent care, Dr. {{ doctor.user.username }} is known for a patient-first approach, clear communication, and effective treatment plans.</p>
-
-{% elif doctor.specialization == "ENT Specialist" %}
-    <p>Dr. {{ doctor.user.username }} is an ENT (Ear, Nose, and Throat) specialist with {{ doctor.experience }} years of clinical experience. They treat conditions like sinusitis, hearing loss, tonsillitis, vertigo, and voice disorders. Using advanced diagnostic tools and surgical techniques, Dr. {{ doctor.user.username }} is committed to improving patients’ comfort and quality of life through targeted ENT care.</p>
-
-{% else %}
-    <p>No bio available (specialization not matched).</p>
-{% endif %}
-                        </div>
-                    </div>
 
                     <!-- Book Appointment Tab -->
                     <div class="tab-pane fade" id="book" role="tabpanel" aria-labelledby="book-tab">
-                        <h4 class="mb-3 text-primary">Book an Appointment</h4>
-                        <form method="post">
-                            {% csrf_token %}
-                            <div class="mb-3">
-                                {{ form.as_p }}
-                            </div>
-                            <button type="submit" class="btn btn-outline-success px-4">
-                                <i class="fas fa-calendar-check me-1"></i> Request Appointment
-                            </button>
-                        </form>
-                    </div>
+    <div class="p-4 rounded-4 shadow-sm bg-white">
+        <h4 class="mb-4 text-success fw-bold"><i class="fas fa-calendar-check me-2"></i>Book an Appointment</h4>
+        <form method="post" class="row g-3">
+            {% csrf_token %}
+
+            <!-- Date Field -->
+            <div class="col-md-6">
+                <label for="id_date" class="form-label fw-semibold">Select Date</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-light"><i class="fas fa-calendar-alt text-success"></i></span>
+                    {{ form.date|add_class:"form-control rounded-end shadow-sm" }}
+                </div>
+            </div>
+
+            <!-- Time Field -->
+            <div class="col-md-6">
+                <label for="id_time" class="form-label fw-semibold">Select Time</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-light"><i class="fas fa-clock text-success"></i></span>
+                    {{ form.start_time|add_class:"form-control rounded-end shadow-sm" }}
+                </div>
+            </div>
+
+            <!-- Reason Field -->
+            <div class="col-12">
+                <label for="id_reason" class="form-label fw-semibold">Reason for Appointment</label>
+                {{ form.reason|add_class:"form-control shadow-sm rounded-3" }}
+            </div>
+
+            <!-- Submit Button -->
+            <div class="col-12 text-end">
+                <button type="submit" class="btn btn-success btn-lg px-5 rounded-pill">
+                    <i class="fas fa-paper-plane me-2"></i>Request Appointment
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
                 </div>
             </div>
         </div>
@@ -102,3 +128,43 @@
 </div>
 
 {% endblock %}
+<style>
+.nav-tabs .nav-link {
+    border: none !important;
+}
+
+/* Common tab style */
+.tab-btn-custom {
+    font-weight: 600;
+    color: #ffffff;
+    padding: 0.6rem 1.5rem;
+    border-radius: 0.75rem 0.75rem 0 0;
+    background-color: transparent;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Hover style */
+.tab-btn-custom:hover {
+    background-color: rgba(255, 255, 255, 0.15);
+    color: #fff;
+}
+
+/* Active tab style */
+.tab-btn-custom.active {
+    background-color: #0588c4 !important;
+    color: #fff !important;
+    box-shadow: inset 0 -4px 10px rgba(0, 0, 0, 0.15);
+    border-bottom: none;
+}
+
+/* Focus style for accessibility */
+.tab-btn-custom:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.3);
+}
+
+.card-header-tabs .nav-link.active {
+    background-color: #5b8dc4;
+    
+}
+</style>

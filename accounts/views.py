@@ -6,6 +6,9 @@ from django.db.models import Q
 from django.db import transaction
 from .forms import DoctorSignUpForm, PatientSignUpForm, DoctorLoginForm, PatientLoginForm
 from .models import DoctorProfile, PatientProfile, User
+from appointments.models import Appointment
+from notifications.models import Notification
+from appointments.models import Appointment
 
 # ─────────────── Signup Views ─────────────── #
 def doctor_signup(request):
@@ -124,16 +127,25 @@ def user_logout(request):
 
 # ─────────────── Dashboards ─────────────── #
 @login_required
+@login_required
 def doctor_dashboard(request):
     if request.user.user_type != 'doctor':
         messages.error(request, 'You are not authorized to view this page.')
         return redirect('home')
 
     profile, _ = DoctorProfile.objects.get_or_create(user=request.user)
+
+    appointments = Appointment.objects.filter(doctor=profile).order_by('-date', '-start_time')
+    patient_count = appointments.values('patient').distinct().count()
+
+    notifications = Notification.objects.filter(user=request.user, is_read=False).order_by('-created_at')
+
     context = {
         'doctor': request.user,
         'profile': profile,
-        'appointments': []  # Replace with actual query later
+        'appointments': appointments,
+        'notifications': notifications,
+        'patient_count': patient_count
     }
     return render(request, 'accounts/doctor_dashboard.html', context)
 

@@ -30,6 +30,7 @@ urlpatterns = [
     path('doctors/<int:doctor_id>/book/', views.book_appointment, name='book_appointment'),
     path('appointments/<int:appointment_id>/confirm/', views.appointment_confirmation, name='appointment_confirmation'),
     path('appointments/<int:appointment_id>/video/', views.video_consultation, name='video_consultation'),
+    path('confirmation/<int:appointment_id>/', views.appointment_confirmation, name='appointment_confirmation'),
     
 ]
 if settings.DEBUG:

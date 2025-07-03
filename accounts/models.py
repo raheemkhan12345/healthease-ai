@@ -30,6 +30,7 @@ class DoctorProfile(models.Model):
     hospital = models.CharField(max_length=100)
     experience = models.PositiveIntegerField()
     profile_picture = models.ImageField(upload_to='doctor_profile_pictures/', blank=True, null=True, default='default.jpg')
+    meeting_link = models.URLField(blank=True, null=True)
 
     def __str__(self):
         return f"{self.user.get_full_name()} - {self.specialization}"

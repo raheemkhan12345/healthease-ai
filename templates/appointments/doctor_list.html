@@ -9,24 +9,24 @@
                 <div class="card-body p-4">
                     <h4 class="mb-4 text-center fw-bold text-primary">Find the Best Doctors</h4>
                     <form method="get" class="row g-3">
-    <div class="col-md-4">
-        <label for="specialization" class="form-label fw-semibold">Specialization</label>
-        {% render_field form.specialization class="form-select form-control shadow-sm rounded-3 py-2" %}
-    </div>
-    <div class="col-md-4">
-        <label for="location" class="form-label fw-semibold">Location</label>
-        {% render_field form.location class="form-select form-control shadow-sm rounded-3 py-2" %}
-    </div>
-    <div class="col-md-4">
-        <label for="query" class="form-label fw-semibold">Search</label>
-        {% render_field form.query class="form-control shadow-sm rounded-3 py-2" %}
-    </div>
-    <div class="col-12 text-end">
-        <button type="submit" class="btn btn-success px-4 mt-2">
-            <i class="fas fa-search me-1"></i> Search Doctors
-        </button>
-    </div>
-</form>
+                        <div class="col-md-4">
+                            <label for="specialization" class="form-label fw-semibold">Specialization</label>
+                            {% render_field form.specialization class="form-select form-control shadow-sm rounded-3 py-2" %}
+                        </div>
+                        <div class="col-md-4">
+                            <label for="location" class="form-label fw-semibold">Location</label>
+                            {% render_field form.location class="form-select form-control shadow-sm rounded-3 py-2" %}
+                        </div>
+                        <div class="col-md-4">
+                            <label for="query" class="form-label fw-semibold">Search</label>
+                            {% render_field form.query class="form-control shadow-sm rounded-3 py-2" %}
+                        </div>
+                        <div class="col-12 text-end">
+                            <button type="submit" class="btn btn-success px-4 mt-2">
+                                <i class="fas fa-search me-1"></i> Search Doctors
+                            </button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
@@ -36,37 +36,28 @@
     <div class="row">
         {% if doctors %}
             {% for doctor in doctors %}
-            <div class="col-md-6 col-lg-4 mb-4">
-                <div class="card border-0 shadow-lg rounded-4 h-100 doctor-card-hover">
-                    <div class="card-body p-4">
-                        <div class="d-flex align-items-center mb-3">
-                            <img src="{{ doctor.profile_picture.url|default:'/static/images/default-doctor.jpg' }}"
-                                 class="rounded-circle border border-2 border-success me-3"
-                                 width="70" height="70"
-                                 alt="{{ doctor.user.username }}">
+            <div class="col-12 mb-4">
+                <div class="card border-0 shadow rounded-4">
+                    <div class="card-body p-4 d-md-flex justify-content-between align-items-center">
+                        <div class="d-flex align-items-start">
+                            <img src="{{ doctor.profile_picture.url|default:'/static/images/default-doctor.jpg' }}" class="rounded-circle me-4" width="90" height="90" alt="{{ doctor.user.username }}">
                             <div>
-                                <h5 class="fw-semibold mb-1 text-dark">Dr. {{ doctor.user.username }}</h5>
-                                <p class="text-muted small mb-0">{{ doctor.specialization }}</p>
-                                <p class="text-muted small mb-0">{{ doctor.hospital }}</p>
-                                <div class="rating mt-1">
-                                    {% for i in "12345" %}
-                                        {% if forloop.counter <= doctor.rating %}
-                                            <i class="fas fa-star text-warning small"></i>
-                                        {% else %}
-                                            <i class="far fa-star text-warning small"></i>
-                                        {% endif %}
-                                    {% endfor %}
-                                </div>
+                                <h5 class="fw-bold mb-1">Dr. {{ doctor.user.username }}
+                                </h5>
+                                <p class="mb-1 text-muted">{{ doctor.specialization }}, {{ doctor.hospital }}</p>
+                                <p class="mb-0 text-muted small">
+                                    <strong>{{ doctor.experience }} Years</strong> &nbsp;&nbsp;
+                                </p>
                             </div>
                         </div>
-                        <p class="text-muted small">{{ doctor.bio|truncatewords:20 }}</p>
-                        <div class="d-flex justify-content-between align-items-center mt-3">
-                            <span class="badge bg-success rounded-pill px-3 py-2">Rs. {{ doctor.consultation_fee }}</span>
-                            <a href="{% url 'appointments:doctor_detail' doctor.id %}" class="btn btn-sm btn-outline-primary rounded-pill">
-                                View Profile
+                        <div class="text-center mt-3 mt-md-0">
+                            <a href="#" class="btn btn-outline-primary w-100 mb-2">
+                                <i class="fas fa-video"></i> Video Consultation
+                            </a>
+                            <a href="{% url 'appointments:doctor_detail' doctor.id %}" class="btn btn-warning text-white w-100">
+                                Book Appointment
                             </a>
                         </div>
-                        <div class="text-muted small mt-2">{{ doctor.experience }} years experience</div>
                     </div>
                 </div>
             </div>
@@ -89,13 +80,13 @@
                 <a class="page-link" href="?page={{ doctors.previous_page_number }}{% if selected_specialization %}&specialization={{ selected_specialization }}{% endif %}{% if selected_location %}&location={{ selected_location }}{% endif %}{% if query %}&query={{ query }}{% endif %}">Previous</a>
             </li>
             {% endif %}
-            
+
             {% for i in doctors.paginator.page_range %}
             <li class="page-item {% if doctors.number == i %}active{% endif %}">
                 <a class="page-link" href="?page={{ i }}{% if selected_specialization %}&specialization={{ selected_specialization }}{% endif %}{% if selected_location %}&location={{ selected_location }}{% endif %}{% if query %}&query={{ query }}{% endif %}">{{ i }}</a>
             </li>
             {% endfor %}
-            
+
             {% if doctors.has_next %}
             <li class="page-item">
                 <a class="page-link" href="?page={{ doctors.next_page_number }}{% if selected_specialization %}&specialization={{ selected_specialization }}{% endif %}{% if selected_location %}&location={{ selected_location }}{% endif %}{% if query %}&query={{ query }}{% endif %}">Next</a>
@@ -105,7 +96,6 @@
     </nav>
     {% endif %}
 </div>
-
 {% endblock %}
 
 {% block extra_css %}

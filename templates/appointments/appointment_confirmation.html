@@ -9,7 +9,7 @@
         <div class="card-body">
             <div class="alert alert-success">
                 <h4 class="alert-heading">Your appointment has been booked!</h4>
-                <p>You'll receive a confirmation email with all the details.</p>
+                <!-- <p>You'll receive a confirmation email with all the details.</p> -->
             </div>
             
             <div class="row">
@@ -17,7 +17,7 @@
                     <h4>Appointment Details</h4>
                     <ul class="list-group list-group-flush mb-4">
                         <li class="list-group-item">
-                            <strong>Doctor:</strong> Dr. {{ appointment.doctor.user.get_full_name }}
+                            <strong>Doctor:</strong> Dr. {{ appointment.doctor.user.username }}
                         </li>
                         <li class="list-group-item">
                             <strong>Specialization:</strong> {{ appointment.doctor.specialization }}
@@ -63,9 +63,9 @@
                                 <a href="{% url 'appointments:doctor_search' %}" class="btn btn-outline-primary">
                                     Find Another Doctor
                                 </a>
-                                <a href="{% url 'patient_dashboard' %}" class="btn btn-primary">
+                                <!-- <a href="{% url 'accounts:patient_dashboard' %}" class="btn btn-primary">
                                     Go to Dashboard
-                                </a>
+                                </a> -->
                             </div>
                         </div>
                     </div>

@@ -14,6 +14,8 @@ from .models import Appointment
 from django.core.paginator import Paginator
 from .zoom import ZoomAPI
 from django.db import transaction
+from .models import Appointment, Notification 
+from django.core.exceptions import ObjectDoesNotExist
 
 
 
@@ -207,45 +209,33 @@ def doctor_search(request):
     }
     return render(request, 'appointments/doctor_list.html', context)
 
+
 @login_required
 def doctor_detail(request, doctor_id):
     doctor = get_object_or_404(DoctorProfile, id=doctor_id)
-    
+
     if request.method == 'POST':
         form = AppointmentForm(request.POST)
         if form.is_valid():
-            appointment = form.save(commit=False)
-            appointment.patient = request.user.patientprofile
-            appointment.doctor = doctor
-            
             try:
-                # Create Zoom meeting
-                zoom = ZoomAPI()
-                start_datetime = datetime.combine(appointment.date, appointment.start_time)
-                meeting = zoom.create_meeting(
-                    topic=f"Consultation with Dr. {doctor.user.username}",
-                    start_time=start_datetime
-                )
-                
-                # Update appointment with Zoom details
-                appointment.zoom_meeting_id = meeting.get('id')
-                appointment.zoom_join_url = meeting.get('join_url')
-                appointment.save()
-                
-                messages.success(request, 'Appointment booked successfully!')
-                return redirect('appointment_confirmation', appointment.id)
-                
-            except Exception as e:
-                messages.error(request, f'Error booking appointment: {str(e)}')
+                patient = request.user.patientprofile
+            except ObjectDoesNotExist:
+                messages.error(request, "Only patients can book appointments.")
                 return redirect('appointments:doctor_detail', doctor_id=doctor.id)
+
+            appointment = form.save(commit=False)
+            appointment.patient = patient
+            appointment.doctor = doctor
+
+            # ✅ REMOVE Zoom code
+            appointment.save()
+            print("✅ Form submitted")
+            messages.success(request, 'Appointment booked successfully!')
+            return redirect('appointments:appointment_confirmation', appointment.id)
     else:
         form = AppointmentForm()
-    
-    context = {
-        'doctor': doctor,
-        'form': form
-    }
-    return render(request, 'appointments/doctor_detail.html', context)
+
+    return render(request, 'appointments/doctor_detail.html', {'doctor': doctor, 'form': form})
 
 @login_required
 def appointment_confirmation(request, appointment_id):
@@ -292,7 +282,6 @@ def book_appointment(request, doctor_id):
         reason = request.POST.get('reason')
         
         try:
-            # Create appointment
             appointment = Appointment.objects.create(
                 patient=patient,
                 doctor=doctor,
@@ -300,25 +289,72 @@ def book_appointment(request, doctor_id):
                 start_time=time_str,
                 reason=reason
             )
-            
+
             # Create Zoom meeting
-            zoom = ZoomAPI()
-            start_datetime = datetime.strptime(f"{date} {time_str}", "%Y-%m-%d %H:%M")
-            meeting = zoom.create_meeting(
-                topic=f"Consultation with Dr. {doctor.user.username}",
-                start_time=start_datetime
-            )
+            # zoom = ZoomAPI()
+            # start_datetime = datetime.strptime(f"{date} {time_str}", "%Y-%m-%d %H:%M")
+            # meeting = zoom.create_meeting(
+            #     topic=f"Consultation with Dr. {doctor.user.username}",
+            #     start_time=start_datetime
+            # )
+
+            # appointment.zoom_meeting_id = meeting.get('id')
+            # appointment.zoom_join_url = meeting.get('join_url')
+            # appointment.save()
             
-            # Update appointment with Zoom details
-            appointment.zoom_meeting_id = meeting.get('id')
-            appointment.zoom_join_url = meeting.get('join_url')
+            # Skip Zoom integration for now
+            appointment.zoom_meeting_id = None
+            appointment.zoom_join_url = None
             appointment.save()
-            
+
+            # Create notifications
+            Notification.objects.create(
+                recipient=doctor.user,
+                message=f"New appointment booked by {patient.user.username()} for {date} at {time_str}."
+            )
+            Notification.objects.create(
+                recipient=patient.user,
+                message=f"Your appointment with Dr. {doctor.user.username()} is booked for {date} at {time_str}."
+            )
+
             messages.success(request, 'Your appointment has been booked successfully!')
             return redirect('appointment_confirmation', appointment.id)
-            
+
         except Exception as e:
             messages.error(request, f'Error booking appointment: {str(e)}')
             return redirect('doctor_detail', doctor_id=doctor.id)
-    
+
     return redirect('doctor_search')
+
+def home(request):
+    SPECIALIZATION_CHOICES = [
+        ('cardiology', 'cardiology'),
+        ('dermatology', 'dermatology'),
+        ('neurology', 'neurology'),
+        ('pediatrics', 'pediatrics'),
+        ('orthopedics', 'orthopedics'),
+        ('gynecology', 'gynecology'),
+        ('general', 'general Physician'),
+        ('ENT Specialist', 'ENT Specialist'),
+    ]
+
+    SPECIALIZATION_ICONS = {
+        'cardiology': 'fa-heart-pulse',
+        'dermatology': 'fa-syringe',
+        'neurology': 'fa-brain',
+        'pediatrics': 'fa-baby',
+        'orthopedics': 'fa-bone',
+        'gynecology': 'fa-venus',
+        'general': 'fa-user-doctor',
+        'ENT Specialist': 'fa-ear-listen',
+    }
+
+    specializations_with_icons = []
+    for value, label in SPECIALIZATION_CHOICES:
+        icon = SPECIALIZATION_ICONS.get(value, 'fa-user-md')
+        specializations_with_icons.append((value, label, icon))
+
+    return render(request, 'home.html', {
+        'specializations': SPECIALIZATION_CHOICES,                # for dropdown (2 values)
+        'specializations_with_icons': specializations_with_icons  # for cards (3 values)
+    })

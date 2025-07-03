@@ -32,7 +32,8 @@ INSTALLED_APPS = [
     'appointments.apps.AppointmentsConfig',
     # 'chat.apps.ChatConfig',
     "widget_tweaks",
-
+    'notifications',
+  
 ]
 
 MIDDLEWARE = [
