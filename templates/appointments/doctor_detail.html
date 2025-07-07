@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load static %}
 {% load widget_tweaks %}
 
 {% block content %}
@@ -12,7 +13,7 @@
                     <img src="{{ doctor.profile_picture.url|default:'/static/images/default-doctor.jpg' }}" 
                          class="rounded-circle border border-3 border-success mb-3" width="150" height="150" 
                          alt="{{ doctor.user.get_full_name }}">
-                         
+
                     <h3 class="fw-bold text-dark">Dr. {{ doctor.user.username }}</h3>
                     <h5 class="text-muted mb-3">{{ doctor.specialization }}</h5>
 
@@ -29,97 +30,88 @@
         <!-- Tabs Section -->
         <div class="col-md-8">
             <div class="card border-0 shadow rounded-4">
-<div class="card-header rounded-top-4 shadow-sm px-0 border-0">
-    <ul class="nav nav-tabs nav-justified card-header-tabs" id="doctorTab" role="tablist">
-        <li class="nav-item" role="presentation">
-            <button class="nav-link active tab-btn-custom"
-                    id="about-tab" data-bs-toggle="tab" data-bs-target="#about"
-                    type="button" role="tab" aria-controls="about" aria-selected="true">
-                <i class="fas fa-user-md me-1"></i> About
-            </button>
-        </li>
-        <li class="nav-item" role="presentation">
-            <button class="nav-link tab-btn-custom"
-                    id="book-tab" data-bs-toggle="tab" data-bs-target="#book"
-                    type="button" role="tab" aria-controls="book" aria-selected="false">
-                <i class="fas fa-calendar-check me-1"></i> Book Appointment
-            </button>
-        </li>
-    </ul>
-</div>
-
+                <div class="card-header border-0 rounded-top-4 px-3 py-2 shadow-sm" style="background-color: #5dbccd;">
+                    <ul class="nav nav-pills nav-justified" id="doctorTab" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link fw-semibold text-dark bg-gray shadow-lg rounded-pill mx-1 px-4 py-2 {% if not form.errors %}active{% endif %}"
+                                    id="about-tab" data-bs-toggle="pill" data-bs-target="#about"
+                                    type="button" role="tab" aria-controls="about" aria-selected="{% if not form.errors %}true{% else %}false{% endif %}">
+                                <i class="fas fa-user-md me-2"></i> About
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link fw-semibold text-dark bg-gray shadow-lg rounded-pill mx-1 px-4 py-2 {% if form.errors %}active{% endif %}"
+                                    id="book-tab" data-bs-toggle="pill" data-bs-target="#book"
+                                    type="button" role="tab" aria-controls="book" aria-selected="{% if form.errors %}true{% else %}false{% endif %}">
+                                <i class="fas fa-calendar-check me-2"></i> Book Appointment
+                            </button>
+                        </li>
+                    </ul>
+                </div>
 
                 <div class="card-body tab-content p-4" id="doctorTabContent">
                     <!-- About Tab -->
-                    <div class="tab-pane fade show active" id="about" role="tabpanel" aria-labelledby="about-tab">
-    <h3 class="mb-3 text-success"><b>Doctor Information</b></h3>
-    <table class="table table-borderless fs-6">
-        <tbody>
-            <tr>
-                <th scope="row" class="text-muted">Name</th>
-                <td>Dr. {{ doctor.user.username }}</td>
-            </tr>
-            <tr>
-                <th scope="row" class="text-muted">Specialization</th>
-                <td>{{ doctor.specialization }}</td>
-            </tr>
-            <tr>
-                <th scope="row" class="text-muted">Experience</th>
-                <td>{{ doctor.experience }} years</td>
-            </tr>
-            <tr>
-                <th scope="row" class="text-muted">Hospital</th>
-                <td>{{ doctor.hospital }}</td>
-            </tr>
-            <tr>
-                <th scope="row" class="text-muted">Qualification</th>
-                <td>{{ doctor.qualification|default:"MBBS, FCPS" }}</td>
-            </tr>
-        </tbody>
-    </table>
-</div>
-
+                    <div class="tab-pane fade {% if not form.errors %}show active{% endif %}" id="about" role="tabpanel" aria-labelledby="about-tab">
+                        <h3 class="mb-3 text-success"><b>Doctor Information</b></h3>
+                        <table class="table table-borderless fs-6">
+                            <tbody>
+                                <tr><th class="text-muted">Name</th><td>Dr. {{ doctor.user.username }}</td></tr>
+                                <tr><th class="text-muted">Specialization</th><td>{{ doctor.specialization }}</td></tr>
+                                <tr><th class="text-muted">Experience</th><td>{{ doctor.experience }} years</td></tr>
+                                <tr><th class="text-muted">Hospital</th><td>{{ doctor.hospital }}</td></tr>
+                                <tr><th class="text-muted">Qualification</th><td>{{ doctor.qualification|default:"MBBS, FCPS" }}</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
 
                     <!-- Book Appointment Tab -->
-                    <div class="tab-pane fade" id="book" role="tabpanel" aria-labelledby="book-tab">
-    <div class="p-4 rounded-4 shadow-sm bg-white">
-        <h4 class="mb-4 text-success fw-bold"><i class="fas fa-calendar-check me-2"></i>Book an Appointment</h4>
-        <form method="post" class="row g-3">
-            {% csrf_token %}
+                    <div class="tab-pane fade {% if form.errors %}show active{% endif %}" id="book" role="tabpanel" aria-labelledby="book-tab">
+                        <h5 class="text-success mb-3">Book an Appointment</h5>
 
-            <!-- Date Field -->
-            <div class="col-md-6">
-                <label for="id_date" class="form-label fw-semibold">Select Date</label>
-                <div class="input-group">
-                    <span class="input-group-text bg-light"><i class="fas fa-calendar-alt text-success"></i></span>
-                    {{ form.date|add_class:"form-control rounded-end shadow-sm" }}
-                </div>
-            </div>
+                        {% if form.errors %}
+                        <div class="alert alert-danger">
+                            <ul class="mb-0">
+                                {% for field in form %}
+                                    {% for error in field.errors %}
+                                        <li><strong>{{ field.label }}:</strong> {{ error }}</li>
+                                    {% endfor %}
+                                {% endfor %}
+                                {% for error in form.non_field_errors %}
+                                    <li>{{ error }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        {% endif %}
 
-            <!-- Time Field -->
-            <div class="col-md-6">
-                <label for="id_time" class="form-label fw-semibold">Select Time</label>
-                <div class="input-group">
-                    <span class="input-group-text bg-light"><i class="fas fa-clock text-success"></i></span>
-                    {{ form.start_time|add_class:"form-control rounded-end shadow-sm" }}
-                </div>
-            </div>
+                        <form method="post" class="row g-3">
+                            {% csrf_token %}
 
-            <!-- Reason Field -->
-            <div class="col-12">
-                <label for="id_reason" class="form-label fw-semibold">Reason for Appointment</label>
-                {{ form.reason|add_class:"form-control shadow-sm rounded-3" }}
-            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Appointment Date</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-calendar"></i></span>
+                                    {{ form.date|add_class:"form-control" }}
+                                </div>
+                            </div>
 
-            <!-- Submit Button -->
-            <div class="col-12 text-end">
-                <button type="submit" class="btn btn-success btn-lg px-5 rounded-pill">
-                    <i class="fas fa-paper-plane me-2"></i>Request Appointment
-                </button>
-            </div>
-        </form>
-    </div>
-</div>
+                            <div class="col-md-6">
+                                <label class="form-label">Preferred Time</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-clock"></i></span>
+                                    {{ form.start_time|add_class:"form-control" }}
+                                </div>
+                            </div>
+
+                            <div class="col-12">
+                                <label class="form-label">Reason (optional)</label>
+                                {{ form.reason|add_class:"form-control" }}
+                            </div>
+
+                            <div class="col-12">
+                                <button type="submit" class="btn btn-success w-100">Submit Request</button>
+                            </div>
+                        </form>
+                    </div>
 
                 </div>
             </div>
@@ -127,44 +119,17 @@
     </div>
 </div>
 
-{% endblock %}
 <style>
-.nav-tabs .nav-link {
-    border: none !important;
+.nav-pills .nav-link {
+    transition: all 0.3s ease;
 }
-
-/* Common tab style */
-.tab-btn-custom {
-    font-weight: 600;
-    color: #ffffff;
-    padding: 0.6rem 1.5rem;
-    border-radius: 0.75rem 0.75rem 0 0;
-    background-color: transparent;
-    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+.nav-pills .nav-link:hover {
+    background-color: #f8f9fa;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
 }
-
-/* Hover style */
-.tab-btn-custom:hover {
-    background-color: rgba(255, 255, 255, 0.15);
-    color: #fff;
-}
-
-/* Active tab style */
-.tab-btn-custom.active {
-    background-color: #0588c4 !important;
+.nav-pills .nav-link.active {
+    background-color: #0d6efd;
     color: #fff !important;
-    box-shadow: inset 0 -4px 10px rgba(0, 0, 0, 0.15);
-    border-bottom: none;
-}
-
-/* Focus style for accessibility */
-.tab-btn-custom:focus {
-    outline: none;
-    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.3);
-}
-
-.card-header-tabs .nav-link.active {
-    background-color: #5b8dc4;
-    
 }
 </style>
+{% endblock %}

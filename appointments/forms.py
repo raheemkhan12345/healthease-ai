@@ -46,9 +46,8 @@ class DoctorSearchForm(forms.Form):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        # Dynamically populate specializations from the database
-        specializations = DoctorProfile.objects.values_list('specialization', flat=True).distinct()
-        choices = [('', 'All Specializations')] + [(s, s) for s in specializations]
+        # ✅ Use fixed choices from model — not from database
+        choices = [('', 'All Specializations')] + list(DoctorProfile.SPECIALIZATION_CHOICES)
         self.fields['specialization'].choices = choices
 
 class AppointmentForm(forms.ModelForm):

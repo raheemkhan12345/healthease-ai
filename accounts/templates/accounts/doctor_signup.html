@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load static %}
+{% load widget_tweaks %}
 
 {% block title %}Doctor Sign Up - HealthEase AI{% endblock %}
 
@@ -7,189 +8,124 @@
 <div class="container py-5">
     <div class="row justify-content-center">
         <div class="col-lg-10">
-            <div class="card border-0 shadow-lg overflow-hidden">
+            <div class="card shadow-lg border-0 rounded-4 overflow-hidden">
                 <div class="row g-0">
-                    <!-- Left side - Doctor Illustration (hidden on mobile) -->
-                    <div class="col-md-6 d-none d-md-flex bg-blue-gradient align-items-center">
-                        <div class="p-4 text-center text-white">
-                            <img src="{% static 'images/logo.JPG' %}" alt="Doctor Illustration" class="img-fluid" style="max-height: 300px;">
-                            <h3 class="mt-3" style="color:rgb(100, 100, 226)">Join HealthEase AI</h3>
-                            <p class="opacity-75" style="color: rgb(0, 0, 0);">Connect with patients and manage your practice efficiently</p>
+                    <!-- Left side - Illustration -->
+                    <div class="col-md-6 d-none d-md-flex bg-gradient-primary align-items-center justify-content-center text-white p-4">
+                        <div class="text-center">
+                            <img src="{% static 'images/logo.JPG' %}" alt="Doctor Illustration" class="img-fluid mb-3" style="max-height: 260px;">
+                            <h3 class="fw-bold">Join HealthEase AI</h3>
+                            <p>Empowering your medical practice with intelligent tools.</p>
                         </div>
                     </div>
-                    
-                    <!-- Right side - Signup Form -->
-                    <div class="col-md-6">
-                        <div class="card-body p-4 p-xl-5">
-                            <div class="text-center mb-4">
-                                <h2 class="h4 text-primary mb-3">Doctor Registration</h2>
-                                <p class="text-muted">Create your professional account</p>
-                            </div>
-                            
-                           <form method="post" class="needs-validation" novalidate enctype="multipart/form-data">
-                                {% csrf_token %}
-                                
-                                {% if form.non_field_errors %}
-                                <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                                    {{ form.non_field_errors }}
-                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                                </div>
-                                {% endif %}
-                                
-                                <!-- Username and Email -->
-                                <div class="row">
-                                    <div class="col-md-6 mb-3">
-                                        <label for="{{ form.username.id_for_label }}" class="form-label">Username</label>
-                                        <div class="input-group">
-                                            <span class="input-group-text bg-light">
-                                                <i class="fas fa-user text-primary"></i>
-                                            </span>
-                                            {{ form.username }}
-                                        </div>
-                                        {% if form.username.errors %}
-                                        <div class="invalid-feedback d-block">
-                                            {{ form.username.errors }}
-                                        </div>
-                                        {% endif %}
-                                    </div>
-                                    
-                                    <div class="col-md-6 mb-3">
-                                        <label for="{{ form.email.id_for_label }}" class="form-label">Email</label>
-                                        <div class="input-group">
-                                            <span class="input-group-text bg-light">
-                                                <i class="fas fa-envelope text-primary"></i>
-                                            </span>
-                                            {{ form.email }}
-                                        </div>
-                                        {% if form.email.errors %}
-                                        <div class="invalid-feedback d-block">
-                                            {{ form.email.errors }}
-                                        </div>
-                                        {% endif %}
-                                    </div>
-                                </div>
-                                
-                                <!-- Password Fields -->
-                                <div class="row">
-                                    <div class="col-md-6 mb-3">
-                                        <label for="{{ form.password1.id_for_label }}" class="form-label">Password</label>
-                                        <div class="input-group">
-                                            <span class="input-group-text bg-light">
-                                                <i class="fas fa-lock text-primary"></i>
-                                            </span>
-                                            {{ form.password1 }}
-                                            <button class="btn btn-outline-secondary toggle-password" type="button">
-                                                <i class="fas fa-eye"></i>
-                                            </button>
-                                        </div>
-                                        {% if form.password1.errors %}
-                                        <div class="invalid-feedback d-block">
-                                            {{ form.password1.errors }}
-                                        </div>
-                                        {% endif %}
-                                        <small class="form-text text-muted">
-    At least 8 characters including one number and one special character
-</small>
-                                    </div>
-                                    
-                                    <div class="col-md-6 mb-3">
-                                        <label for="{{ form.password2.id_for_label }}" class="form-label">Confirm Password</label>
-                                        <div class="input-group">
-                                            <span class="input-group-text bg-light">
-                                                <i class="fas fa-lock text-primary"></i>
-                                            </span>
-                                            {{ form.password2 }}
-                                        </div>
-                                        {% if form.password2.errors %}
-                                        <div class="invalid-feedback d-block">
-                                            {{ form.password2.errors }}
-                                        </div>
-                                        {% endif %}
-                                    </div>
-                                </div>
-                                
-                                <!-- Doctor Specific Fields -->
-                                <div class="row">
-                                    <div class="col-md-6 mb-3">
-                                        <label for="{{ form.specialization.id_for_label }}" class="form-label">Specialization</label>
-                                        <div class="input-group">
-                                            <span class="input-group-text bg-light">
-                                                <i class="fas fa-stethoscope text-primary"></i>
-                                            </span>
-                                            {{ form.specialization }}
-                                        </div>
-                                        {% if form.specialization.errors %}
-                                        <div class="invalid-feedback d-block">
-                                            {{ form.specialization.errors }}
-                                        </div>
-                                        {% endif %}
-                                    </div>
-                                    
-                                    <div class="col-md-6 mb-3">
-                                        <label for="{{ form.hospital.id_for_label }}" class="form-label">Hospital/Clinic</label>
-                                        <div class="input-group">
-                                            <span class="input-group-text bg-light">
-                                                <i class="fas fa-hospital text-primary"></i>
-                                            </span>
-                                            {{ form.hospital }}
-                                        </div>
-                                        {% if form.hospital.errors %}
-                                        <div class="invalid-feedback d-block">
-                                            {{ form.hospital.errors }}
-                                        </div>
-                                        {% endif %}
-                                    </div>
-                                </div>
-                                
-                                <!-- Experience -->
-                                <div class="mb-3">
-                                    <label for="{{ form.experience.id_for_label }}" class="form-label">Years of Experience</label>
-                                    <div class="input-group">
-                                        <span class="input-group-text bg-light">
-                                            <i class="fas fa-briefcase text-primary"></i>
-                                        </span>
-                                        {{ form.experience }}
-                                    </div>
-                                    {% if form.experience.errors %}
-                                    <div class="invalid-feedback d-block">
-                                        {{ form.experience.errors }}
-                                    </div>
-                                    {% endif %}
-                                </div>
 
-                                <!-- Profile Picture Upload -->
-<div class="mb-3">
-    <label for="{{ form.profile_picture.id_for_label }}" class="form-label">Profile Picture</label>
-    <div class="input-group">
-        <span class="input-group-text bg-light">
-            <i class="fas fa-camera text-primary"></i>
-        </span>
-        <input type="file" name="profile_picture" class="form-control" 
-               id="{{ form.profile_picture.id_for_label }}" 
-               accept="image/*">
-    </div>
-    {% if form.profile_picture.errors %}
-    <div class="invalid-feedback d-block">
-        {{ form.profile_picture.errors }}
-    </div>
-    {% endif %}
-    <small class="form-text text-muted">Optional. JPG or PNG, max 2MB</small>
-</div>
-                                
-                                <div class="d-grid gap-2">
-                                    <button type="submit" class="btn btn-primary btn-lg">
-                                        <i class="fas fa-user-plus me-2"></i> Register
-                                    </button>
+                    <!-- Right side - Form -->
+                    <div class="col-md-6 bg-white p-4 p-md-5">
+                        <h3 class="text-center text-primary mb-4">Doctor Registration</h3>
+                        <p class="text-center text-muted mb-4">Build your professional presence</p>
+
+                        <form method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
+                            {% csrf_token %}
+
+                            {% if form.non_field_errors %}
+                            <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+                            {% endif %}
+
+                            <!-- Username -->
+                            <div class="mb-3">
+                                <label class="form-label">Username</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-user"></i></span>
+                                    {{ form.username|add_class:"form-control" }}
                                 </div>
-                                
-                                <div class="text-center mt-3">
-                                    <p class="text-muted">Already have an account? 
-                                        <a href="{% url 'accounts:doctor_login' %}" class="text-primary fw-bold">Login here</a>
-                                    </p>
+                                {% if form.username.errors %}<div class="text-danger small">{{ form.username.errors }}</div>{% endif %}
+                            </div>
+
+                            <!-- Email -->
+                            <div class="mb-3">
+                                <label class="form-label">Email</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+                                    {{ form.email|add_class:"form-control" }}
                                 </div>
-                            </form>
-                        </div>
+                                {% if form.email.errors %}<div class="text-danger small">{{ form.email.errors }}</div>{% endif %}
+                            </div>
+
+                            <!-- Password 1 -->
+                            <div class="mb-3">
+                                <label class="form-label">Password</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                                    {{ form.password1|add_class:"form-control" }}
+                                    <button class="btn btn-outline-secondary toggle-password" type="button"><i class="fas fa-eye"></i></button>
+                                </div>
+                                {% if form.password1.errors %}<div class="text-danger small">{{ form.password1.errors }}</div>{% endif %}
+                                <small class="text-muted">Minimum 8 characters, include a number and symbol.</small>
+                            </div>
+
+                            <!-- Password 2 -->
+                            <div class="mb-3">
+                                <label class="form-label">Confirm Password</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                                    {{ form.password2|add_class:"form-control" }}
+                                </div>
+                                {% if form.password2.errors %}<div class="text-danger small">{{ form.password2.errors }}</div>{% endif %}
+                            </div>
+
+                            <!-- Specialization -->
+                            <div class="mb-3">
+                                <label class="form-label">Specialization</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-stethoscope"></i></span>
+                                    {{ form.specialization|add_class:"form-control" }}
+                                </div>
+                                {% if form.specialization.errors %}<div class="text-danger small">{{ form.specialization.errors }}</div>{% endif %}
+                            </div>
+
+                            <!-- Hospital -->
+                            <div class="mb-3">
+                                <label class="form-label">Hospital/Location</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-hospital"></i></span>
+                                    {{ form.hospital|add_class:"form-control" }}
+                                </div>
+                                {% if form.hospital.errors %}<div class="text-danger small">{{ form.hospital.errors }}</div>{% endif %}
+                            </div>
+
+                            <!-- Experience -->
+                            <div class="mb-3">
+                                <label class="form-label">Years of Experience</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-briefcase"></i></span>
+                                    {{ form.experience|add_class:"form-control" }}
+                                </div>
+                                {% if form.experience.errors %}<div class="text-danger small">{{ form.experience.errors }}</div>{% endif %}
+                            </div>
+
+                            <!-- Profile Picture -->
+                            <div class="mb-4">
+                                <label class="form-label">Profile Picture</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-camera"></i></span>
+                                    <input type="file" name="profile_picture" class="form-control" id="{{ form.profile_picture.id_for_label }}" accept="image/*">
+                                </div>
+                                {% if form.profile_picture.errors %}<div class="text-danger small">{{ form.profile_picture.errors }}</div>{% endif %}
+                                <small class="text-muted">Optional. Max 2MB JPG/PNG.</small>
+                            </div>
+
+                            <div class="d-grid mb-3">
+                                <button type="submit" class="btn btn-primary py-2">
+                                    <i class="fas fa-user-plus me-2"></i> Register
+                                </button>
+                            </div>
+
+                            <div class="text-center">
+                                <p class="text-muted">Already registered? <a href="{% url 'accounts:doctor_login' %}" class="text-primary fw-bold">Login</a></p>
+                            </div>
+                        </form>
                     </div>
+
                 </div>
             </div>
         </div>
@@ -199,75 +135,8 @@
 
 {% block extra_css %}
 <style>
-.bg-blue-gradient {
-    background: linear-gradient(135deg, #c8daf7 0%, #e3f1ff 100%);
-}
-
-.card {
-    border-radius: 12px;
-}
-
-.input-group-text {
-    border-right: none;
-    transition: all 0.2s;
-}
-
-.form-control, .form-select {
-    border-left: none;
-    padding-left: 0;
-    border-radius: 0 8px 8px 0 !important;
-}
-
-.input-group > .form-control:focus,
-.input-group > .form-select:focus {
-    box-shadow: none;
-    border-color: #a1cefa;
-}
-
-.input-group:focus-within .input-group-text {
-    border-color: #b4d2ff;
-    background-color: #e7f1ff;
-}
-
-.btn-primary {
-    background-color: #91b8f3;
-    border: none;
-    border-radius: 8px;
-    transition: all 0.2s;
-}
-
-.btn-primary:hover {
-    background-color: #a4c5f7;
-    transform: translateY(-1px);
-}
-
-.toggle-password {
-    border-top-left-radius: 0;
-    border-bottom-left-radius: 0;
-}
-
-.text-primary {
-    color: #8fbcff !important;
-}
-/* extra css */
-.invalid-feedback {
-    color: #dc3545;
-    font-size: 0.875em;
-    margin-top: 0.25rem;
-}
-
-.is-invalid {
-    border-color: #dc3545;
-    padding-right: calc(1.5em + 0.75rem);
-    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23dc3545' stroke='none'/%3e%3c/svg%3e");
-    background-repeat: no-repeat;
-    background-position: right calc(0.375em + 0.1875rem) center;
-    background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
-}
-
-.is-invalid:focus {
-    border-color: #dc3545;
-    box-shadow: 0 0 0 0.25rem rgba(220,53,69,.25);
+.bg-gradient-primary {
+    background: linear-gradient(135deg, #007bff, #6ec1e4);
 }
 </style>
 {% endblock %}
@@ -275,10 +144,11 @@
 {% block extra_js %}
 <script>
 // Toggle password visibility
-document.querySelectorAll('.toggle-password').forEach(button => {
-    button.addEventListener('click', function() {
-        const input = this.closest('.input-group').querySelector('input');
-        const icon = this.querySelector('i');
+const toggleBtns = document.querySelectorAll('.toggle-password');
+toggleBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+        const input = btn.closest('.input-group').querySelector('input');
+        const icon = btn.querySelector('i');
         if (input.type === 'password') {
             input.type = 'text';
             icon.classList.replace('fa-eye', 'fa-eye-slash');
@@ -289,36 +159,19 @@ document.querySelectorAll('.toggle-password').forEach(button => {
     });
 });
 
-// Form validation
-(function () {
-    'use strict'
-    const forms = document.querySelectorAll('.needs-validation')
+// Bootstrap validation
+(() => {
+    'use strict';
+    const forms = document.querySelectorAll('.needs-validation');
     Array.from(forms).forEach(form => {
         form.addEventListener('submit', event => {
             if (!form.checkValidity()) {
-                event.preventDefault()
-                event.stopPropagation()
+                event.preventDefault();
+                event.stopPropagation();
             }
-            form.classList.add('was-validated')
-        }, false)
-    })
-})()
-
-// js for image functionality,
-
-document.querySelector('input[type="file"]').addEventListener('change', function(e) {
-    const preview = document.createElement('div');
-    preview.className = 'mt-2';
-    preview.innerHTML = '<img id="preview" class="img-thumbnail" style="max-width: 150px; display: none;">';
-    this.parentNode.parentNode.appendChild(preview);
-    
-    const reader = new FileReader();
-    reader.onload = function(event) {
-        const img = document.getElementById('preview');
-        img.src = event.target.result;
-        img.style.display = 'block';
-    };
-    reader.readAsDataURL(e.target.files[0]);
-});
+            form.classList.add('was-validated');
+        }, false);
+    });
+})();
 </script>
 {% endblock %}

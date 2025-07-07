@@ -273,81 +273,74 @@ def video_consultation(request, appointment_id):
 
 @login_required
 def book_appointment(request, doctor_id):
-    if request.method == 'POST':
-        doctor = get_object_or_404(DoctorProfile, id=doctor_id)
+    doctor = get_object_or_404(DoctorProfile, id=doctor_id)
+
+    try:
         patient = request.user.patientprofile
-        
-        date = request.POST.get('date')
-        time_str = request.POST.get('time')
-        reason = request.POST.get('reason')
-        
-        try:
-            appointment = Appointment.objects.create(
-                patient=patient,
-                doctor=doctor,
-                date=date,
-                start_time=time_str,
-                reason=reason
-            )
+    except PatientProfile.DoesNotExist:
+        messages.error(request, "Patient profile not found.")
+        return redirect('doctor_search')
 
-            # Create Zoom meeting
-            # zoom = ZoomAPI()
-            # start_datetime = datetime.strptime(f"{date} {time_str}", "%Y-%m-%d %H:%M")
-            # meeting = zoom.create_meeting(
-            #     topic=f"Consultation with Dr. {doctor.user.username}",
-            #     start_time=start_datetime
-            # )
-
-            # appointment.zoom_meeting_id = meeting.get('id')
-            # appointment.zoom_join_url = meeting.get('join_url')
-            # appointment.save()
-            
-            # Skip Zoom integration for now
+    if request.method == 'POST':
+        form = AppointmentForm(request.POST)
+        if form.is_valid():
+            appointment = form.save(commit=False)
+            appointment.patient = patient
+            appointment.doctor = doctor
             appointment.zoom_meeting_id = None
             appointment.zoom_join_url = None
             appointment.save()
 
-            # Create notifications
+            # Notifications
             Notification.objects.create(
                 recipient=doctor.user,
-                message=f"New appointment booked by {patient.user.username()} for {date} at {time_str}."
+                message=f"New appointment booked by {patient.user.username} for {appointment.date} at {appointment.start_time}."
             )
             Notification.objects.create(
                 recipient=patient.user,
-                message=f"Your appointment with Dr. {doctor.user.username()} is booked for {date} at {time_str}."
+                message=f"Your appointment with Dr. {doctor.user.username} is booked for {appointment.date} at {appointment.start_time}."
             )
 
             messages.success(request, 'Your appointment has been booked successfully!')
             return redirect('appointment_confirmation', appointment.id)
+        else:
+            # Invalid form — show errors
+            messages.error(request, "Please correct the errors in the form.")
+            return render(request, 'appointments/book_appointment.html', {
+                'form': form,
+                'doctor': doctor,
+            })
 
-        except Exception as e:
-            messages.error(request, f'Error booking appointment: {str(e)}')
-            return redirect('doctor_detail', doctor_id=doctor.id)
+    else:
+        form = AppointmentForm()
 
-    return redirect('doctor_search')
+    return render(request, 'appointments/book_appointment.html', {
+        'form': form,
+        'doctor': doctor,
+    })
 
 def home(request):
     SPECIALIZATION_CHOICES = [
-        ('cardiology', 'cardiology'),
-        ('dermatology', 'dermatology'),
-        ('neurology', 'neurology'),
-        ('pediatrics', 'pediatrics'),
-        ('orthopedics', 'orthopedics'),
-        ('gynecology', 'gynecology'),
-        ('general', 'general Physician'),
-        ('ENT Specialist', 'ENT Specialist'),
-    ]
+    ('Cardiologist', 'Cardiologist'),
+    ('Dermatologist', 'Dermatologist'),
+    ('Neurologist', 'Neurologist'),
+    ('Pediatrician', 'Pediatrician'),
+    ('Orthopedic', 'Orthopedic'),
+    ('Gynecologist', 'Gynecologist'),
+    ('General Physician', 'General Physician'),
+    ('ENT Specialist', 'ENT Specialist'),
+]
 
     SPECIALIZATION_ICONS = {
-        'cardiology': 'fa-heart-pulse',
-        'dermatology': 'fa-syringe',
-        'neurology': 'fa-brain',
-        'pediatrics': 'fa-baby',
-        'orthopedics': 'fa-bone',
-        'gynecology': 'fa-venus',
-        'general': 'fa-user-doctor',
-        'ENT Specialist': 'fa-ear-listen',
-    }
+    'Cardiologist': 'fa-heart-pulse',
+    'Dermatologist': 'fa-syringe',
+    'Neurologist': 'fa-brain',
+    'Pediatrician': 'fa-baby',
+    'Orthopedic': 'fa-bone',
+    'Gynecologist': 'fa-venus',
+    'General Physician': 'fa-user-doctor',
+    'ENT Specialist': 'fa-ear-listen',
+}
 
     specializations_with_icons = []
     for value, label in SPECIALIZATION_CHOICES:

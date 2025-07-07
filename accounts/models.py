@@ -15,15 +15,15 @@ class User(AbstractUser):
 # ─────────────── DOCTOR PROFILE ─────────────── #
 class DoctorProfile(models.Model):
     SPECIALIZATION_CHOICES = [
-        ('cardiology', 'cardiology'),
-        ('dermatology', 'dermatology'),
-        ('neurology', 'neurology'),
-        ('pediatrics', 'pediatrics'),
-        ('orthopedics', 'orthopedics'),
-        ('gynecology', 'gynecology'),
-        ('general', 'general Physician'),
-        ('ENT Specialist', 'ENT Specialist'),
-    ]
+    ('Cardiologist', 'Cardiologist'),
+    ('Dermatologist', 'Dermatologist'),
+    ('Neurologist', 'Neurologist'),
+    ('Pediatrician', 'Pediatrician'),
+    ('Orthopedic', 'Orthopedic'),
+    ('Gynecologist', 'Gynecologist'),
+    ('General Physician', 'General Physician'),
+    ('ENT Specialist', 'ENT Specialist'),
+]
 
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     specialization = models.CharField(max_length=100, choices=SPECIALIZATION_CHOICES)

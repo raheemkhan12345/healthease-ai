@@ -23,7 +23,7 @@ class DoctorSignUpForm(UserCreationForm):
     )
     hospital = forms.CharField(
         max_length=100,
-        widget=forms.TextInput(attrs={'placeholder': 'Hospital or Clinic name'}),
+        widget=forms.TextInput(attrs={'placeholder': 'Location or Hospital'}),
         required=True
     )
     experience = forms.IntegerField(
