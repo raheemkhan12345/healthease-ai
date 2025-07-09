@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container py-4">
+    <h4>Your Lab Tests</h4>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Test</th>
+                <th>Doctor</th>
+                <th>Lab</th>
+                <th>Status</th>
+                <th>Report</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for test in tests %}
+            <tr>
+                <td>{{ test.test_name }}</td>
+                <td>{{ test.doctor.user.get_full_name }}</td>
+                <td>{{ test.lab_name }}</td>
+                <td>{{ test.status }}</td>
+                <td>
+                    {% if test.report_file %}
+                        <a href="{{ test.report_file.url }}" target="_blank">View</a>
+                    {% else %}
+                        No report
+                    {% endif %}
+                </td>
+                <td>
+                    {% if not test.report_file %}
+                        <a href="{% url 'appointments:upload_lab_report' test.id %}" class="btn btn-sm btn-outline-primary">Upload</a>
+                    {% endif %}
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

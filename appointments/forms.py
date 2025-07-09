@@ -1,6 +1,6 @@
 from django import forms
+from .models import LabTest
 from django.contrib.auth.forms import UserCreationForm
-from django import forms
 from .models import Appointment
 from django.utils import timezone
 from datetime import datetime, timedelta
@@ -8,6 +8,7 @@ from datetime import time
 from .models import User, Appointment
 from accounts.models import DoctorProfile
 from django.core.exceptions import ValidationError
+
 
 class DoctorSignUpForm(UserCreationForm):
     # Add doctor-specific fields
@@ -50,6 +51,7 @@ class DoctorSearchForm(forms.Form):
         choices = [('', 'All Specializations')] + list(DoctorProfile.SPECIALIZATION_CHOICES)
         self.fields['specialization'].choices = choices
 
+
 class AppointmentForm(forms.ModelForm):
     class Meta:
         model = Appointment
@@ -60,13 +62,16 @@ class AppointmentForm(forms.ModelForm):
                 'min': timezone.now().date()
             }),
             'start_time': forms.TimeInput(attrs={'type': 'time'}),
-            'reason': forms.Textarea(attrs={'rows': 3, 'placeholder': 'Briefly describe your symptoms or reason for appointment'}),
+            'reason': forms.Textarea(attrs={
+                'rows': 3,
+                'placeholder': 'Briefly describe your symptoms or reason for appointment'
+            }),
         }
 
     def clean_date(self):
         date = self.cleaned_data.get('date')
         if date < timezone.now().date():
-            raise ValidationError("Start time cannot be in the past.")
+            raise ValidationError("Appointment date cannot be in the past.")
         return date
 
     def clean_start_time(self):
@@ -74,4 +79,15 @@ class AppointmentForm(forms.ModelForm):
         if start_time < time(9, 0) or start_time > time(17, 0):
             raise ValidationError("Appointments must be between 9 AM and 5 PM")
         return start_time
+
+
+class LabTestForm(forms.ModelForm):
+    class Meta:
+        model = LabTest
+        fields = ['test_name', 'description', 'lab_name', 'status', 'report_file']
+        widgets = {
+            'status': forms.Select(choices=LabTest._meta.get_field('status').choices),
+            'lab_name': forms.Select(choices=LabTest._meta.get_field('lab_name').choices),
+        }
+    
     

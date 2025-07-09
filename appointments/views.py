@@ -10,12 +10,16 @@ from django.utils import timezone
 from datetime import datetime, timedelta
 from .forms import DoctorSearchForm, AppointmentForm
 from accounts.models import User, DoctorProfile, PatientProfile
-from .models import Appointment 
+from .models import Appointment,LabTest 
 from django.core.paginator import Paginator
 from .zoom import ZoomAPI
 from django.db import transaction
 from .models import Appointment, Notification 
 from django.core.exceptions import ObjectDoesNotExist
+from django.http import JsonResponse
+from django.views.decorators.http import require_GET
+from .forms import LabTestForm
+
 
 
 
@@ -40,7 +44,7 @@ def patient_signup(request):
     return render(request,'patient_signup.urls')
 
 def doctor_dashboard(request):
-    return render(request,'doctor_dashboad')
+    return render(request, 'accounts/doctor_dashboard.html')
 def patient_dashboard(request):
     return render(request,'patient_dashboad')
 def doctor_profile(request):
@@ -164,34 +168,37 @@ def doctor_search(request):
 def doctor_search(request):
     form = DoctorSearchForm(request.GET or None)
     doctors = DoctorProfile.objects.select_related('user').all()
-    
+
     specialization = ''
     location = ''
     query = ''
-    
+
     if form.is_valid():
         specialization = form.cleaned_data.get('specialization', '')
         location = form.cleaned_data.get('location', '')
         query = form.cleaned_data.get('query', '')
 
-        # Save filters and redirect to signup if not authenticated
+        # Save filters for future use if not logged in (precaution)
         if not request.user.is_authenticated:
             request.session['search_specialization'] = specialization
             request.session['search_location'] = location
             request.session['search_query'] = query
             return redirect('accounts:patient_signup')
 
-        # Apply filters
+        # Combine filters using Q()
+        filters = Q()
         if specialization:
-            doctors = doctors.filter(specialization=specialization)
+            filters &= Q(specialization=specialization)
         if location:
-            doctors = doctors.filter(hospital__icontains=location)
+            filters &= Q(hospital__icontains=location)
         if query:
-            doctors = doctors.filter(
+            filters &= (
+                Q(user__username__icontains=query) |
                 Q(user__first_name__icontains=query) |
-                Q(user__last_name__icontains=query) |
-                Q(specialization__icontains=query)
+                Q(user__last_name__icontains=query)
             )
+
+        doctors = doctors.filter(filters)
 
     # Sort and paginate
     doctors = doctors.order_by('-experience')
@@ -208,7 +215,6 @@ def doctor_search(request):
         'query': query
     }
     return render(request, 'appointments/doctor_list.html', context)
-
 
 @login_required
 def doctor_detail(request, doctor_id):
@@ -329,6 +335,7 @@ def home(request):
     ('Gynecologist', 'Gynecologist'),
     ('General Physician', 'General Physician'),
     ('ENT Specialist', 'ENT Specialist'),
+      ('lab', 'Lab Tests')
 ]
 
     SPECIALIZATION_ICONS = {
@@ -340,6 +347,7 @@ def home(request):
     'Gynecologist': 'fa-venus',
     'General Physician': 'fa-user-doctor',
     'ENT Specialist': 'fa-ear-listen',
+    'lab': 'fa-vials',
 }
 
     specializations_with_icons = []
@@ -351,3 +359,108 @@ def home(request):
         'specializations': SPECIALIZATION_CHOICES,                # for dropdown (2 values)
         'specializations_with_icons': specializations_with_icons  # for cards (3 values)
     })
+    
+    
+@require_GET
+def autocomplete_suggestions(request):
+     term = request.GET.get('term', '').strip()
+     field = request.GET.get('field')
+
+     if not term or field not in ['location', 'query']:
+        return JsonResponse([], safe=False)
+
+     suggestions = set()
+
+     if field == 'location':
+        suggestions.update(
+            DoctorProfile.objects.filter(hospital__icontains=term)
+            .values_list('hospital', flat=True)
+        )
+     elif field == 'query':
+        suggestions.update(
+            DoctorProfile.objects.filter(
+                Q(user__first_name__icontains=term) |
+                Q(user__last_name__icontains=term)
+            ).values_list('user__first_name', flat=True)
+        )
+
+     return JsonResponse(list(suggestions), safe=False)
+ 
+@login_required
+def suggest_lab_test(request, patient_id):
+    patient = get_object_or_404(PatientProfile, id=patient_id)
+    doctor = request.user.doctorprofile
+
+    if request.method == 'POST':
+        form = LabTestForm(request.POST, request.FILES)
+        if form.is_valid():
+            lab_test = form.save(commit=False)
+            lab_test.patient = patient
+            lab_test.doctor = doctor
+            lab_test.save()
+
+            # ✅ Send notification to patient
+            Notification.objects.create(
+                recipient=patient.user,
+                message=f"Your doctor {doctor.user.username()} has suggested a lab test: {lab_test.test_name}."
+            )
+
+            messages.success(request, "Lab test suggested and patient notified.")
+            return redirect('appointments:doctor_dashboard')
+    else:
+        form = LabTestForm()
+
+    return render(request, 'appointments/suggest_lab_test.html', {'form': form, 'patient': patient})
+
+@login_required
+def patient_lab_tests(request):
+    patient = request.user.patientprofile
+    tests = LabTest.objects.filter(patient=patient)
+    return render(request, 'appointments/patient_lab_tests.html', {'tests': tests})
+
+
+@login_required
+def upload_lab_report(request, test_id):
+    test = get_object_or_404(LabTest, id=test_id)
+
+    if request.user.is_patient:
+        if request.method == 'POST' and request.FILES.get('report_file'):
+            test.report_file = request.FILES['report_file']
+            test.status = 'Completed'
+            test.save()
+            return redirect('appointments:patient_lab_tests')
+
+    elif request.user.is_doctor:
+        if request.method == 'POST' and request.FILES.get('report_file'):
+            test.report_file = request.FILES['report_file']
+            test.status = 'Completed'
+            test.save()
+            return redirect('doctor_dashboard')
+
+    return render(request, 'appointments/upload_lab_report.html', {'test': test})
+
+@login_required
+def doctor_patients_list(request):
+    doctor = request.user.doctorprofile
+    appointments = Appointment.objects.filter(doctor=doctor).select_related('patient__user')
+
+    # Create a set to track seen patient IDs
+    seen_patient_ids = set()
+    unique_patients = []
+
+    for appointment in appointments:
+        patient = appointment.patient
+        if patient.id not in seen_patient_ids:
+            seen_patient_ids.add(patient.id)
+            unique_patients.append(patient)
+
+    return render(request, 'appointments/doctor_patients_list.html', {
+        'patients': unique_patients
+    })
+
+
+
+@login_required
+def patient_detail(request, patient_id):
+    patient = get_object_or_404(PatientProfile, id=patient_id)
+    return render(request, 'appointments/patient_detail.html', {'patient': patient})

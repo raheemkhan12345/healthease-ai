@@ -6,76 +6,76 @@
 {% block content %}
 <div class="container py-5">
     <div class="row">
-        <div class="col-md-3">
-            <div class="card">
+        <!-- Sidebar -->
+        <div class="col-md-3 mb-4">
+            <div class="card shadow-sm">
                 <div class="card-header bg-success text-white">
                     <h5 class="mb-0">Patient Menu</h5>
                 </div>
                 <div class="list-group list-group-flush">
-                    <!-- <a href="{% url 'accounts:patient_dashboard' %}" class="list-group-item list-group-item-action active">Dashboard</a> -->
+                    <a href="{% url 'accounts:patient_dashboard' %}" class="list-group-item list-group-item-action">Dashboard</a>
                     <a href="{% url 'accounts:patient_profile' %}" class="list-group-item list-group-item-action">My Profile</a>
                     <a href="{% url 'accounts:user_logout' %}" class="list-group-item list-group-item-action text-danger">Logout</a>
                 </div>
             </div>
         </div>
+
+        <!-- Main Content -->
         <div class="col-md-9">
-            <div class="card">
+            <div class="card shadow-sm">
                 <div class="card-header bg-success text-white">
-                    <h4 class="mb-0">Patient Dashboard</h4>
+                    <h4 class="mb-0">Welcome, {{ request.user.get_full_name|default:request.user.username }}!</h4>
                 </div>
                 <div class="card-body">
-                    <div class="alert alert-success">
-                        <h5>Welcome, {{ patient.username }}!</h5>
-                    </div>
-                    
-                    <div class="row mt-4">
-                        <div class="col-md-4 mb-3">
-                            <div class="card bg-light">
-                                <div class="card-body text-center">
+
+                    <div class="row mb-4">
+                        <div class="col-md-6 mb-3">
+                            <div class="card text-center bg-light border-0 shadow-sm">
+                                <div class="card-body">
                                     <h6>Upcoming Appointments</h6>
-                                    <h4>{{ appointments.count }}</h4>
+                                    <h4>{{ appointments|length }}</h4>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-4 mb-3">
-                            <div class="card bg-light">
-                                <div class="card-body text-center">
-                                    <h6>My Doctors</h6>
-                                    <h4>{{ patient.doctors.count }}</h4>
+
+                        <div class="col-md-6 mb-3">
+                            <div class="card text-center bg-light border-0 shadow-sm">
+                                <div class="card-body">
+                                    <h6>Total Lab Tests</h6>
+                                    <h4>{{ lab_tests|length }}</h4>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    
-                    <div class="mt-4">
-                        <h5>Recent Appointments</h5>
-                        <div class="table-responsive">
-                            <table class="table table-striped">
-                                <thead>
+
+                    <h5 class="mb-3">Recent Appointments</h5>
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead class="table-success">
+                                <tr>
+                                    <th>Doctor</th>
+                                    <th>Date</th>
+                                    <th>Start Time</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for appointment in appointments %}
                                     <tr>
-                                        <th>Doctor</th>
-                                        <th>Date</th>
-                                        <th>Time</th>
-                                        <th>Status</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for appointment in appointments %}
-                                    <tr>
-                                        <td>Dr. {{ appointment.doctor.username }}</td>
+                                        <td>Dr. {{ appointment.doctor.user.username }}</td>
                                         <td>{{ appointment.date }}</td>
-                                        <td>{{ appointment.time }}</td>
+                                        <td>{{ appointment.start_time }}</td>
                                         <td>{{ appointment.status }}</td>
                                     </tr>
-                                    {% empty %}
+                                {% empty %}
                                     <tr>
                                         <td colspan="4" class="text-center">No appointments yet</td>
                                     </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
-                        </div>
+                                {% endfor %}
+                            </tbody>
+                        </table>
                     </div>
+
                 </div>
             </div>
         </div>

@@ -70,9 +70,13 @@
     <div class="container">
         <h2 class="text-center text-success mb-5 fw-semibold">Our Specialist Doctors</h2>
         <div class="row justify-content-center">
-         {% for value, label, icon in specializations_with_icons|slice:":6" %}
+            {% for value, label, icon in specializations_with_icons %}
 <div class="col-md-4 col-lg-2 mb-4">
-    <a href="{% url 'appointments:doctor_search' %}?specialization={{ value }}" class="text-decoration-none">
+    {% if value == 'lab' %}
+        <a href="{% url 'appointments:patient_lab_tests' %}" class="text-decoration-none">
+    {% else %}
+        <a href="{% url 'appointments:doctor_search' %}?specialization={{ value }}" class="text-decoration-none">
+    {% endif %}
         <div class="card specialist-card border-0 shadow h-100 text-center rounded-4">
             <div class="card-body">
                 <div class="mb-3">
@@ -84,6 +88,7 @@
     </a>
 </div>
 {% endfor %}
+
         </div>
     </div>
 </section>

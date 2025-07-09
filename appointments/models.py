@@ -3,6 +3,7 @@ from django.contrib.auth import get_user_model
 from accounts.models import DoctorProfile, PatientProfile, TimeSlot
 from datetime import datetime, timedelta
 
+
 User = get_user_model()  # This ensures the correct User model is used
 
 class Appointment(models.Model):
@@ -45,3 +46,26 @@ class Notification(models.Model):
 
     def __str__(self):
         return f"Notification for {self.recipient.username}"
+
+class LabTest(models.Model):
+    LAB_CHOICES = [
+        ('City Lab', 'City Lab'),
+        ('Shifa Diagnostics', 'Shifa Diagnostics'),
+        ('Excel Lab', 'Excel Lab'),
+    ]
+
+    test_name = models.CharField(max_length=255)
+    description = models.TextField(blank=True, null=True)
+    patient = models.ForeignKey(PatientProfile, on_delete=models.CASCADE)
+    doctor = models.ForeignKey(DoctorProfile, on_delete=models.CASCADE)
+    lab_name = models.CharField(max_length=255, choices=LAB_CHOICES, blank=True, null=True)
+    status = models.CharField(
+        max_length=50,
+        choices=[('Pending', 'Pending'), ('Completed', 'Completed')],
+        default='Pending'
+    )
+    report_file = models.FileField(upload_to='lab_reports/', blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.test_name} for {self.patient.user.username}"

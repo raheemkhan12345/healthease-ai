@@ -48,16 +48,14 @@ body {
 
 /* Cards */
 .card {
-    border: none;
-    border-radius: 12px;
+    transition: none !important;
+    transform: none !important;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-    transition: all 0.3s ease;
-    margin-bottom: 1.5rem;
 }
 
 .card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 12px 20px rgba(0, 0, 0, 0.12);
+    transform: none !important;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12) !important;
 }
 
 .card-header {
@@ -84,7 +82,7 @@ body {
 .btn-primary:hover {
     background-color: #2980b9;
     border-color: #2980b9;
-    transform: translateY(-2px);
+
 }
 
 /* Forms */
@@ -137,12 +135,12 @@ body {
 @keyframes fadeIn {
     from {
         opacity: 0;
-        transform: translateY(20px);
+
     }
 
     to {
         opacity: 1;
-        transform: translateY(0);
+
     }
 }
 
@@ -171,7 +169,7 @@ body {
 
 .search-card:hover {
     box-shadow: 0 6px 20px rgba(31, 38, 135, 0.2);
-    transform: translateY(-1px);
+
 }
 
 .input-group .form-control,
@@ -263,7 +261,6 @@ body {
 }
 
 .about-page .team-card:hover {
-    transform: translateY(-10px);
     box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1) !important;
 }
 
@@ -277,7 +274,6 @@ body {
 }
 
 .about-page .value-card:hover {
-    transform: translateY(-5px);
     box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1) !important;
 }
 
@@ -640,7 +636,6 @@ body {
 
 .btn-primary:hover {
     background-color: #a4c5f7;
-    transform: translateY(-1px);
 }
 
 .toggle-password {

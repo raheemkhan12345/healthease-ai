@@ -15,11 +15,17 @@
                         </div>
                         <div class="col-md-4">
                             <label for="location" class="form-label fw-semibold">Location</label>
-                            {% render_field form.location class="form-select form-control shadow-sm rounded-3 py-2" %}
+                            <input type="text" name="location" class="form-control shadow-sm rounded-3 py-2"
+       placeholder="Location or hospital" list="location-suggestions">
+<datalist id="location-suggestions"></datalist>
+
                         </div>
                         <div class="col-md-4">
                             <label for="query" class="form-label fw-semibold">Search</label>
-                            {% render_field form.query class="form-control shadow-sm rounded-3 py-2" %}
+                           <input type="text" name="query" class="form-control shadow-sm rounded-3 py-2"
+       placeholder="Search by name" list="query-suggestions">
+<datalist id="query-suggestions"></datalist>
+
                         </div>
                         <div class="col-12 text-end">
                             <button type="submit" class="btn btn-success px-4 mt-2">
@@ -100,12 +106,46 @@
 
 {% block extra_css %}
 <style>
-.doctor-card-hover {
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+/* Disable movement on card hover */
+.card {
+    transition: none !important;
+    transform: none !important;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
 }
-.doctor-card-hover:hover {
-    transform: translateY(-6px);
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.12);
+
+.card:hover {
+    transform: none !important;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12) !important;
 }
 </style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const locationInput = document.querySelector("input[name='location']");
+    const queryInput = document.querySelector("input[name='query']");
+
+    function setupAutocomplete(input, datalistId) {
+        input.addEventListener('input', function () {
+            const term = input.value;
+            if (term.length < 1) return;
+
+            fetch(`/appointments/autocomplete/?term=${encodeURIComponent(term)}&field=${input.name}`)
+                .then(res => res.json())
+                .then(data => {
+                    let datalist = document.getElementById(datalistId);
+                    datalist.innerHTML = '';
+                    data.forEach(item => {
+                        let option = document.createElement('option');
+                        option.value = item;
+                        datalist.appendChild(option);
+                    });
+                });
+        });
+    }
+
+    setupAutocomplete(locationInput, "location-suggestions");
+    setupAutocomplete(queryInput, "query-suggestions");
+});
+</script>
 {% endblock %}
+

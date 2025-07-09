@@ -11,6 +11,14 @@ class User(AbstractUser):
         ('patient', 'Patient'),
     )
     user_type = models.CharField(max_length=10, choices=USER_TYPE_CHOICES, default='patient')
+    
+    @property
+    def is_patient(self):
+        return self.user_type == 'patient'
+
+    @property
+    def is_doctor(self):
+        return self.user_type == 'doctor'
 
 # ─────────────── DOCTOR PROFILE ─────────────── #
 class DoctorProfile(models.Model):

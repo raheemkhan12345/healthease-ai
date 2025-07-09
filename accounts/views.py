@@ -6,7 +6,7 @@ from django.db.models import Q
 from django.db import transaction
 from .forms import DoctorSignUpForm, PatientSignUpForm, DoctorLoginForm, PatientLoginForm
 from .models import DoctorProfile, PatientProfile, User
-from appointments.models import Appointment
+from appointments.models import Appointment, LabTest
 from notifications.models import Notification
 from appointments.models import Appointment
 
@@ -127,7 +127,6 @@ def user_logout(request):
 
 # ─────────────── Dashboards ─────────────── #
 @login_required
-@login_required
 def doctor_dashboard(request):
     if request.user.user_type != 'doctor':
         messages.error(request, 'You are not authorized to view this page.')
@@ -152,17 +151,14 @@ def doctor_dashboard(request):
 
 @login_required
 def patient_dashboard(request):
-    if request.user.user_type != 'patient':
-        messages.error(request, 'You are not authorized to view this page.')
-        return redirect('home')
+    patient = request.user.patientprofile
+    appointments = Appointment.objects.filter(patient=patient).order_by('-date')[:5]
+    lab_tests = LabTest.objects.filter(patient=patient)
 
-    profile, _ = PatientProfile.objects.get_or_create(user=request.user)
-    context = {
-        'patient': request.user,
-        'profile': profile,
-        'appointments': []  # Replace with actual query later
-    }
-    return render(request, 'accounts/patient_dashboard.html', context)
+    return render(request, 'accounts/patient_dashboard.html', {
+        'appointments': appointments,
+        'lab_tests': lab_tests,
+    })
 
 # ─────────────── Profiles ─────────────── #
 @login_required
@@ -203,3 +199,4 @@ def doctor_search(request):
         'doctors': doctors,
         'specializations': specializations
     })
+
