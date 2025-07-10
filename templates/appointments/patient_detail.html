@@ -1,18 +1,36 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block content %}
-<div class="container py-4">
-    <h2>Patient Profile</h2>
-    <div class="card">
-        <div class="card-body">
-            <h5 class="card-title"><strong>Name: </strong>{{ patient.user.username }}</h5>
-            <p class="card-text"><strong>Email:</strong> {{ patient.user.email }}</p>
-            <p class="card-text"><strong>Date of Birth:</strong> {{ patient.date_of_birth }}</p>
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow border-0 rounded-4">
+                <div class="card-header bg-primary text-white rounded-top-4">
+                    <h4 class="mb-0"><i class="fas fa-user me-2"></i>Patient Profile</h4>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <p class="mb-2"><i class="fas fa-user-circle me-2 text-primary"></i>
+                                <strong>Name:</strong> {{ patient.user.username }}
+                            </p>
+                            <p class="mb-2"><i class="fas fa-envelope me-2 text-success"></i>
+                                <strong>Email:</strong> {{ patient.user.email }}
+                            </p>
+                            <p class="mb-2"><i class="fas fa-calendar-alt me-2 text-info"></i>
+                                <strong>Date of Birth:</strong> {{ patient.date_of_birth }}
+                            </p>
+                        </div>
+                    </div>
 
-            <!-- ✅ Suggest Test Button -->
-            <a href="{% url 'appointments:suggest_lab_test' patient.id %}" class="btn btn-outline-primary mt-3">
-                Suggest Lab Test
-            </a>
+                    <div class="text-end mt-4">
+                        <a href="{% url 'appointments:suggest_lab_test' patient.id %}" class="btn btn-outline-primary">
+                            <i class="fas fa-vial me-1"></i> Suggest Lab Test
+                        </a>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>

@@ -402,7 +402,7 @@ def suggest_lab_test(request, patient_id):
             # ✅ Send notification to patient
             Notification.objects.create(
                 recipient=patient.user,
-                message=f"Your doctor {doctor.user.username()} has suggested a lab test: {lab_test.test_name}."
+                message=f"Your doctor {doctor.user.username} has suggested a lab test: {lab_test.test_name}."
             )
 
             messages.success(request, "Lab test suggested and patient notified.")

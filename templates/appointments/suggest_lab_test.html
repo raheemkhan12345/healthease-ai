@@ -1,16 +1,66 @@
 {% extends 'base.html' %}
 {% load widget_tweaks %}
+
 {% block content %}
-<div class="container py-4">
-    <h4>Suggest Lab Test for {{ patient.user.get_full_name }}</h4>
-    <form method="POST" enctype="multipart/form-data">
-        {% csrf_token %}
-        <div class="mb-3">{{ form.test_name.label }} {{ form.test_name|add_class:"form-control" }}</div>
-        <div class="mb-3">{{ form.description.label }} {{ form.description|add_class:"form-control" }}</div>
-        <div class="mb-3">{{ form.lab_name.label }} {{ form.lab_name|add_class:"form-select" }}</div>
-        <div class="mb-3">{{ form.status.label }} {{ form.status|add_class:"form-select" }}</div>
-        <div class="mb-3">{{ form.report_file.label }} {{ form.report_file|add_class:"form-control" }}</div>
-        <button type="submit" class="btn btn-primary">Submit</button>
-    </form>
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-7 col-md-9">
+            <div class="card border-0 shadow-lg rounded-4">
+                <div class="card-header bg-gradient bg-info text-white rounded-top-4 py-3 d-flex align-items-center">
+                    <i class="fas fa-flask me-2 fs-4"></i>
+                    <h4 class="mb-0">Suggest Lab Test</h4>
+                </div>
+
+                <div class="card-body px-4 py-5 bg-light rounded-bottom-4">
+                    <h5 class="mb-4">
+                        You're suggesting a lab test for 
+                        <strong >{{ patient.user.username }}</strong>.
+                    </h5>
+
+                    <form method="POST" enctype="multipart/form-data" novalidate>
+                        {% csrf_token %}
+
+                        <!-- Test Name -->
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold">{{ form.test_name.label }}</label>
+                            {{ form.test_name|add_class:"form-control rounded-pill shadow-sm" }}
+                        </div>
+
+                        <!-- Short Description -->
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold">{{ form.description.label }}</label>
+                            {{ form.description|add_class:"form-control shadow-sm"|attr:"rows:2" }}
+                        </div>
+
+                        <!-- Lab Name Dropdown -->
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold">{{ form.lab_name.label }}</label>
+                            {{ form.lab_name|add_class:"form-select rounded-pill shadow-sm" }}
+                        </div>
+
+                        <!-- Status Dropdown -->
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold">{{ form.status.label }}</label>
+                            {{ form.status|add_class:"form-select rounded-pill shadow-sm" }}
+                        </div>
+
+                        <!-- Upload Report File -->
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold">{{ form.report_file.label }}</label>
+                            {{ form.report_file|add_class:"form-control shadow-sm" }}
+                        </div>
+
+                        <!-- Submit Button -->
+                        <div class="text-end">
+                            <button type="submit" class="btn btn-success btn-lg px-4 rounded-pill">
+                                <i class="fas fa-paper-plane me-2"></i>Submit Test
+                            </button>
+                        </div>
+                    </form>
+
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock %}
