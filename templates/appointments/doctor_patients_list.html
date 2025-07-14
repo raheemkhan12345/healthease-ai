@@ -16,7 +16,9 @@
                     <td>{{ patient.user.username }}</td>
                     <td>{{ patient.user.email }}</td>
                     <td>
-                        <a href="{% url 'appointments:patient_detail' patient.id %}" class="btn btn-sm btn-outline-info">View</a>
+                        <a href="{% url 'appointments:patient_detail' patient.id %}" class="btn btn-primary btn-sm">
+    <i class="fas fa-eye"></i> View
+</a>
                     </td>
                 </tr>
             {% endfor %}

@@ -19,6 +19,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.http import JsonResponse
 from django.views.decorators.http import require_GET
 from .forms import LabTestForm
+from django.core.exceptions import PermissionDenied
 
 
 
@@ -414,6 +415,11 @@ def suggest_lab_test(request, patient_id):
 
 @login_required
 def patient_lab_tests(request):
+    # Check if the logged-in user has a patient profile
+    if not hasattr(request.user, 'patientprofile'):
+        messages.warning(request, "Access denied: This section is reserved for patients.")
+        return redirect('home')  # You can change this to 'doctor_dashboard' or any other route
+
     patient = request.user.patientprofile
     tests = LabTest.objects.filter(patient=patient)
     return render(request, 'appointments/patient_lab_tests.html', {'tests': tests})
@@ -462,5 +468,34 @@ def doctor_patients_list(request):
 
 @login_required
 def patient_detail(request, patient_id):
+    doctor = request.user.doctorprofile
     patient = get_object_or_404(PatientProfile, id=patient_id)
-    return render(request, 'appointments/patient_detail.html', {'patient': patient})
+
+    # Get all appointments between this doctor and patient
+    appointments = Appointment.objects.filter(
+        doctor=doctor,
+        patient=patient
+    ).order_by('date')
+
+    return render(request, 'appointments/patient_detail.html', {
+        'patient': patient,
+        'appointments': appointments
+    })
+    
+@login_required
+def upload_prescription(request, appointment_id):
+    appointment = get_object_or_404(Appointment, id=appointment_id)
+
+    # Only allow doctor to upload for their own appointments
+    if request.user != appointment.doctor.user:
+        raise PermissionDenied("You are not authorized to upload prescription for this appointment.")
+
+    if request.method == 'POST' and request.FILES.get('prescription'):
+        prescription_file = request.FILES['prescription']
+        appointment.prescription = prescription_file
+        appointment.save()
+        messages.success(request, "Prescription uploaded successfully.")
+    else:
+        messages.error(request, "Please select a valid file to upload.")
+
+    return redirect('appointments:patient_detail', patient_id=appointment.patient.id)

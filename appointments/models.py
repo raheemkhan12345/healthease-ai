@@ -13,7 +13,7 @@ class Appointment(models.Model):
         ('completed', 'Completed'),
         ('cancelled', 'Cancelled'),
     ]
-
+    prescription = models.FileField(upload_to='prescriptions/', blank=True, null=True)
     doctor = models.ForeignKey(DoctorProfile, on_delete=models.CASCADE, related_name='appointments')
     patient = models.ForeignKey(PatientProfile, on_delete=models.CASCADE, related_name='appointments')
     date = models.DateField()
