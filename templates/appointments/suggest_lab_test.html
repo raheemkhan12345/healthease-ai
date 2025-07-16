@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends 'base.html' %} 
 {% load widget_tweaks %}
 
 {% block content %}
@@ -14,41 +14,29 @@
                 <div class="card-body px-4 py-5 bg-light rounded-bottom-4">
                     <h5 class="mb-4">
                         You're suggesting a lab test for 
-                        <strong >{{ patient.user.username }}</strong>.
+                        <strong>{{ patient.user.username }}</strong>.
                     </h5>
 
-                    <form method="POST" enctype="multipart/form-data" novalidate>
+                    <form method="POST" novalidate>
                         {% csrf_token %}
 
-                        <!-- Test Name -->
-                        <div class="mb-4">
-                            <label class="form-label fw-semibold">{{ form.test_name.label }}</label>
-                            {{ form.test_name|add_class:"form-control rounded-pill shadow-sm" }}
-                        </div>
-
-                        <!-- Short Description -->
-                        <div class="mb-4">
-                            <label class="form-label fw-semibold">{{ form.description.label }}</label>
-                            {{ form.description|add_class:"form-control shadow-sm"|attr:"rows:2" }}
-                        </div>
+                        <!-- Test Name Dropdown -->
+<div class="mb-4">
+    <label class="form-label fw-semibold">{{ form.test_name.label }}</label>
+    {{ form.test_name }}
+</div>
 
                         <!-- Lab Name Dropdown -->
                         <div class="mb-4">
                             <label class="form-label fw-semibold">{{ form.lab_name.label }}</label>
                             {{ form.lab_name|add_class:"form-select rounded-pill shadow-sm" }}
+                        </div> 
+                        <!-- Sample Collection Address -->
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold">{{ form.sample_collection_address.label }}</label>
+                            {{ form.sample_collection_address }}
                         </div>
 
-                        <!-- Status Dropdown -->
-                        <div class="mb-4">
-                            <label class="form-label fw-semibold">{{ form.status.label }}</label>
-                            {{ form.status|add_class:"form-select rounded-pill shadow-sm" }}
-                        </div>
-
-                        <!-- Upload Report File -->
-                        <div class="mb-4">
-                            <label class="form-label fw-semibold">{{ form.report_file.label }}</label>
-                            {{ form.report_file|add_class:"form-control shadow-sm" }}
-                        </div>
 
                         <!-- Submit Button -->
                         <div class="text-end">

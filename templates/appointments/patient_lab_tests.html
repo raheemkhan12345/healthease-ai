@@ -8,6 +8,7 @@
                 <th>Test</th>
                 <th>Doctor</th>
                 <th>Lab</th>
+                <th>Patient Address</th>
                 <th>Status</th>
                 <th>Report</th>
                 <th>Action</th>
@@ -17,8 +18,9 @@
         {% for test in tests %}
             <tr>
                 <td>{{ test.test_name }}</td>
-                <td>{{ test.doctor.user.get_full_name }}</td>
+                <td>{{ test.doctor.user.username }}</td>
                 <td>{{ test.lab_name }}</td>
+                <td>{{ test.sample_collection_address }}</td>
                 <td>{{ test.status }}</td>
                 <td>
                     {% if test.report_file %}

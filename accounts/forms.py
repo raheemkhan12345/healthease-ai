@@ -74,6 +74,7 @@ class PatientSignUpForm(UserCreationForm):
         widget=forms.DateInput(attrs={'type': 'date'}),
         required=True
     )
+    address = forms.CharField(max_length=255, required=False)
 
     class Meta:
         model = User

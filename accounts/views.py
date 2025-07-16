@@ -53,7 +53,9 @@ def patient_signup(request):
 
                     PatientProfile.objects.create(
                         user=user,
-                        date_of_birth=form.cleaned_data.get('date_of_birth')
+                        date_of_birth=form.cleaned_data.get('date_of_birth'),
+                         address=form.cleaned_data.get('address')
+                        
                     )
 
                     login(request, user)

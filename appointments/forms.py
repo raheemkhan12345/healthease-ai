@@ -57,16 +57,21 @@ class AppointmentForm(forms.ModelForm):
         model = Appointment
         fields = ['date', 'start_time', 'reason']
         widgets = {
-            'date': forms.DateInput(attrs={
-                'type': 'date',
-                'min': timezone.now().date()
-            }),
             'start_time': forms.TimeInput(attrs={'type': 'time'}),
             'reason': forms.Textarea(attrs={
                 'rows': 3,
                 'placeholder': 'Briefly describe your symptoms or reason for appointment'
             }),
         }
+
+    def __init__(self, *args, **kwargs):
+        super(AppointmentForm, self).__init__(*args, **kwargs)
+
+        tomorrow = timezone.now().date() + timedelta(days=1)
+        self.fields['date'].widget = forms.DateInput(attrs={
+            'type': 'date',
+            'min': tomorrow.strftime('%Y-%m-%d'),
+        })
 
     def clean_date(self):
         date = self.cleaned_data.get('date')
@@ -82,12 +87,33 @@ class AppointmentForm(forms.ModelForm):
 
 
 class LabTestForm(forms.ModelForm):
+    TEST_CHOICES = [
+        ('Blood Sugar', 'Blood Sugar'),
+        ('Urine Test', 'Urine Test'),
+        ('CBC', 'CBC (Complete Blood Count)'),
+        ('Liver Function', 'Liver Function Test'),
+        ('Thyroid', 'Thyroid Test'),
+    ]
+
+    test_name = forms.ChoiceField(
+        choices=TEST_CHOICES,
+        label="Test Name",
+        widget=forms.Select(attrs={
+            'class': 'form-select rounded-pill shadow-sm'
+        })
+    )
+
     class Meta:
         model = LabTest
-        fields = ['test_name', 'description', 'lab_name', 'status', 'report_file']
+        fields = ['test_name', 'lab_name', 'sample_collection_address']
         widgets = {
-            'status': forms.Select(choices=LabTest._meta.get_field('status').choices),
-            'lab_name': forms.Select(choices=LabTest._meta.get_field('lab_name').choices),
+            'lab_name': forms.Select(attrs={
+                'class': 'form-select rounded-pill shadow-sm'
+            }),
+            'sample_collection_address': forms.TextInput(attrs={
+                'class': 'form-control rounded-pill shadow-sm',
+                'placeholder': 'Enter collection address'
+            }),
         }
-    
+
     

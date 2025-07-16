@@ -66,6 +66,7 @@ class LabTest(models.Model):
     )
     report_file = models.FileField(upload_to='lab_reports/', blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
+    sample_collection_address = models.TextField(blank=True, null=True)
 
     def __str__(self):
         return f"{self.test_name} for {self.patient.user.username}"
