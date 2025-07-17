@@ -20,7 +20,7 @@ from django.http import JsonResponse
 from django.views.decorators.http import require_GET
 from .forms import LabTestForm
 from django.core.exceptions import PermissionDenied
-
+from datetime import date
 
 
 
@@ -253,24 +253,39 @@ def appointment_confirmation(request, appointment_id):
 
 @login_required
 def video_consultation(request, appointment_id):
-    appointment = get_object_or_404(
-        Appointment, 
-        id=appointment_id,
-        patient=request.user.patientprofile
-    )
-    
+    try:
+        # Ensure only the correct patient can access this consultation
+        appointment = get_object_or_404(
+            Appointment,
+            id=appointment_id,
+            patient=request.user.patientprofile
+        )
+    except:
+        messages.error(request, "You are not authorized to access this consultation.")
+        return redirect('appointments:patient_dashboard')
+
+    # ✅ Ensure appointment is confirmed
+    if appointment.status != "confirmed":
+        messages.error(request, "This appointment has not been confirmed yet.")
+        return redirect('appointments:appointment_confirmation', appointment_id=appointment_id)
+
+    # ✅ Ensure Zoom link is set
     if not appointment.zoom_join_url:
-        messages.error(request, "No Zoom meeting link found for this appointment")
-        return redirect('appointment_confirmation', appointment_id=appointment_id)
-    
-    # Check if the appointment time is within the next 15 minutes or has started
+        messages.error(request, "No Zoom meeting link found for this appointment.")
+        return redirect('appointments:appointment_confirmation', appointment_id=appointment_id)
+
+    # ✅ Time check - allow only within 15 minutes before scheduled time
     appointment_datetime = datetime.combine(appointment.date, appointment.start_time)
     now = timezone.now()
-    
+
+    # Convert naive `appointment_datetime` to timezone-aware
+    appointment_datetime = timezone.make_aware(appointment_datetime, timezone.get_current_timezone())
+
     if now < appointment_datetime - timedelta(minutes=15):
-        messages.warning(request, "Your consultation will begin at " + appointment_datetime.strftime("%I:%M %p"))
-        return redirect('appointment_confirmation', appointment_id=appointment_id)
-    
+        messages.warning(request, f"Your consultation will begin at {appointment_datetime.strftime('%I:%M %p')}")
+        return redirect('appointments:appointment_confirmation', appointment_id=appointment_id)
+
+    # ✅ Everything good — show consultation page
     return render(request, 'appointments/video_consultation.html', {
         'appointment': appointment,
         'now': now,
@@ -294,9 +309,23 @@ def book_appointment(request, doctor_id):
             appointment = form.save(commit=False)
             appointment.patient = patient
             appointment.doctor = doctor
-            appointment.zoom_meeting_id = None
-            appointment.zoom_join_url = None
             appointment.save()
+
+            # ✅ Create Zoom meeting
+            try:
+                zoom = ZoomAPI()
+                start_datetime = datetime.combine(appointment.date, appointment.start_time)
+                meeting = zoom.create_meeting(
+                    topic=f"Consultation with Dr. {doctor.user.username}",
+                    start_time=start_datetime,
+                    duration=30
+                )
+                appointment.zoom_meeting_id = meeting['id']
+                appointment.zoom_join_url = meeting['join_url']
+                appointment.save()
+            except Exception as e:
+                messages.error(request, f"Zoom meeting creation failed: {e}")
+                return redirect('appointments:doctor_dashboard')
 
             # Notifications
             Notification.objects.create(
@@ -311,7 +340,6 @@ def book_appointment(request, doctor_id):
             messages.success(request, 'Your appointment has been booked successfully!')
             return redirect('appointment_confirmation', appointment.id)
         else:
-            # Invalid form — show errors
             messages.error(request, "Please correct the errors in the form.")
             return render(request, 'appointments/book_appointment.html', {
                 'form': form,
@@ -320,11 +348,6 @@ def book_appointment(request, doctor_id):
 
     else:
         form = AppointmentForm()
-
-    return render(request, 'appointments/book_appointment.html', {
-        'form': form,
-        'doctor': doctor,
-    })
 
 def home(request):
     SPECIALIZATION_CHOICES = [
@@ -387,6 +410,8 @@ def autocomplete_suggestions(request):
 
      return JsonResponse(list(suggestions), safe=False)
  
+
+ 
 @login_required
 def suggest_lab_test(request, patient_id):
     patient = get_object_or_404(PatientProfile, id=patient_id)
@@ -411,7 +436,7 @@ def suggest_lab_test(request, patient_id):
     else:
         form = LabTestForm()
 
-    return render(request, 'appointments/suggest_lab_test.html', {'form': form, 'patient': patient})
+    return render(request, 'appointments/suggest_lab_test.html', {'form': form, 'patient': patient })
 
 @login_required
 def patient_lab_tests(request):
@@ -442,6 +467,12 @@ def upload_lab_report(request, test_id):
             test.status = 'Completed'
             test.save()
             return redirect('doctor_dashboard')
+        
+        Notification.objects.create(
+    recipient=test.patient.user,
+    message=f"Your lab report for {test.test_name} is now available for download."
+)
+        
 
     return render(request, 'appointments/upload_lab_report.html', {'test': test})
 
@@ -477,9 +508,19 @@ def patient_detail(request, patient_id):
         patient=patient
     ).order_by('date')
 
+    # Calculate age
+    if patient.date_of_birth:
+        today = date.today()
+        age = today.year - patient.date_of_birth.year - (
+            (today.month, today.day) < (patient.date_of_birth.month, patient.date_of_birth.day)
+        )
+    else:
+        age = "N/A"
+
     return render(request, 'appointments/patient_detail.html', {
         'patient': patient,
-        'appointments': appointments
+        'appointments': appointments,
+        'age': age  
     })
     
 @login_required

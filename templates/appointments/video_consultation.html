@@ -35,7 +35,7 @@
                         <div class="card-body">
                             <ul class="list-group list-group-flush">
                                 <li class="list-group-item">
-                                    <strong>Doctor:</strong> Dr. {{ appointment.doctor.user.get_full_name }}
+                                    <strong>Doctor:</strong> Dr. {{ appointment.doctor.user.username }}
                                 </li>
                                 <li class="list-group-item">
                                     <strong>Date:</strong> {{ appointment.date|date:"M j, Y" }}
