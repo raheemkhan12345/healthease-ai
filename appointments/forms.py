@@ -10,6 +10,7 @@ from accounts.models import DoctorProfile
 from django.core.exceptions import ValidationError
 
 
+
 class DoctorSignUpForm(UserCreationForm):
     # Add doctor-specific fields
     pass
@@ -97,23 +98,85 @@ class LabTestForm(forms.ModelForm):
 
     test_name = forms.ChoiceField(
         choices=TEST_CHOICES,
-        label="Test Name",
         widget=forms.Select(attrs={
-            'class': 'form-select rounded-pill shadow-sm'
+            'class': 'form-select',
+            'required': True
+        }),
+        label="Select Test Type"
+    )
+
+    class Meta:
+        model = LabTest
+        fields = ['test_name']
+
+class PatientLabDetailsForm(forms.ModelForm):
+    
+    LAB_CHOICES = [
+        ('', '--- Select Lab ---'),
+        ('City Lab', 'City Lab'),
+        ('Shifa Diagnostics', 'Shifa Diagnostics'),
+        ('Excel Lab', 'Excel Lab'),
+    ]
+
+    lab_name = forms.ChoiceField(
+        choices=LAB_CHOICES,
+        widget=forms.Select(attrs={
+            'class': 'form-select',
+            'required': 'required'
+        }),
+        help_text="Select your preferred lab facility"
+    )
+
+    sample_collection_address = forms.CharField(
+        widget=forms.Textarea(attrs={
+            'class': 'form-control',
+            'rows': 3,
+            'placeholder': 'Full address including city and postal code'
+        }),
+        help_text="Where should the lab collect the sample?"
+    )
+
+    
+
+    class Meta:
+        model = LabTest
+        fields = ['lab_name', 'sample_collection_address']
+        labels = {
+            'sample_collection_address': 'Collection Address'
+        }
+
+    def clean_lab_name(self):
+        lab_name = self.cleaned_data.get('lab_name')
+        if not lab_name:
+            raise ValidationError("Please select a lab facility")
+        return lab_name
+
+   
+
+class LabReportUploadForm(forms.ModelForm):
+    """
+    Form for labs to upload test results (final step)
+    """
+    report_file = forms.FileField(
+        widget=forms.FileInput(attrs={
+            'class': 'form-control',
+            'accept': '.pdf,.jpg,.png,.docx'
+        }),
+        help_text="Upload test results (PDF, JPG, PNG, or DOCX)"
+    )
+
+    notes_for_doctor = forms.CharField(
+        required=False,
+        widget=forms.Textarea(attrs={
+            'class': 'form-control',
+            'rows': 2,
+            'placeholder': 'Any special notes for the doctor...'
         })
     )
 
     class Meta:
         model = LabTest
-        fields = ['test_name', 'lab_name', 'sample_collection_address']
-        widgets = {
-            'lab_name': forms.Select(attrs={
-                'class': 'form-select rounded-pill shadow-sm'
-            }),
-            'sample_collection_address': forms.TextInput(attrs={
-                'class': 'form-control rounded-pill shadow-sm',
-                'placeholder': 'Enter collection address'
-            }),
+        fields = ['report_file', 'notes_for_doctor']
+        labels = {
+            'notes_for_doctor': 'Lab Notes'
         }
-
-    

@@ -1,0 +1,78 @@
+<table class="table table-hover align-middle">
+    <thead class="table-light">
+        <tr>
+            <th>Test</th>
+            <th>Doctor</th>
+            <th>Lab</th>
+            <th>Collection Address</th>
+            <th>Status</th>
+            <th>Date</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for test in tests %}
+    <tr>
+        <td>
+            <strong>{{ test.test_name }}</strong>
+            {% if test.priority == 'Urgent' %}
+                <span class="badge bg-danger ms-2">Urgent</span>
+            {% elif test.priority == 'STAT' %}
+                <span class="badge bg-danger ms-2"><i class="fas fa-bolt"></i> STAT</span>
+            {% endif %}
+        </td>
+        <td>Dr. {{ test.doctor.user.username }}</td>
+        <td>
+            {% if test.lab_name %}
+                {{ test.lab_name }}
+            {% else %}
+                <span class="text-muted">Not selected</span>
+            {% endif %}
+        </td>
+        <td>
+            {{ test.sample_collection_address }}
+        </td>
+        <td>
+            <span class="badge 
+                {% if test.status == 'Completed' %}bg-success
+                {% elif test.status == 'Sent to Lab' %}bg-primary
+                {% elif test.status == 'Suggested' %}bg-warning text-dark
+                {% else %}bg-secondary{% endif %}">
+                {{ test.get_status_display }}
+            </span>
+        </td>
+        <td>
+            <small>{{ test.created_at|date:"M d, Y" }}</small>
+        </td>
+        <td class="text-nowrap">
+            {% if test.status == 'Suggested' %}
+                <a href="{% url 'appointments:complete_lab_details' test.id %}" class="btn btn-sm btn-primary">
+                    <i class="fas fa-edit"></i> Complete Details
+                </a>
+            {% elif test.status == 'Sent to Lab' and not test.report_file %}
+                <a href="{% url 'appointments:upload_lab_report' test.id %}" 
+                   class="btn btn-sm btn-info">
+                    <i class="fas fa-upload"></i> Upload Report
+                </a>
+            {% elif test.report_file %}
+                <a href="{{ test.report_file.url }}" 
+                   class="btn btn-sm btn-success" 
+                   target="_blank"
+                   data-bs-toggle="tooltip" 
+                   title="Download Report">
+                    <i class="fas fa-download"></i>
+                </a>
+            {% else %}
+                <span class="text-muted">Awaiting results</span>
+            {% endif %}
+        </td>
+    </tr>
+    {% empty %}
+    <tr>
+        <td colspan="7" class="text-center py-4 text-muted">
+            No lab tests found
+        </td>
+    </tr>
+    {% endfor %}
+</tbody>
+</table>

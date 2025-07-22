@@ -4,48 +4,62 @@
 {% block title %}Patient Profile - HealthEase AI{% endblock %}
 
 {% block content %}
-<div class="container py-5">
+<div class="container-fluid py-4">
     <div class="row g-4">
-        <!-- Sidebar -->
-        <div class="col-md-3">
-            <div class="card shadow-sm rounded-3 border-0">
-                <div class="card-header bg-success text-white rounded-top">
-                    <h5 class="mb-0 text-center">Patient Menu</h5>
+        <!-- Sidebar Navigation -->
+        <div class="col-lg-3">
+            <div class="card border-0 shadow-sm rounded-3">
+                <div class="card-header bg-success text-white py-3 rounded-top">
+                    <h5 class="mb-0"><i class="fas fa-user-circle me-2"></i>Patient Menu</h5>
                 </div>
-                <div class="list-group list-group-flush">
-                   <a href="{% url 'accounts:patient_dashboard' %}" class="list-group-item list-group-item-action">Dashboard</a>
-                    <a href="{% url 'accounts:patient_profile' %}" class="list-group-item list-group-item-action">My Profile</a>
-                    <a href="{% url 'accounts:user_logout' %}" class="list-group-item list-group-item-action border-0 text-danger"> Logout</a>
+                <div class="list-group list-group-flush rounded-bottom">
+                    <a href="{% url 'accounts:patient_dashboard' %}" 
+                       class="list-group-item list-group-item-action border-0 py-3">
+                       <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                    </a>
+                    <a href="{% url 'accounts:patient_profile' %}" 
+                       class="list-group-item list-group-item-action border-0 py-3 active">
+                       <i class="fas fa-user me-2"></i>My Profile
+                    </a>
+                    <a href="{% url 'appointments:patient_appointment_list' %}" 
+                       class="list-group-item list-group-item-action border-0 py-3">
+                       <i class="fas fa-calendar-check me-2"></i>Appointments
+                    </a>
+                    <a href="{% url 'accounts:user_logout' %}" 
+                       class="list-group-item list-group-item-action border-0 py-3 text-danger">
+                       <i class="fas fa-sign-out-alt me-2"></i>Logout
+                    </a>
                 </div>
             </div>
         </div>
 
         <!-- Profile Section -->
-        <div class="col-md-9">
-            <div class="card shadow-sm rounded-3 border-0">
-                <div class="card-header bg-success text-white rounded-top d-flex justify-content-between align-items-center">
-                    <h4 class="mb-0">Patient Profile</h4>
+        <div class="col-lg-9">
+            <div class="card border-0 shadow-sm rounded-3">
+                <div class="card-header bg-success text-white py-3 rounded-top">
+                    <h4 class="mb-0"><i class="fas fa-id-card me-2"></i>Patient Profile</h4>
                 </div>
                 <div class="card-body">
-
-                    <!-- Profile Details Table -->
-                    <div class="table-responsive">
-                        <table class="table table-bordered table-striped mb-0">
-                            <tbody>
-                                <tr>
-                                    <th>Username</th>
-                                    <td>{{ patient.username }}</td>
-                                </tr>
-                                <tr>
-                                    <th>Email</th>
-                                    <td>{{ patient.email }}</td>
-                                </tr>
-                                <tr>
-                                    <th>Date of Birth</th>
-                                    <td>{{ profile.date_of_birth }}</td>
-                                </tr>
-                            </tbody>
-                        </table>
+                    <div class="row justify-content-center">
+                        <div class="col-md-8">
+                            <div class="table-responsive">
+                                <table class="table table-borderless">
+                                    <tbody>
+                                        <tr>
+                                            <th class="text-nowrap text-success"><i class="fas fa-user me-2"></i>Username</th>
+                                            <td>{{ patient.username }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th class="text-nowrap text-success"><i class="fas fa-envelope me-2"></i>Email</th>
+                                            <td>{{ patient.email }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th class="text-nowrap text-success"><i class="fas fa-birthday-cake me-2"></i>Date of Birth</th>
+                                            <td>{{ profile.date_of_birth|date:"F j, Y"|default:"Not specified" }}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
                     </div>
                 </div>
             </div>
@@ -54,10 +68,26 @@
 </div>
 
 <style>
-    /* Prevent card movement on click */
-    .list-group-item:active {
-        background-color: #f8f9fa !important;
-        transform: none !important;
+    .card {
+        transition: all 0.3s ease;
+    }
+    .list-group-item.active {
+        background-color: #e8f5e9;
+        color: #2e7d32;
+        border-left: 3px solid #2e7d32;
+    }
+    .list-group-item-action:hover {
+        background-color: #f8f9fa;
+    }
+    table tbody tr:not(:last-child) {
+        border-bottom: 1px solid #e9ecef;
+    }
+    table tbody tr th {
+        width: 35%;
+        padding-left: 0;
+    }
+    table tbody tr td {
+        padding-left: 1rem;
     }
 </style>
 {% endblock %}

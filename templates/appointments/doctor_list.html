@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load widget_tweaks %}
+
 {% block content %}
 <div class="container py-5">
     <!-- Search Form -->
@@ -10,22 +11,18 @@
                     <h4 class="mb-4 text-center fw-bold text-primary">Find the Best Doctors</h4>
                     <form method="get" class="row g-3">
                         <div class="col-md-4">
-                            <label for="specialization" class="form-label fw-semibold">Specialization</label>
+                            <label class="form-label fw-semibold">Specialization</label>
                             {% render_field form.specialization class="form-select form-control shadow-sm rounded-3 py-2" %}
                         </div>
                         <div class="col-md-4">
-                            <label for="location" class="form-label fw-semibold">Location</label>
-                            <input type="text" name="location" class="form-control shadow-sm rounded-3 py-2"
-       placeholder="Location or hospital" list="location-suggestions">
-<datalist id="location-suggestions"></datalist>
-
+                            <label class="form-label fw-semibold">Location</label>
+                            <input type="text" name="location" class="form-control shadow-sm rounded-3 py-2" placeholder="Location or hospital" list="location-suggestions">
+                            <datalist id="location-suggestions"></datalist>
                         </div>
                         <div class="col-md-4">
-                            <label for="query" class="form-label fw-semibold">Search</label>
-                           <input type="text" name="query" class="form-control shadow-sm rounded-3 py-2"
-       placeholder="Search by name" list="query-suggestions">
-<datalist id="query-suggestions"></datalist>
-
+                            <label class="form-label fw-semibold">Search</label>
+                            <input type="text" name="query" class="form-control shadow-sm rounded-3 py-2" placeholder="Search by name" list="query-suggestions">
+                            <datalist id="query-suggestions"></datalist>
                         </div>
                         <div class="col-12 text-end">
                             <button type="submit" class="btn btn-success px-4 mt-2">
@@ -48,17 +45,23 @@
                         <div class="d-flex align-items-start">
                             <img src="{{ doctor.profile_picture.url|default:'/static/images/default-doctor.jpg' }}" class="rounded-circle me-4" width="90" height="90" alt="{{ doctor.user.username }}">
                             <div>
-                                <h5 class="fw-bold mb-1">Dr. {{ doctor.user.username }}
-                                </h5>
-                                <p class="mb-1 text-muted">{{ doctor.specialization }}, {{ doctor.hospital }}</p>
-                                <p class="mb-0 text-muted small">
-                                    <strong>{{ doctor.experience }} Years</strong> &nbsp;&nbsp;
+                                <h5 class="fw-bold mb-1">Dr. {{ doctor.user.username }}</h5>
+                                <p class="mb-1 text-muted"><strong>Specialization:</strong> {{ doctor.specialization }}</p>
+                                <p class="mb-1 text-muted"><strong>Qualification:</strong> {{ doctor.qualification }}</p>
+                                <p class="mb-1 text-muted"><strong>Experience:</strong> {{ doctor.experience }} years</p>
+                                <p class="mb-0 text-muted">
+                                    <strong>Location:</strong> {{ doctor.hospital }}
+                                    {% if doctor.hospital %}
+                                        <a href="https://www.google.com/maps/search/?api=1&query={{ doctor.hospital|urlencode }}" target="_blank" class="ms-2 text-decoration-none">
+                                            <i class="fas fa-map-marker-alt text-danger" title="View on Map"></i>
+                                        </a>
+                                    {% endif %}
                                 </p>
                             </div>
                         </div>
                         <div class="text-center mt-3 mt-md-0">
-                            <a href="#" class="btn btn-outline-primary w-100 mb-2">
-                                <i class="fas fa-video"></i> Video Consultation
+                            <a href="{% url 'appointments:video_consultation' doctor.id %}" class="btn btn-outline-primary w-100 mb-2">
+                            <i class="fas fa-video"></i> Video Consultation
                             </a>
                             <a href="{% url 'appointments:doctor_detail' doctor.id %}" class="btn btn-warning text-white w-100">
                                 Book Appointment
@@ -106,19 +109,15 @@
 
 {% block extra_css %}
 <style>
-/* Disable movement on card hover */
-.card {
-    transition: none !important;
-    transform: none !important;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-}
-
-.card:hover {
-    transform: none !important;
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12) !important;
+.fa-map-marker-alt {
+    font-size: 1.1rem;
+    margin-left: 4px;
+    cursor: pointer;
 }
 </style>
+{% endblock %}
 
+{% block extra_js %}
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     const locationInput = document.querySelector("input[name='location']");
@@ -132,10 +131,10 @@ document.addEventListener('DOMContentLoaded', function () {
             fetch(`/appointments/autocomplete/?term=${encodeURIComponent(term)}&field=${input.name}`)
                 .then(res => res.json())
                 .then(data => {
-                    let datalist = document.getElementById(datalistId);
+                    const datalist = document.getElementById(datalistId);
                     datalist.innerHTML = '';
                     data.forEach(item => {
-                        let option = document.createElement('option');
+                        const option = document.createElement('option');
                         option.value = item;
                         datalist.appendChild(option);
                     });
@@ -148,4 +147,3 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 </script>
 {% endblock %}
-

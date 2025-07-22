@@ -15,18 +15,9 @@
                     <div class="row mb-4">
                         <div class="col-md-6">
                             <ul class="list-unstyled">
-                                <li class="mb-2">
-                                    <i class="fas fa-user-circle text-primary me-2"></i>
-                                    <strong>Name:</strong> {{ patient.user.username }}
-                                </li>
-                                <li class="mb-2">
-                                    <i class="fas fa-envelope text-success me-2"></i>
-                                    <strong>Email:</strong> {{ patient.user.email }}
-                                </li>
-                                <li>
-                                    <i class="fas fa-birthday-cake text-info me-2"></i>
-                                    <strong>Age:</strong> {{age }} years
-                                </li>
+                                <li class="mb-2"><i class="fas fa-user-circle text-primary me-2"></i><strong>Name:</strong> {{ patient.user.username }}</li>
+                                <li class="mb-2"><i class="fas fa-envelope text-success me-2"></i><strong>Email:</strong> {{ patient.user.email }}</li>
+                                <li><i class="fas fa-birthday-cake text-info me-2"></i><strong>Age:</strong> {{ age }} years</li>
                             </ul>
                         </div>
                         <div class="col-md-6 text-end align-self-start">
@@ -67,7 +58,10 @@
                                                         <i class="fas fa-download me-1"></i> Download PDF
                                                     </a>
                                                 {% else %}
-                                                    <img src="{{ appointment.prescription.url }}" class="img-fluid rounded d-block mb-2" style="max-height: 300px;" alt="Prescription">
+                                                    <div class="zoom-container d-inline-block" data-bs-toggle="modal" data-bs-target="#imageModal" data-image="{{ appointment.prescription.url }}">
+                                                        <img src="{{ appointment.prescription.url }}" class="img-fluid zoom-image rounded mb-2" style="max-height: 300px;" alt="Prescription">
+                                                    </div>
+                                                    <br>
                                                     <a href="{{ appointment.prescription.url }}" download class="btn btn-outline-success btn-sm">
                                                         <i class="fas fa-download me-1"></i> Download Image
                                                     </a>
@@ -97,9 +91,97 @@
                     {% else %}
                         <p class="text-muted">No appointments found.</p>
                     {% endif %}
+
+                    <!-- Lab Reports Section -->
+                    {% if lab_reports %}
+                        <hr class="my-4">
+                        <h5 class="mb-3 text-secondary"><i class="fas fa-vial me-2"></i>Lab Reports</h5>
+                        <div class="accordion" id="labReportsAccordion">
+                            {% for report in lab_reports %}
+                                <div class="accordion-item border rounded mb-2 shadow-sm">
+                                    <h2 class="accordion-header" id="heading{{ forloop.counter }}">
+                                        <button class="accordion-button collapsed fw-semibold" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ forloop.counter }}" aria-expanded="false" aria-controls="collapse{{ forloop.counter }}">
+                                            {{ report.test_name }} - {{ report.created_at|date:"M d, Y H:i" }}
+                                        </button>
+                                    </h2>
+                                    <div id="collapse{{ forloop.counter }}" class="accordion-collapse collapse" aria-labelledby="heading{{ forloop.counter }}" data-bs-parent="#labReportsAccordion">
+                                        <div class="accordion-body">
+                                            {% if report.report_file.url|lower|slice:"-4:" == ".pdf" %}
+                                                <p><i class="fas fa-file-pdf text-danger me-2"></i>PDF Report:</p>
+                                                <a href="{{ report.report_file.url }}" target="_blank" class="btn btn-sm btn-outline-primary me-2">
+                                                    <i class="fas fa-eye me-1"></i> View PDF
+                                                </a>
+                                                <a href="{{ report.report_file.url }}" download class="btn btn-sm btn-outline-success">
+                                                    <i class="fas fa-download me-1"></i> Download
+                                                </a>
+                                            {% else %}
+                                                <p><i class="fas fa-image text-info me-2"></i>Image Report:</p>
+                                                <div class="zoom-container d-inline-block" data-bs-toggle="modal" data-bs-target="#imageModal" data-image="{{ report.report_file.url }}">
+                                                    <img src="{{ report.report_file.url }}" class="img-fluid zoom-image rounded border shadow-sm mb-2" style="max-height: 250px;" alt="Lab Report">
+                                                </div>
+                                                <br>
+                                                <a href="{{ report.report_file.url }}" download class="btn btn-sm btn-outline-success mt-2">
+                                                    <i class="fas fa-download me-1"></i> Download Image
+                                                </a>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <hr class="my-4">
+                        <p class="text-muted"><i class="fas fa-file-alt me-2"></i>No lab reports uploaded yet.</p>
+                    {% endif %}
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<!-- Modal for full-screen image preview -->
+<div class="modal fade" id="imageModal" tabindex="-1" aria-labelledby="imageModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content bg-dark">
+            <div class="modal-body p-0">
+                <img id="modalImage" src="" class="img-fluid w-100" alt="Full Report">
+            </div>
+            <div class="modal-footer justify-content-center bg-dark border-0">
+                <button type="button" class="btn btn-light btn-sm" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-1"></i> Close
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Zoom & Modal Scripts -->
+<style>
+.zoom-container {
+    position: relative;
+    display: inline-block;
+    overflow: hidden;
+    border-radius: 0.5rem;
+    cursor: zoom-in;
+}
+.zoom-image {
+    transition: transform 0.3s ease;
+}
+.zoom-container:hover .zoom-image {
+    transform: scale(1.5);
+    z-index: 2;
+}
+</style>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const imageModal = document.getElementById("imageModal");
+    imageModal.addEventListener("show.bs.modal", function (event) {
+        const trigger = event.relatedTarget;
+        const imageUrl = trigger.getAttribute("data-image");
+        const modalImage = document.getElementById("modalImage");
+        modalImage.src = imageUrl;
+    });
+});
+</script>
 {% endblock %}

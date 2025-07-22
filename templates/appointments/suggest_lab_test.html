@@ -18,37 +18,43 @@
                     </h5>
 
                     <form method="POST" novalidate>
-                        {% csrf_token %}
+    {% csrf_token %}
+    
+    <!-- Display form errors at the top -->
+    {% if form.errors %}
+    <div class="alert alert-danger">
+        <strong>Error!</strong> Please correct these issues:
+        {{ form.non_field_errors }}
+        {% for field in form %}
+            {% if field.errors %}
+                <div>{{ field.label }}: {{ field.errors }}</div>
+            {% endif %}
+        {% endfor %}
+    </div>
+    {% endif %}
 
-                        <!-- Test Name Dropdown -->
-<div class="mb-4">
-    <label class="form-label fw-semibold">{{ form.test_name.label }}</label>
-    {{ form.test_name }}
-</div>
+    <div class="mb-3">
+        <label for="{{ form.test_name.id_for_label }}" class="form-label">
+            Test Name
+        </label>
+        {{ form.test_name }}
+        <div class="invalid-feedback">
+            {{ form.test_name.errors }}
+        </div>
+    </div>
 
-                        <!-- Lab Name Dropdown -->
-                        <div class="mb-4">
-                            <label class="form-label fw-semibold">{{ form.lab_name.label }}</label>
-                            {{ form.lab_name|add_class:"form-select rounded-pill shadow-sm" }}
-                        </div> 
-                        <!-- Sample Collection Address -->
-                        <div class="mb-4">
-                            <label class="form-label fw-semibold">{{ form.sample_collection_address.label }}</label>
-                            {{ form.sample_collection_address }}
-                        </div>
-
-
-                        <!-- Submit Button -->
-                        <div class="text-end">
-                            <button type="submit" class="btn btn-success btn-lg px-4 rounded-pill">
-                                <i class="fas fa-paper-plane me-2"></i>Submit Test
-                            </button>
-                        </div>
-                    </form>
+    <button type="submit" class="btn btn-primary">Submit Test</button>
+</form>
 
                 </div>
             </div>
         </div>
     </div>
 </div>
+<script>
+document.querySelector('form').addEventListener('submit', function(e) {
+    console.log('Form submitted!'); // Check if this appears in console
+    // If not, something is preventing submission
+});
+</script>
 {% endblock %}

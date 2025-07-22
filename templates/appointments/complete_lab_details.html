@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% block title %}Complete Lab Details | HealthEase AI{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h4 class="mb-0">Complete Lab Test Details</h4>
+        <span class="badge bg-warning text-dark">Step 2 of 2</span>
+    </div>
+    
+    <div class="card shadow-lg border-0">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">Test Information</h5>
+        </div>
+        <div class="card-body">
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <p class="mb-2">
+                        <strong><i class="fas fa-flask me-2"></i>Test Name:</strong>
+                        <span class="text-success">{{ test.test_name }}</span>
+                    </p>
+                    <p class="mb-2">
+                        <strong><i class="fas fa-user-md me-2"></i>Ordered By:</strong>
+                        Dr. {{ test.doctor.user.username }}
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <p class="mb-2">
+                        <strong><i class="fas fa-calendar me-2"></i>Requested On:</strong>
+                        {{ test.created_at|date:"F j, Y" }}
+                    </p>
+                    <p class="mb-0">
+                        <strong><i class="fas fa-info-circle me-2"></i>Status:</strong>
+                        <span class="badge bg-info text-dark">{{ test.get_status_display }}</span>
+                    </p>
+                </div>
+            </div>
+
+            <hr>
+            
+            <h5 class="mb-3"><i class="fas fa-clipboard-check me-2"></i>Lab Details</h5>
+<form method="POST" action="" id="labDetailsForm">
+    {% csrf_token %}
+    
+    <!-- Form fields -->
+    <div class="mb-3">
+        <label class="form-label">Lab Facility</label>
+        {{ form.lab_name }}
+        {{ form.lab_name.errors }}
+    </div>
+    
+    <div class="mb-3">
+        <label class="form-label">Collection Address</label>
+        {{ form.sample_collection_address }}
+        {{ form.sample_collection_address.errors }}
+    </div>
+    
+    <button type="submit" class="btn btn-primary" id="submitBtn">
+        <i class="fas fa-paper-plane me-1"></i> Submit to Lab
+    </button>
+</form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.getElementById('labDetailsForm').addEventListener('submit', function(e) {
+    console.log('Form submission triggered'); // Debug line
+    const btn = document.getElementById('submitBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Submitting...';
+});
+</script>
+{% endblock %}

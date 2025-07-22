@@ -36,6 +36,11 @@ class DoctorSignUpForm(UserCreationForm):
         widget=forms.FileInput(attrs={'accept': 'image/*'}),
         help_text='Optional. JPG or PNG, max 2MB'
     )
+    qualification = forms.CharField(
+    max_length=100,
+    widget=forms.TextInput(attrs={'placeholder': 'MBBS, FCPS, etc.'}),
+    required=True
+    )
 
     class Meta:
         model = User
@@ -61,6 +66,7 @@ class DoctorSignUpForm(UserCreationForm):
                 specialization=self.cleaned_data['specialization'],
                 hospital=self.cleaned_data['hospital'],
                 experience=self.cleaned_data['experience'],
+                qualification=self.cleaned_data['qualification'],
                 profile_picture=self.cleaned_data.get('profile_picture') or 'default.jpg'
             )
         return user

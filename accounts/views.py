@@ -9,6 +9,7 @@ from .models import DoctorProfile, PatientProfile, User
 from appointments.models import Appointment, LabTest
 from notifications.models import Notification
 from appointments.models import Appointment
+from django.utils import timezone
 
 # ─────────────── Signup Views ─────────────── #
 def doctor_signup(request):
@@ -128,6 +129,8 @@ def user_logout(request):
     return redirect('home')
 
 # ─────────────── Dashboards ─────────────── #
+from django.utils import timezone
+
 @login_required
 def doctor_dashboard(request):
     if request.user.user_type != 'doctor':
@@ -141,12 +144,16 @@ def doctor_dashboard(request):
 
     notifications = Notification.objects.filter(user=request.user, is_read=False).order_by('-created_at')
 
+    now = timezone.localtime()  # current date and time
+
     context = {
         'doctor': request.user,
         'profile': profile,
         'appointments': appointments,
         'notifications': notifications,
-        'patient_count': patient_count
+        'patient_count': patient_count,
+        'now': now.time(),
+        'today': now.date(),
     }
     return render(request, 'accounts/doctor_dashboard.html', context)
 
@@ -157,9 +164,13 @@ def patient_dashboard(request):
     appointments = Appointment.objects.filter(patient=patient).order_by('-date')[:5]
     lab_tests = LabTest.objects.filter(patient=patient)
 
+    now = timezone.localtime()  # current date & time
+
     return render(request, 'accounts/patient_dashboard.html', {
         'appointments': appointments,
         'lab_tests': lab_tests,
+        'now': now.time(),     # used to compare with start_time
+        'today': now.date(),   # used to compare with appointment.date
     })
 
 # ─────────────── Profiles ─────────────── #

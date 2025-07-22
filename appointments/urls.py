@@ -30,6 +30,7 @@ urlpatterns = [
     path('doctors/<int:doctor_id>/book/', views.book_appointment, name='book_appointment'),
     path('appointments/<int:appointment_id>/confirm/', views.appointment_confirmation, name='appointment_confirmation'),
     path('appointments/<int:appointment_id>/video/', views.video_consultation, name='video_consultation'),
+    path('doctor/approve-appointment/<int:appointment_id>/', views.approve_appointment, name='approve_appointment'),
     path('confirmation/<int:appointment_id>/', views.appointment_confirmation, name='appointment_confirmation'),
     path('autocomplete/', views.autocomplete_suggestions, name='autocomplete'),
     
@@ -39,6 +40,8 @@ urlpatterns = [
     path('doctor/patients/', views.doctor_patients_list, name='doctor_patients_list'),
     path('doctor/patient/<int:patient_id>/', views.patient_detail, name='patient_detail'),
     path('upload-prescription/<int:appointment_id>/', views.upload_prescription, name='upload_prescription'),
+    path('complete-lab-details/<int:test_id>/', views.complete_lab_details, name='complete_lab_details'),
+    path('patient/appointments/', views.patient_appointment_list, name='patient_appointment_list'),
 
 
 
