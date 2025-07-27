@@ -42,6 +42,7 @@ urlpatterns = [
     path('upload-prescription/<int:appointment_id>/', views.upload_prescription, name='upload_prescription'),
     path('complete-lab-details/<int:test_id>/', views.complete_lab_details, name='complete_lab_details'),
     path('patient/appointments/', views.patient_appointment_list, name='patient_appointment_list'),
+    path('chatbot/', views.chatbot_view, name='chatbot'),
 
 
 

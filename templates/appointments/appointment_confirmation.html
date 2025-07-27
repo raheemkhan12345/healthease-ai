@@ -11,7 +11,7 @@
                 <h4 class="alert-heading">Your appointment has been booked!</h4>
                 <!-- <p>You'll receive a confirmation email with all the details.</p> -->
             </div>
-            
+
             <div class="row">
                 <div class="col-md-6">
                     <h4>Appointment Details</h4>
@@ -26,50 +26,49 @@
                             <strong>Date:</strong> {{ appointment.date|date:"D, M j, Y" }}
                         </li>
                         <li class="list-group-item">
-                            <strong>Time:</strong> {{ appointment.start_time|time:"g:i A" }} - {{ appointment.end_time|time:"g:i A" }}
+                            <strong>Time:</strong> {{ appointment.start_time|time:"g:i A" }} 
                         </li>
                         <li class="list-group-item">
                             <strong>Reason:</strong> {{ appointment.reason }}
                         </li>
                         <li class="list-group-item">
-                            <strong>Status:</strong> 
-                            <span class="badge bg-{% if appointment.status == 'confirmed' %}success{% else %}warning{% endif %}">
+                            <strong>Status:</strong>
+                            <span
+                                class="badge bg-{% if appointment.status == 'confirmed' %}success{% else %}warning{% endif %}">
                                 {{ appointment.get_status_display }}
                             </span>
                         </li>
                     </ul>
                 </div>
-                
+
                 <div class="col-md-6">
                     <h4>Next Steps</h4>
                     <div class="card">
                         <div class="card-body">
                             <ul class="list-unstyled">
                                 <li class="mb-3">
-                                    <i class="fas fa-calendar-check text-primary me-2"></i>
-                                    The appointment will be confirmed by the doctor's office
-                                </li>
-                                <li class="mb-3">
-                                    <i class="fas fa-envelope text-primary me-2"></i>
-                                    You'll receive a confirmation email with Zoom link
+                                    <i class="fas fa-check-circle text-success me-2"></i>
+                                    Your appointment has been successfully booked.
                                 </li>
                                 <li class="mb-3">
                                     <i class="fas fa-video text-primary me-2"></i>
-                                    Join the consultation 5 minutes before the scheduled time
+                                    A Zoom link has been generated for your video consultation.
+                                </li>
+                                <li class="mb-3">
+                                    <i class="fas fa-clock text-warning me-2"></i>
+                                    Please join the video consultation at the scheduled time from your dashboard.
                                 </li>
                             </ul>
-                            
+
                             <div class="d-grid gap-2">
                                 <a href="{% url 'appointments:doctor_search' %}" class="btn btn-outline-primary">
                                     Find Another Doctor
                                 </a>
-                                <!-- <a href="{% url 'accounts:patient_dashboard' %}" class="btn btn-primary">
-                                    Go to Dashboard
-                                </a> -->
                             </div>
                         </div>
                     </div>
                 </div>
+
             </div>
         </div>
     </div>

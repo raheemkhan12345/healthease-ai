@@ -68,10 +68,10 @@ class AppointmentForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(AppointmentForm, self).__init__(*args, **kwargs)
 
-        tomorrow = timezone.now().date() + timedelta(days=1)
+        today = timezone.now().date()
         self.fields['date'].widget = forms.DateInput(attrs={
             'type': 'date',
-            'min': tomorrow.strftime('%Y-%m-%d'),
+            'min': today.strftime('%Y-%m-%d'),  # Allow today and future
         })
 
     def clean_date(self):

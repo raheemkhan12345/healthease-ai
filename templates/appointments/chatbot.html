@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Chatbot - HealthEase AI{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <h2 class="text-center mb-4 text-success">Talk to HealthEase AI Assistant</h2>
+    <div class="d-flex justify-content-center">
+        <iframe
+            allow="microphone;"
+            width="350"
+            height="500"
+            src="https://bot.dialogflow.com/e333fbd3-0b36-476f-b0b6-42675da47dcd">
+        </iframe>
+    </div>
+</div>
+{% endblock %}

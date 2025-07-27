@@ -157,7 +157,6 @@ def doctor_dashboard(request):
     }
     return render(request, 'accounts/doctor_dashboard.html', context)
 
-
 @login_required
 def patient_dashboard(request):
     patient = request.user.patientprofile

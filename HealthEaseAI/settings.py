@@ -112,12 +112,11 @@ LOGIN_REDIRECT_URL = 'home'
 LOGOUT_REDIRECT_URL = 'home'
 
 # Third-party API keys
-ZOOM_API_KEY = 'your_zoom_api_key'
-ZOOM_API_SECRET = 'your_zoom_api_secret'
-ZOOM_CLIENT_ID = 'your_zoom_client_id'
-ZOOM_CLIENT_SECRET = 'your_zoom_client_secret'
-ZOOM_ACCOUNT_ID = 'your_zoom_account_id'
-GOOGLE_MAPS_API_KEY = 'your_google_maps_api_key'
+ZOOM_ACCOUNT_ID = "EnF7G5CjREORISeS_BLTzA"
+ZOOM_CLIENT_ID = "3vtJIQ7gT7OMj1lte0RA"
+ZOOM_CLIENT_SECRET = "bDFtQOx37K6Cc2RBWRqg2Q7mCXglpXMZ"
+ZOOM_TOKEN = "OOEWqkLbQ4mTraY1G0ZdzQ"
+ZOOM_VERIFICATION_TOKEN = "MH6nOp8CTBS-JRD-4DciVA"
 CHATBOT_API_KEY = 'your_chatbot_api_key'
 
 # Production security settings

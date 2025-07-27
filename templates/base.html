@@ -9,21 +9,19 @@
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 
-    <!-- Font Awesome 6 (latest as of now) -->
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
 
-    
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     <!-- Custom CSS -->
-     {% load static %}
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
     
     <!-- Favicon -->
     <link rel="icon" href="{% static 'images/favicon.ico' %}">
 
-     <style>
+    <style>
         .card {
             transition: none !important;
             transform: none !important;
@@ -34,6 +32,20 @@
             transform: none !important;
             box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12) !important;
         }
+
+        df-messenger {
+            --df-messenger-button-titlebar-color: #0d6efd;
+            --df-messenger-chat-background-color: #ffffff;
+            --df-messenger-font-color: black;
+            --df-messenger-send-icon: #0d6efd;
+            --df-messenger-bot-message: #e8f0fe;
+            --df-messenger-user-message: #dcf8c6;
+
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 9999;
+        }
     </style>
     
     {% block extra_css %}{% endblock %}
@@ -43,9 +55,7 @@
 
     <!-- Main Content -->
     <main class="main-content">
-        {% block content %}
-        <!-- Content will be injected here by child templates -->
-        {% endblock %}
+        {% block content %}{% endblock %}
     </main>
 
     <!-- Footer -->
@@ -80,15 +90,13 @@
         </div>
     </footer>
 
-    <!-- Bootstrap Bundle with Popper -->
+    <!-- Bootstrap Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    
-    <!-- Custom JS -->
     <script src="{% static 'js/main.js' %}"></script>
-    
+
     {% block extra_js %}{% endblock %}
-    
-    <!-- Messages -->
+
+    <!-- Toast Messages -->
     {% if messages %}
     <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
         {% for message in messages %}
@@ -104,5 +112,40 @@
         {% endfor %}
     </div>
     {% endif %}
+
+    <!-- Dialogflow Messenger -->
+    <script src="https://www.gstatic.com/dialogflow-console/fast/messenger/bootstrap.js?v=1"></script>
+    <df-messenger
+        intent="WELCOME"
+        chat-title="HealthEaseBot"
+        agent-id="e333fbd3-0b36-476f-b0b6-42675da47dcd"
+        language-code="en">
+    </df-messenger>
+
+    <style>
+    df-messenger {
+        --df-messenger-button-titlebar-color: #28a745;
+        --df-messenger-chat-background-color: #f8f9fa;
+        --df-messenger-font-color: #212529;
+        --df-messenger-send-icon: #28a745;
+        --df-messenger-bot-message: #e8f5e9;
+        --df-messenger-user-message: #d1e7dd;
+        --df-messenger-input-box-color: #ffffff;
+        --df-messenger-input-font-color: #495057;
+        
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        z-index: 9999;
+        border-radius: 12px !important;
+        overflow: hidden;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+    
+    df-messenger:hover {
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    }
+    
+</style>
 </body>
 </html>
