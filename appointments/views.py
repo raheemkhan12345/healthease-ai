@@ -2,6 +2,7 @@ from venv import logger
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.urls import reverse
 from .forms import  DoctorSignUpForm, LabReportUploadForm, PatientLabDetailsForm, PatientSignUpForm, DoctorLoginForm, PatientLoginForm
 from accounts.models import User, DoctorProfile as Doctor, PatientProfile as Patient
 from .models import Appointment
@@ -17,14 +18,15 @@ from appointments.zoom import ZoomAPI
 from django.db import transaction
 from .models import Appointment, Notification 
 from django.core.exceptions import ObjectDoesNotExist
-from django.http import JsonResponse
+from django.http import HttpResponseForbidden, JsonResponse
 from django.views.decorators.http import require_GET
 from .forms import LabTestForm as DoctorLabTestSuggestionForm
 from django.core.exceptions import PermissionDenied
 from datetime import date
-from appointments.zoom_utils import ZoomAPI
 from django.contrib.auth.decorators import login_required
-from django.utils.timezone import make_aware, get_current_timezone
+from django.utils.timezone import make_aware, get_current_timezone,now
+from django.utils.timezone import localtime, now
+
 
 
 def home(request):
@@ -259,47 +261,30 @@ def appointment_confirmation(request, appointment_id):
 @login_required
 def video_consultation(request, appointment_id):
     appointment = get_object_or_404(Appointment, id=appointment_id)
-    user = request.user
 
-    # Role check
-    is_patient = hasattr(user, 'patientprofile') and appointment.patient == user.patientprofile
-    is_doctor = hasattr(user, 'doctorprofile') and appointment.doctor == user.doctorprofile
+    is_doctor = hasattr(request.user, 'doctorprofile') and appointment.doctor.user == request.user
+    is_patient = hasattr(request.user, 'patientprofile') and appointment.patient.user == request.user
 
-    if not (is_patient or is_doctor):
-        messages.error(request, "You are not authorized to access this consultation.")
-        return redirect('home')
+    if not (is_doctor or is_patient):
+        return render(request, 'appointments/access_denied.html')
 
-    # Allow both 'confirmed' and 'Video' status
-    if appointment.status not in ["confirmed", "Video"]:
-        messages.error(request, "This consultation has not been confirmed yet.")
-        return redirect('home')
+    current_time = localtime(now())  # ✅ convert to local timezone (Pakistan)
+    appointment_time = appointment.get_start_datetime()
 
-    if not appointment.zoom_join_url:
-        messages.error(request, "Zoom meeting link is not available for this appointment.")
-        return redirect('home')
+    print("========== JITSI DEBUG ==========")
+    print("CURRENT TIME:", current_time)
+    print("APPOINTMENT TIME:", appointment_time)
+    print("Difference (in minutes):", abs((current_time - appointment_time).total_seconds()) / 60)
 
-    # Check if current time is within allowed window
-    appointment_datetime = make_aware(
-        datetime.combine(appointment.date, appointment.start_time),
-        get_current_timezone()
-    )
-    now = timezone.now()
-
-    # Allow consultation only within 15 minutes before or after appointment time
-    allowed_start = appointment_datetime - timedelta(minutes=15)
-    allowed_end = appointment_datetime + timedelta(minutes=45)  # e.g., allow up to 45 mins duration
-
-    if not (allowed_start <= now <= allowed_end):
-        start_str = appointment_datetime.strftime('%I:%M %p')
-        messages.warning(request, f"This consultation is available between {allowed_start.strftime('%I:%M %p')} and {allowed_end.strftime('%I:%M %p')}.")
-        return redirect('home')
+    if abs((current_time - appointment_time).total_seconds()) / 60 > 2:
+        return render(request, 'appointments/not_time_yet.html')
 
     return render(request, 'appointments/video_consultation.html', {
-        'appointment': appointment,
-        'now': now,
-        'appointment_datetime': appointment_datetime,
-        'join_url': appointment.zoom_join_url if is_patient else appointment.zoom_start_url,
+        'room_name': appointment.jitsi_room_name
     })
+
+
+    
 @login_required
 def book_appointment(request, doctor_id):
     doctor = get_object_or_404(DoctorProfile, id=doctor_id)
@@ -318,24 +303,7 @@ def book_appointment(request, doctor_id):
             appointment.doctor = doctor
             appointment.save()
 
-            # ✅ Create Zoom meeting
-            try:
-                zoom = ZoomAPI()
-                start_datetime = datetime.combine(appointment.date, appointment.start_time)
-                meeting = zoom.create_meeting(
-                    topic=f"Consultation with Dr. {doctor.user.username}",
-                    start_time=start_datetime,
-                    duration=30
-                )
-                appointment.zoom_meeting_id = meeting['id']
-                appointment.zoom_join_url = meeting['join_url']
-                appointment.save()
-            except Exception as e:
-                print("Zoom Error:", e) 
-                messages.error(request, f"Zoom meeting creation failed: {e}")
-                return redirect('appointments:doctor_dashboard')
-
-            # Notifications
+            # ✅ Notifications
             Notification.objects.create(
                 recipient=doctor.user,
                 message=f"New appointment booked by {patient.user.username} for {appointment.date} at {appointment.start_time}."
@@ -349,10 +317,7 @@ def book_appointment(request, doctor_id):
             return redirect('appointment_confirmation', appointment.id)
         else:
             messages.error(request, "Please correct the errors in the form.")
-            return render(request, 'appointments/book_appointment.html', {
-                'form': form,
-                'doctor': doctor,
-            })
+
     else:
         form = AppointmentForm()
 
@@ -370,46 +335,52 @@ def approve_appointment(request, appointment_id):
         messages.error(request, "You are not authorized to approve this appointment.")
         return redirect('accounts:doctor_dashboard')
 
-    appointment.status = 'Approved'
+    appointment.status = 'approved'  # make sure it's lowercase as per your model
     appointment.save()
     messages.success(request, "Appointment approved successfully.")
     return redirect('accounts:doctor_dashboard')
 
 def home(request):
+    # All specialization choices (including 'lab')
     SPECIALIZATION_CHOICES = [
-    ('Cardiologist', 'Cardiologist'),
-    ('Dermatologist', 'Dermatologist'),
-    ('Neurologist', 'Neurologist'),
-    ('Pediatrician', 'Pediatrician'),
-    ('Orthopedic', 'Orthopedic'),
-    ('Gynecologist', 'Gynecologist'),
-    ('General Physician', 'General Physician'),
-    ('ENT Specialist', 'ENT Specialist'),
-      ('lab', 'Lab Tests')
-]
+        ('Cardiologist', 'Cardiologist'),
+        ('Dermatologist', 'Dermatologist'),
+        ('Neurologist', 'Neurologist'),
+        ('Pediatrician', 'Pediatrician'),
+        ('Orthopedic', 'Orthopedic'),
+        ('Gynecologist', 'Gynecologist'),
+        ('General Physician', 'General Physician'),
+        ('ENT Specialist', 'ENT Specialist'),
+        ('lab', 'Lab Tests')
+    ]
 
+    # FontAwesome icon mapping
     SPECIALIZATION_ICONS = {
-    'Cardiologist': 'fa-heart-pulse',
-    'Dermatologist': 'fa-syringe',
-    'Neurologist': 'fa-brain',
-    'Pediatrician': 'fa-baby',
-    'Orthopedic': 'fa-bone',
-    'Gynecologist': 'fa-venus',
-    'General Physician': 'fa-user-doctor',
-    'ENT Specialist': 'fa-ear-listen',
-    'lab': 'fa-vials',
-}
+        'Cardiologist': 'fa-heart-pulse',
+        'Dermatologist': 'fa-syringe',
+        'Neurologist': 'fa-brain',
+        'Pediatrician': 'fa-baby',
+        'Orthopedic': 'fa-bone',
+        'Gynecologist': 'fa-venus',
+        'General Physician': 'fa-user-doctor',
+        'ENT Specialist': 'fa-ear-listen',
+        'lab': 'fa-vials',
+    }
 
+    # ✅ For cards (keep all including lab)
     specializations_with_icons = []
     for value, label in SPECIALIZATION_CHOICES:
         icon = SPECIALIZATION_ICONS.get(value, 'fa-user-md')
         specializations_with_icons.append((value, label, icon))
 
+    # ✅ For dropdown (exclude lab)
+    dropdown_specializations = [(value, label) for value, label in SPECIALIZATION_CHOICES if value != 'lab']
+
     return render(request, 'home.html', {
-        'specializations': SPECIALIZATION_CHOICES,                # for dropdown (2 values)
-        'specializations_with_icons': specializations_with_icons  # for cards (3 values)
+        'specializations': dropdown_specializations,                 # For the dropdown
+        'specializations_with_icons': specializations_with_icons     # For the cards
     })
-    
+
     
 @require_GET
 def autocomplete_suggestions(request):
@@ -664,4 +635,5 @@ def patient_appointment_list(request):
     return render(request, 'appointments/patient_appointment_list.html', {
         'appointments': appointments,
     })
+
 

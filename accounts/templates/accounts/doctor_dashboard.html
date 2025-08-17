@@ -1,82 +1,86 @@
 {% extends "base.html" %}
 {% load static %}
-
 {% block title %}Doctor Dashboard - HealthEase AI{% endblock %}
 
 {% block content %}
-<div class="container py-5">
-    <div class="row">
-        <div class="col-md-3">
-            <div class="card">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0">Doctor Menu</h5>
+<div class="container py-4">
+    <div class="row g-4">
+        <!-- Sidebar -->
+        <div class="col-12 col-md-4 col-lg-3">
+            <div class="card border-0 shadow-lg rounded-4">
+                <div class="card-header bg-primary text-white text-center rounded-top-4">
+                    <h5 class="mb-0"><i class="fas fa-user-md me-2"></i>Doctor Menu</h5>
                 </div>
                 <div class="list-group list-group-flush">
-                    <a href="{% url 'accounts:doctor_dashboard' %}"
-                        class="list-group-item list-group-item-action active">Dashboard</a>
-                    <a href="{% url 'accounts:doctor_profile' %}" class="list-group-item list-group-item-action">My
-                        Profile</a>
-                    <a href="{% url 'appointments:doctor_patients_list' %}"
-                        class="list-group-item list-group-item-action">Patient</a>
-                    <a href="{% url 'accounts:user_logout' %}"
-                        class="list-group-item list-group-item-action text-danger">Logout</a>
+                    <a href="{% url 'accounts:doctor_dashboard' %}" class="list-group-item list-group-item-action active"><i class="fas fa-chart-line me-2"></i>Dashboard</a>
+                    <a href="{% url 'accounts:doctor_profile' %}" class="list-group-item list-group-item-action"><i class="fas fa-user-circle me-2"></i>My Profile</a>
+                    <a href="{% url 'appointments:doctor_patients_list' %}" class="list-group-item list-group-item-action"><i class="fas fa-users me-2"></i>Patients</a>
+                    <a href="{% url 'accounts:user_logout' %}" class="list-group-item list-group-item-action text-danger"><i class="fas fa-sign-out-alt me-2"></i>Logout</a>
                 </div>
             </div>
         </div>
-        <div class="col-md-9">
-            <div class="card">
-                <div class="card-header bg-primary text-white">
-                    <h4 class="mb-0">Doctor Dashboard</h4>
+
+        <!-- Main Content -->
+        <div class="col-12 col-md-8 col-lg-9">
+            <div class="card border-0 shadow-lg rounded-4">
+                <div class="card-header bg-primary text-white rounded-top-4 d-flex flex-column flex-md-row justify-content-between align-items-md-center">
+                    <h4 class="mb-2 mb-md-0 text-center text-md-start"><i class="fas fa-stethoscope me-2"></i>Doctor Dashboard</h4>
+                </div>
+                <div class="card-body">
+
+                    <!-- Notifications -->
                     {% if notifications %}
-                    <div class="alert alert-info mt-3">
-                        <strong>Notifications:</strong>
-                        <ul class="mb-0 ps-3">
+                    <div class="alert alert-info shadow-sm rounded">
+                        <h6 class="mb-2"><i class="fas fa-bell me-2"></i><strong>Notifications</strong></h6>
+                        <ul class="ps-3 mb-0">
                             {% for note in notifications %}
-                            <li>{{ note.message }} <small class="text-muted">({{ note.created_at|timesince }}
-                                    ago)</small></li>
+                            <li>{{ note.message }} <small class="text-muted">({{ note.created_at|timesince }} ago)</small></li>
                             {% endfor %}
                         </ul>
                     </div>
                     {% endif %}
-                </div>
-                <div class="card-body">
-                    <div class="alert alert-success">
-                        <h5>Welcome, Dr. {{ doctor.username }}!</h5>
-                        <p class="mb-0">Specialization: {{ profile.specialization }}</p>
+
+                    <!-- Welcome Message -->
+                    <div class="alert alert-success shadow-sm rounded-3">
+                        <h5>Welcome, <strong>Dr. {{ doctor.username }}</strong> </h5>
+                        <p class="mb-0"><strong>Specialization:</strong> {{ profile.specialization }}</p>
                     </div>
 
-                    <div class="row mt-4">
-                        <div class="col-md-4 mb-3">
-                            <div class="card bg-light">
-                                <div class="card-body text-center">
-                                    <h6>Today's Appointments</h6>
-                                    <h4>{{ appointments.count }}</h4>
+                    <!-- Stats -->
+                    <div class="row text-center mt-3">
+                        <div class="col-12 col-sm-6 col-lg-4 mb-3">
+                            <div class="card border-0 shadow-sm h-100 rounded-3">
+                                <div class="card-body">
+                                    <h6 class="text-muted mb-1">Today's Appointments</h6>
+                                    <h3 class="fw-bold text-primary">{{ appointments.count }}</h3>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-4 mb-3">
-                            <div class="card bg-light">
-                                <div class="card-body text-center">
-                                    <h6>Total Patients</h6>
-                                    <h4>{{ patient_count }}</h4>
+                        <div class="col-12 col-sm-6 col-lg-4 mb-3">
+                            <div class="card border-0 shadow-sm h-100 rounded-3">
+                                <div class="card-body">
+                                    <h6 class="text-muted mb-1">Total Patients</h6>
+                                    <h3 class="fw-bold text-success">{{ patient_count }}</h3>
                                 </div>
                             </div>
                         </div>
                     </div>
 
+                    <!-- Appointments Table -->
                     <div class="mt-4">
-                        <h5>Recent Appointments</h5>
-                        <div class="table-responsive">
-                            <table class="table table-striped table-bordered text-center">
+                        <h5 class="mb-3"><i class="fas fa-calendar-check me-2"></i>Recent Appointments</h5>
+                        <div class="table-responsive shadow-sm rounded-3">
+                            <table class="table table-bordered table-hover align-middle text-center mb-0">
                                 <thead class="table-success">
                                     <tr>
                                         <th>ID</th>
-                                        <th>Patient Name</th>
+                                        <th>Patient</th>
                                         <th>Reason</th>
                                         <th>Date</th>
                                         <th>Time</th>
                                         <th>Status</th>
-                                        <th>Action</th> {# <-- Missing heading for 7th column #} </tr>
+                                        <th>Action</th>
+                                    </tr>
                                 </thead>
                                 <tbody>
                                     {% for appointment in appointments %}
@@ -88,29 +92,55 @@
                                         <td>{{ appointment.start_time|time:"g:i A" }}</td>
                                         <td>
                                             <span class="badge rounded-pill 
-                {% if appointment.status == 'Approved' %}bg-success
-                {% elif appointment.status == 'Pending' %}bg-warning text-dark
-                {% elif appointment.status == 'Cancelled' %}bg-secondary
-                {% else %}bg-info
-                {% endif %}">
+                                                {% if appointment.status|lower == 'approved' %}bg-success
+                                                {% elif appointment.status|lower == 'pending' %}bg-warning text-dark
+                                                {% elif appointment.status|lower == 'cancelled' %}bg-secondary
+                                                {% else %}bg-info{% endif %}">
                                                 {{ appointment.status }}
                                             </span>
                                         </td>
-                                       <td>
-    {% if appointment.status == 'Approved' and appointment.zoom_start_url and appointment.date == today and appointment.start_time <= now %}
-        <a href="{{ appointment.zoom_start_url }}" class="btn btn-sm btn-outline-primary" target="_blank">
-            <i class="fas fa-video"></i> Start Consultation
-        </a>
-    {% else %}
-        <span class="text-muted small">Not available yet</span>
-    {% endif %}
-</td>
+                                        <td>
+                                            <div class="d-flex flex-column gap-1">
+                                                {% if appointment.status|lower == 'pending' %}
+                                                <form method="post" action="{% url 'appointments:approve_appointment' appointment.id %}">
+                                                    {% csrf_token %}
+                                                    <button type="submit" class="btn btn-sm btn-success w-100"><i class="fas fa-check"></i> Approve</button>
+                                                </form>
+                                                {% endif %}
+                                                {% if appointment.status|lower == 'approved' and appointment.date == today and appointment.start_time <= now %}
+                                                <a href="{% url 'appointments:video_consultation' appointment.id %}" class="btn btn-sm btn-outline-primary w-100" target="_blank">
+                                                    <i class="fas fa-video"></i> Start
+                                                </a>
+                                                {% endif %}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr>
+                                        <td colspan="7" class="text-muted">No appointments found.</td>
                                     </tr>
                                     {% endfor %}
                                 </tbody>
                             </table>
                         </div>
                     </div>
+
+                    <!-- Upcoming Consultations -->
+                    {% if upcoming_consultations %}
+                    <div class="alert alert-warning shadow-sm rounded text-center mt-4">
+                        <h5><i class="fas fa-clock me-2"></i>Upcoming Consultation(s) in 5 Minutes</h5>
+                        {% for appt in upcoming_consultations %}
+                        <div class="mb-3">
+                            <p class="mb-1"><strong>Patient:</strong> {{ appt.patient.user.username }}</p>
+                            <p class="mb-1"><strong>Time:</strong> {{ appt.date }} {{ appt.start_time }}</p>
+                            <a href="{% url 'appointments:video_consultation' appt.id %}" class="btn btn-sm btn-success">
+                                <i class="fas fa-video"></i> Join Now
+                            </a>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
                 </div>
             </div>
         </div>

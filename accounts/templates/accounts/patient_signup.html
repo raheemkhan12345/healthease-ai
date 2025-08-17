@@ -7,21 +7,23 @@
 {% block content %}
 <div class="container py-5">
     <div class="row justify-content-center">
-        <div class="col-lg-9">
+        <div class="col-12 col-lg-10">
             <div class="card shadow border-0 rounded-4 overflow-hidden">
-                <div class="row g-0">
-                    <!-- Left - Illustration -->
-                    <div class="col-md-5 d-none d-md-flex  align-items-center justify-content-center p-4" style="background: linear-gradient(135deg, #1cc88a, #20c997);">
+                <div class="row g-0 flex-column flex-md-row">
+                    <!-- Left Illustration -->
+                    <div class="col-md-5 d-none d-md-flex align-items-center justify-content-center p-4"
+                        style="background: linear-gradient(135deg, #1cc88a, #20c997);">
                         <div class="text-center">
-                            <img src="{% static 'images/logo.JPG' %}" alt="Patient Illustration" class="img-fluid mb-3" style="max-height: 250px;">
+                            <img src="{% static 'images/logo.JPG' %}" alt="Patient Illustration"
+                                class="img-fluid mb-3" style="max-height: 250px;">
                             <h4 class="text-white">Welcome to HealthEase AI</h4>
                             <p class="text-white-50">Manage your health journey with ease</p>
                         </div>
                     </div>
 
-                    <!-- Right - Form -->
-                    <div class="col-md-7">
-                        <div class="card-body p-4 p-xl-5">
+                    <!-- Right Form Section -->
+                    <div class="col-md-7 col-12">
+                        <div class="card-body p-4 p-md-5">
                             <div class="text-center mb-4">
                                 <h2 class="h4 text-success">Patient Registration</h2>
                                 <p class="text-muted">Create your personal health account</p>
@@ -99,12 +101,13 @@
                                 </div>
 
                                 <div class="text-center mt-4">
-                                    <p class="text-muted">Already have an account? <a href="{% url 'accounts:patient_login' %}" class="text-success fw-bold">Login here</a></p>
+                                    <p class="text-muted">Already have an account? 
+                                        <a href="{% url 'accounts:patient_login' %}" class="text-success fw-bold">Login here</a>
+                                    </p>
                                 </div>
                             </form>
                         </div>
-                    </div>
-
+                    </div> <!-- End Form Section -->
                 </div>
             </div>
         </div>
@@ -118,24 +121,36 @@
     border-color: #8cd19d;
     box-shadow: 0 0 0 0.2rem rgba(140, 209, 157, 0.25);
 }
+
+@media (max-width: 767.98px) {
+    .card-body {
+        padding: 2rem 1rem;
+    }
+    .btn-lg {
+        font-size: 1rem;
+        padding: 0.75rem;
+    }
+}
 </style>
 {% endblock %}
 
 {% block extra_js %}
 <script>
 // Toggle password visibility
-const toggleBtns = document.querySelectorAll('.toggle-password');
-toggleBtns.forEach(btn => {
-    btn.addEventListener('click', () => {
-        const input = btn.closest('.input-group').querySelector('input');
-        const icon = btn.querySelector('i');
-        if (input.type === 'password') {
-            input.type = 'text';
-            icon.classList.replace('fa-eye', 'fa-eye-slash');
-        } else {
-            input.type = 'password';
-            icon.classList.replace('fa-eye-slash', 'fa-eye');
-        }
+document.addEventListener("DOMContentLoaded", function () {
+    const toggleBtns = document.querySelectorAll('.toggle-password');
+    toggleBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const input = btn.closest('.input-group').querySelector('input');
+            const icon = btn.querySelector('i');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.replace('fa-eye', 'fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.replace('fa-eye-slash', 'fa-eye');
+            }
+        });
     });
 });
 </script>

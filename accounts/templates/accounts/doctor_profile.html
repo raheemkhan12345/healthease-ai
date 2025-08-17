@@ -4,73 +4,121 @@
 {% block title %}Doctor Profile - HealthEase AI{% endblock %}
 
 {% block content %}
+<style>
+    .glass-card {
+        background: rgba(255, 255, 255, 0.8);
+        backdrop-filter: blur(12px);
+        border-radius: 1.2rem;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        transition: all 0.3s ease-in-out;
+    }
+
+    .glass-card:hover {
+    
+        box-shadow: 0 10px 40px rgba(67, 67, 68, 0.2);
+    }
+
+    .avatar-ring {
+        border: 5px solid #0d6efd;
+        padding: 6px;
+        border-radius: 50%;
+        box-shadow: 0 4px 12px rgba(13, 110, 253, 0.3);
+    }
+
+    .list-group-item-action:hover {
+        background-color: #f0f8ff;
+        color: #0d6efd;
+    }
+
+    .card-header {
+        background: linear-gradient(to right, #0d6efd, #1e90ff);
+        border-top-left-radius: 0.5rem;
+        border-top-right-radius: 0.5rem;
+    }
+
+    @media (max-width: 768px) {
+        .glass-card {
+            padding: 1.5rem;
+        }
+    }
+</style>
+
 <div class="container py-5">
-    <div class="row">
-        <div class="col-md-3">
-            <div class="card">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0">Doctor Menu</h5>
+    <div class="row gy-4">
+        <!-- Sidebar -->
+        <div class="col-12 col-md-4 col-lg-3">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-header text-white text-center">
+                    <h5 class="mb-0"><i class="fas fa-user-cog me-2"></i>Doctor Menu</h5>
                 </div>
                 <div class="list-group list-group-flush">
-                    <a href="{% url 'accounts:doctor_dashboard' %}"
-                        class="list-group-item list-group-item-action">Dashboard</a>
-                    <a href="{% url 'accounts:doctor_profile' %}"
-                        class="list-group-item list-group-item-action active">My Profile</a>
-                    <a href="{% url 'appointments:doctor_patients_list' %}"
-                        class="list-group-item list-group-item-action">Patient</a>
-                    <a href="{% url 'accounts:user_logout' %}"
-                        class="list-group-item list-group-item-action text-danger">Logout</a>
+                    <a href="{% url 'accounts:doctor_dashboard' %}" class="list-group-item list-group-item-action">
+                        <i class="fas fa-home me-2"></i> Dashboard
+                    </a>
+                    <a href="{% url 'accounts:doctor_profile' %}" class="list-group-item list-group-item-action active">
+                        <i class="fas fa-user-md me-2"></i> My Profile
+                    </a>
+                    <a href="{% url 'appointments:doctor_patients_list' %}" class="list-group-item list-group-item-action">
+                        <i class="fas fa-users me-2"></i> Patients
+                    </a>
+                    <a href="{% url 'accounts:user_logout' %}" class="list-group-item list-group-item-action text-danger">
+                        <i class="fas fa-sign-out-alt me-2"></i> Logout
+                    </a>
                 </div>
             </div>
         </div>
-        <div class="col-md-9">
-            <div class="card">
-                <div class="card-header bg-primary text-white">
-                    <h4 class="mb-0">Doctor Profile</h4>
+
+        <!-- Profile Section -->
+        <div class="col-12 col-md-8 col-lg-9">
+            <div class="glass-card p-4">
+                <div class="d-flex flex-column flex-md-row align-items-center justify-content-between mb-4">
+                    <h3 class="text-primary mb-3 mb-md-0"><i class="fas fa-id-badge me-2"></i>Doctor Profile</h3>
                 </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-4 text-center">
-                            <img src="{{ profile.profile_picture.url }}" alt="Doctor Avatar" width="150"
-                                class="rounded-circle">
 
-                            <h4>Dr. {{ doctor.username }}</h4>
-                            <p class="text-muted">{{ profile.specialization }}</p>
+                <div class="row gy-4 align-items-start">
+                    <!-- Profile Image -->
+                    <div class="col-12 col-md-4 text-center">
+                        <div class="avatar-ring d-inline-block">
+                            <img src="{{ profile.profile_picture.url }}" alt="Doctor Avatar" class="rounded-circle" width="130" height="130" style="object-fit: cover;">
                         </div>
-                        <div class="col-md-8">
-                            <div class="table-responsive">
-                                <table class="table table-bordered">
-                                    <tbody>
-                                        <tr>
-                                            <th>Username</th>
-                                            <td>{{ doctor.username }}</td>
-                                        </tr>
-                                        <tr>
-                                            <th>Email</th>
-                                            <td>{{ doctor.email }}</td>
-                                        </tr>
-                                        <tr>
-                                            <th>Specialization</th>
-                                            <td>{{ profile.specialization }}</td>
-                                        </tr>
-
-                                        <tr>
-                                            <th>Hospital/Clinic</th>
-                                            <td>{{ profile.hospital }}</td>
-                                        </tr>
-                                        <tr>
-                                            <th>Experience</th>
-                                            <td>{{ profile.experience }} years</td>
-                                        </tr>
-                                        <tr>
-                                            <th>Qualification</th>
-                                            <td>{{ profile.qualification }} </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
+                        <h5 class="fw-semibold mt-3">Dr. {{ doctor.username }}</h5>
+                        <p class="text-muted small mb-0">{{ profile.specialization }}</p>
                     </div>
+
+                    <!-- Profile Info -->
+                    <div class="col-12 col-md-8">
+                        <div class="table-responsive">
+                            <table class="table table-borderless align-middle">
+                                <tbody class="small">
+                                    <tr>
+                                        <th class="text-muted"><i class="fas fa-user me-2 text-primary"></i>Username</th>
+                                        <td class="fw-semibold">{{ doctor.username }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th class="text-muted"><i class="fas fa-envelope me-2 text-primary"></i>Email</th>
+                                        <td class="fw-semibold">{{ doctor.email }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th class="text-muted"><i class="fas fa-stethoscope me-2 text-primary"></i>Specialization</th>
+                                        <td class="fw-semibold">{{ profile.specialization }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th class="text-muted"><i class="fas fa-hospital me-2 text-primary"></i>Hospital/Clinic</th>
+                                        <td class="fw-semibold">{{ profile.hospital }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th class="text-muted"><i class="fas fa-briefcase-medical me-2 text-primary"></i>Experience</th>
+                                        <td class="fw-semibold">{{ profile.experience }} years</td>
+                                    </tr>
+                                    <tr>
+                                        <th class="text-muted"><i class="fas fa-user-graduate me-2 text-primary"></i>Qualification</th>
+                                        <td class="fw-semibold">{{ profile.qualification }}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div> <!-- End Profile Info -->
                 </div>
             </div>
         </div>

@@ -1,75 +1,142 @@
 {% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Appointment Confirmed | HealthEase AI{% endblock %}
 
 {% block content %}
-<div class="container py-5">
-    <div class="card">
-        <div class="card-header bg-success text-white">
-            <h2 class="mb-0">Appointment Confirmation</h2>
+<style>
+    body {
+        background: linear-gradient(to right, #e0f7fa, #ffffff);
+    }
+
+    .confirmation-container {
+        max-width: 900px;
+        margin: auto;
+    }
+
+    .glass-card {
+        background: rgba(255, 255, 255, 0.75);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border-radius: 20px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        transition: all 0.4s ease;
+    }
+
+
+    .card-header-custom {
+        background: linear-gradient(135deg, #00c9ff, #92fe9d);
+        color: #fff;
+        padding: 2rem 1rem;
+        text-align: center;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .card-header-custom h2 {
+        margin: 0;
+        font-weight: 700;
+        font-size: 2rem;
+    }
+
+    .alert-modern {
+        background-color: #e0f7fa;
+        border-left: 5px solid #00bcd4;
+        color: #007c91;
+        font-size: 1.1rem;
+        padding: 1rem 1.5rem;
+        border-radius: 12px;
+    }
+
+    .details-box, .steps-box {
+        background-color: rgba(255, 255, 255, 0.6);
+        border-radius: 15px;
+        padding: 1.5rem;
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
+    }
+
+    .details-box ul li {
+        margin-bottom: 12px;
+        font-size: 1rem;
+    }
+
+    .badge-status {
+        padding: 0.4em 0.7em;
+        font-size: 0.85rem;
+        border-radius: 8px;
+    }
+
+    .btn-modern {
+        background: linear-gradient(to right, #4facfe, #00f2fe);
+        border: none;
+        color: white;
+        font-weight: 600;
+        padding: 0.75rem;
+        border-radius: 10px;
+        transition: 0.3s ease;
+    }
+
+    .btn-modern:hover {
+        background: linear-gradient(to right, #43e97b, #38f9d7);
+        transform: scale(1.03);
+        color: #fff;
+    }
+
+    @media (max-width: 768px) {
+        .card-header-custom h2 {
+            font-size: 1.5rem;
+        }
+    }
+</style>
+
+<div class="container py-5 confirmation-container">
+    <div class="glass-card">
+        <div class="card-header-custom">
+            <h2><i class="fas fa-check-circle me-2"></i> Appointment Confirmed</h2>
         </div>
-        <div class="card-body">
-            <div class="alert alert-success">
-                <h4 class="alert-heading">Your appointment has been booked!</h4>
-                <!-- <p>You'll receive a confirmation email with all the details.</p> -->
+
+        <div class="card-body p-4">
+            <div class="alert-modern text-center mb-4">
+                🎉 <strong>Your appointment has been successfully booked!</strong>
             </div>
 
-            <div class="row">
+            <div class="row g-4">
+                <!-- Left: Appointment Details -->
                 <div class="col-md-6">
-                    <h4>Appointment Details</h4>
-                    <ul class="list-group list-group-flush mb-4">
-                        <li class="list-group-item">
-                            <strong>Doctor:</strong> Dr. {{ appointment.doctor.user.username }}
-                        </li>
-                        <li class="list-group-item">
-                            <strong>Specialization:</strong> {{ appointment.doctor.specialization }}
-                        </li>
-                        <li class="list-group-item">
-                            <strong>Date:</strong> {{ appointment.date|date:"D, M j, Y" }}
-                        </li>
-                        <li class="list-group-item">
-                            <strong>Time:</strong> {{ appointment.start_time|time:"g:i A" }} 
-                        </li>
-                        <li class="list-group-item">
-                            <strong>Reason:</strong> {{ appointment.reason }}
-                        </li>
-                        <li class="list-group-item">
-                            <strong>Status:</strong>
-                            <span
-                                class="badge bg-{% if appointment.status == 'confirmed' %}success{% else %}warning{% endif %}">
-                                {{ appointment.get_status_display }}
-                            </span>
-                        </li>
-                    </ul>
-                </div>
-
-                <div class="col-md-6">
-                    <h4>Next Steps</h4>
-                    <div class="card">
-                        <div class="card-body">
-                            <ul class="list-unstyled">
-                                <li class="mb-3">
-                                    <i class="fas fa-check-circle text-success me-2"></i>
-                                    Your appointment has been successfully booked.
-                                </li>
-                                <li class="mb-3">
-                                    <i class="fas fa-video text-primary me-2"></i>
-                                    A Zoom link has been generated for your video consultation.
-                                </li>
-                                <li class="mb-3">
-                                    <i class="fas fa-clock text-warning me-2"></i>
-                                    Please join the video consultation at the scheduled time from your dashboard.
-                                </li>
-                            </ul>
-
-                            <div class="d-grid gap-2">
-                                <a href="{% url 'appointments:doctor_search' %}" class="btn btn-outline-primary">
-                                    Find Another Doctor
-                                </a>
-                            </div>
-                        </div>
+                    <div class="details-box h-100">
+                        <h5 class="text-primary mb-3"><i class="fas fa-info-circle me-1"></i> Appointment Details</h5>
+                        <ul class="list-unstyled">
+                            <li><strong>👨‍⚕️ Doctor:</strong> Dr. {{ appointment.doctor.user.username }}</li>
+                            <li><strong>📚 Specialization:</strong> {{ appointment.doctor.specialization }}</li>
+                            <li><strong>📅 Date:</strong> {{ appointment.date|date:"D, M j, Y" }}</li>
+                            <li><strong>⏰ Time:</strong> {{ appointment.start_time|time:"g:i A" }}</li>
+                            <li><strong>💬 Reason:</strong> {{ appointment.reason }}</li>
+                            <li><strong>📌 Status:</strong>
+                                <span class="badge badge-status bg-{% if appointment.status == 'confirmed' %}success{% else %}warning{% endif %}">
+                                    {{ appointment.get_status_display }}
+                                </span>
+                            </li>
+                        </ul>
                     </div>
                 </div>
 
-            </div>
+                <!-- Right: Next Steps -->
+                <div class="col-md-6">
+                    <div class="steps-box h-100">
+                        <h5 class="text-success mb-3"><i class="fas fa-rocket me-1"></i> Next Steps</h5>
+                        <ul class="list-unstyled mb-4">
+                            <li><i class="fas fa-check text-success me-2"></i> Appointment confirmed</li>
+                            <li><i class="fas fa-video text-primary me-2"></i> Video link is ready in your dashboard</li>
+                            <li><i class="fas fa-clock text-warning me-2"></i> Join at scheduled time</li>
+                        </ul>
+                        <div class="d-grid">
+                            <a href="{% url 'appointments:doctor_search' %}" class="btn btn-modern">
+                                🔍 Book Another Appointment
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div> <!-- End Row -->
         </div>
     </div>
 </div>

@@ -1,3 +1,4 @@
+from datetime import datetime
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
@@ -10,6 +11,7 @@ from appointments.models import Appointment, LabTest
 from notifications.models import Notification
 from appointments.models import Appointment
 from django.utils import timezone
+from django.utils.timezone import make_aware
 
 # ─────────────── Signup Views ─────────────── #
 def doctor_signup(request):
@@ -138,38 +140,50 @@ def doctor_dashboard(request):
         return redirect('home')
 
     profile, _ = DoctorProfile.objects.get_or_create(user=request.user)
-
     appointments = Appointment.objects.filter(doctor=profile).order_by('-date', '-start_time')
-    patient_count = appointments.values('patient').distinct().count()
-
     notifications = Notification.objects.filter(user=request.user, is_read=False).order_by('-created_at')
+    now = timezone.localtime()
 
-    now = timezone.localtime()  # current date and time
+    # ✅ Fix: Loop ke andar logic correctly applied
+    upcoming_consultations = []
+    for appt in appointments:
+        appt_datetime = make_aware(datetime.combine(appt.date, appt.start_time))
+        diff = (appt_datetime - now).total_seconds() / 60
+        if 0 <= diff <= 5 and appt.status.lower() == 'approved':
+            upcoming_consultations.append(appt)
 
     context = {
         'doctor': request.user,
         'profile': profile,
         'appointments': appointments,
         'notifications': notifications,
-        'patient_count': patient_count,
-        'now': now.time(),
-        'today': now.date(),
+        'patient_count': appointments.values('patient').distinct().count(),
+        'upcoming_consultations': upcoming_consultations,
+        'today': timezone.localtime().date(),
+        'now': timezone.localtime().time(),
     }
-    return render(request, 'accounts/doctor_dashboard.html', context)
 
+    return render(request, 'accounts/doctor_dashboard.html', context)
 @login_required
 def patient_dashboard(request):
     patient = request.user.patientprofile
     appointments = Appointment.objects.filter(patient=patient).order_by('-date')[:5]
     lab_tests = LabTest.objects.filter(patient=patient)
+    now = timezone.localtime()
 
-    now = timezone.localtime()  # current date & time
+    upcoming_consultations = []
+    for appt in appointments:
+        appt_datetime = timezone.make_aware(datetime.combine(appt.date, appt.start_time))
+        diff = (appt_datetime - now).total_seconds() / 60
+        if 0 <= diff <= 5 and appt.status.lower() == 'approved':
+            upcoming_consultations.append(appt)
 
     return render(request, 'accounts/patient_dashboard.html', {
         'appointments': appointments,
         'lab_tests': lab_tests,
-        'now': now.time(),     # used to compare with start_time
-        'today': now.date(),   # used to compare with appointment.date
+        'upcoming_consultations': upcoming_consultations,
+        'today': timezone.localtime().date(),
+        'now': timezone.localtime().time(),
     })
 
 # ─────────────── Profiles ─────────────── #
@@ -211,4 +225,6 @@ def doctor_search(request):
         'doctors': doctors,
         'specializations': specializations
     })
+
+
 

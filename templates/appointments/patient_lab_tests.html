@@ -2,37 +2,39 @@
 {% block title %}Your Lab Tests | HealthEase AI{% endblock %}
 
 {% block content %}
-<div class="container py-4">
+<div class="container py-5">
+    <!-- Header -->
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="fw-semibold text-success">Your Lab Tests</h2>
+        <h2 class="fw-bold text-success"><i class="fas fa-vials me-2"></i>Your Lab Tests</h2>
         <button class="btn btn-success rounded-pill px-4 shadow-sm" data-bs-toggle="modal" data-bs-target="#newTestModal">
             <i class="fas fa-vial me-2"></i> Request New Test
         </button>
     </div>
 
-    <!-- Tabs: All / Pending / Completed -->
-    <ul class="nav nav-pills nav-justified mb-4 rounded p-2 shadow-sm" style="background-color: #6eaef3;" id="labTestTabs" role="tablist">
-
-
+    <!-- Tabs -->
+    <ul class="nav nav-pills nav-fill bg-light rounded-pill p-2 mb-4 shadow-sm" id="labTestTabs" role="tablist" style="background-color: rgb(122 189 255) !important;">
         <li class="nav-item" role="presentation">
-            <button class="nav-link active fw-semibold" id="all-tab" data-bs-toggle="tab" data-bs-target="#all" type="button" role="tab">
-                <i class="fas fa-list me-1"></i> All <span class="badge bg-secondary">{{ tests.count }}</span>
+            <button class="nav-link active rounded-pill fw-semibold" id="all-tab" data-bs-toggle="tab" data-bs-target="#all" type="button" role="tab">
+                <i class="fas fa-list me-1"></i> All 
+                <span class="badge bg-secondary">{{ tests.count }}</span>
             </button>
         </li>
         <li class="nav-item" role="presentation">
-            <button class="nav-link fw-semibold text-warning" id="pending-tab" data-bs-toggle="tab" data-bs-target="#pending" type="button" role="tab">
-                <i class="fas fa-clock me-1"></i> Pending <span class="badge bg-warning text-dark">{{ pending_tests.count }}</span>
+            <button class="nav-link rounded-pill fw-semibold text-warning" id="pending-tab" data-bs-toggle="tab" data-bs-target="#pending" type="button" role="tab">
+                <i class="fas fa-clock me-1"></i> Pending 
+                <span class="badge bg-warning text-dark">{{ pending_tests.count }}</span>
             </button>
         </li>
         <li class="nav-item" role="presentation">
-            <button class="nav-link fw-semibold text-success" id="completed-tab" data-bs-toggle="tab" data-bs-target="#completed" type="button" role="tab">
-                <i class="fas fa-check-circle me-1"></i> Completed <span class="badge bg-success">{{ completed_tests.count }}</span>
+            <button class="nav-link rounded-pill fw-semibold text-success" id="completed-tab" data-bs-toggle="tab" data-bs-target="#completed" type="button" role="tab">
+                <i class="fas fa-check-circle me-1"></i> Completed 
+                <span class="badge bg-success">{{ completed_tests.count }}</span>
             </button>
         </li>
     </ul>
 
     <!-- Tab Content -->
-    <div class="tab-content border rounded p-3 bg-white shadow-sm" id="labTestTabsContent">
+    <div class="tab-content border bg-white shadow-sm rounded p-3" id="labTestTabsContent">
         <div class="tab-pane fade show active" id="all" role="tabpanel" aria-labelledby="all-tab">
             {% include 'appointments/lab_tests_table.html' with tests=tests %}
         </div>
@@ -45,21 +47,21 @@
     </div>
 </div>
 
-<!-- Modal: Request New Lab Test -->
+<!-- Modal -->
 <div class="modal fade" id="newTestModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content shadow-lg border-0 rounded-4">
+        <div class="modal-content border-0 rounded-4 shadow-lg">
             <div class="modal-header bg-success text-white rounded-top-4">
-                <h5 class="modal-title"><i class="fas fa-user-md me-2"></i> Request New Lab Test</h5>
+                <h5 class="modal-title"><i class="fas fa-flask me-2"></i> Request New Lab Test</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                <p>To request a lab test, please consult your doctor first. They will recommend appropriate tests based on your condition.</p>
-                <p class="text-muted">Once a test is suggested, it will appear here for you to proceed.</p>
+                <p>To request a lab test, you need a doctor’s recommendation.</p>
+                <p class="text-muted">Once a doctor suggests a test, it will appear here for you to proceed.</p>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
-                <a href="{% url 'appointments:doctor_search' %}" class="btn btn-success">
+                <button class="btn btn-outline-secondary rounded-pill" data-bs-dismiss="modal">Close</button>
+                <a href="{% url 'appointments:doctor_search' %}" class="btn btn-success rounded-pill">
                     <i class="fas fa-search me-1"></i> Find a Doctor
                 </a>
             </div>
@@ -73,6 +75,6 @@
     document.addEventListener('DOMContentLoaded', function () {
         const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
         tooltipTriggerList.map(el => new bootstrap.Tooltip(el))
-    })
+    });
 </script>
 {% endblock %}

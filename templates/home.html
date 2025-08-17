@@ -4,109 +4,111 @@
 {% block title %}Home - HealthEase AI{% endblock %}
 
 {% block content %}
+
 <!-- Hero Section -->
-<section class="hero-section text-center py-5 bg-light">
-    <div class="container">
-        <h1 class="display-4 fw-bold mb-3 text-success">Welcome to <span class="text-primary">HealthEase AI</span></h1>
-        <p class="lead text-muted">Revolutionizing healthcare with artificial intelligence</p>
+<section class="hero-section text-center py-5 position-relative text-white">
+    <div class="position-absolute top-0 start-0 w-100 h-100" style="z-index: -1;">
+        <img src="{% static 'images/searchbackground.JPEG' %}" class="w-100 h-100 object-fit-cover" alt="Hero Background">
+        <div class="position-absolute top-0 start-0 w-100 h-100 bg-dark opacity-50"></div>
+    </div>
+    <div class="container position-relative">
+        <h1 class="display-4 fw-bold mb-3">Welcome to <span class="text-primary">HealthEase AI</span></h1>
+        <p class="lead text-light">Revolutionizing healthcare with artificial intelligence</p>
     </div>
 </section>
 
 <!-- Doctor Search Section -->
-<section id="search" class="doctor-search-section py-5 position-relative overflow-hidden">
-    <div class="position-absolute top-0 start-0 w-100 h-100" style="z-index: -1;">
-        <img src="{% static 'images/searchbackground.JPEG' %}" alt="Medical Background" class="w-100 h-100 object-fit-cover">
-        <div class="position-absolute top-0 start-0 w-100 h-100 bg-dark opacity-50"></div>
-    </div>
-
-    <div class="container position-relative">
-        <div class="row justify-content-center">
-            <div class="col-xxl-8 col-lg-10 text-center">
-                <h2 class="mb-4 text-white fw-bold display-6">Find and Book the Best Doctors Near You</h2>
-                <p class="text-light mb-5 fs-5">Trusted & Verified Medical Experts</p>
-                <div class="search-card bg-white bg-opacity-25 shadow-lg p-4 rounded-4 mx-auto" style="backdrop-filter: blur(10px); max-width: 850px;">
-                    <form method="get" action="{% url 'appointments:doctor_search' %}">
-                        <div class="row g-3">
-                            <div class="col-lg-4">
-                                <div class="input-group">
-                                    <span class="input-group-text"><i class="fas fa-map-marker-alt text-success"></i></span>
-                                    <select class="form-select" name="location" required>
-                                        <option value="" selected disabled>Select your city</option>
-                                        <option value="Lahore">Lahore</option>
-                                        <option value="Karachi">Karachi</option>
-                                        <option value="Islamabad">Islamabad</option>
-                                        <option value="Peshawar">Peshawar</option>
-                                        <option value="Multan">Multan</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-lg-5">
-                                <div class="input-group">
-                                    <span class="input-group-text"><i class="fas fa-stethoscope text-success"></i></span>
-                                   <select class="form-select" name="specialization">
-                                    <option value="">Select Specialization</option>
-                                    {% for value, label in specializations %}
-                                     <option value="{{ value }}">{{ label }}</option>
-                                   {% endfor %}
-                                    </select>
-
-                                </div>
-                            </div>
-                            <div class="col-lg-3">
-                                <button type="submit" class="btn btn-success w-100">
-                                    <i class="fas fa-search me-1"></i> Search
-                                </button>
-                            </div>
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="search-card shadow-lg p-4 rounded-4 mx-auto bg-white bg-opacity-75" style="backdrop-filter: blur(10px); max-width: 900px;">
+            <form method="get" action="{% url 'appointments:doctor_search' %}">
+                <div class="row g-3 align-items-center">
+                    <div class="col-md-4">
+                        <label class="form-label text-muted">City</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-map-marker-alt text-success"></i></span>
+                            <select class="form-select" name="location" required>
+                                <option value="" disabled selected>Select your city</option>
+                                <option value="Lahore">Lahore</option>
+                                <option value="Karachi">Karachi</option>
+                                <option value="Islamabad">Islamabad</option>
+                                <option value="Peshawar">Peshawar</option>
+                                <option value="Multan">Multan</option>
+                            </select>
                         </div>
-                    </form>
+                    </div>
+                    <div class="col-md-5">
+                        <label class="form-label text-muted">Specialization</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-stethoscope text-success"></i></span>
+                            <select class="form-select" name="specialization">
+                                <option value="">Select Specialization</option>
+                                {% for value, label in specializations %}
+                                    <option value="{{ value }}">{{ label }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-3 d-grid">
+                        <label class="form-label opacity-0">Search</label>
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-search me-1"></i> Search
+                        </button>
+                    </div>
                 </div>
-            </div>
+            </form>
         </div>
     </div>
 </section>
 
-<!-- Specialists Section -->
+<!-- Specialist Doctors -->
 <section class="py-5 bg-white">
     <div class="container">
-        <h2 class="text-center text-success mb-5 fw-semibold">Our Specialist Doctors</h2>
+        <h2 class="text-center text-success fw-bold mb-5">Our Specialist Doctors</h2>
         <div class="row justify-content-center">
             {% for value, label, icon in specializations_with_icons %}
-<div class="col-md-4 col-lg-2 mb-4">
-    {% if value == 'lab' %}
-        <a href="{% url 'appointments:patient_lab_tests' %}" class="text-decoration-none">
-    {% else %}
-        <a href="{% url 'appointments:doctor_search' %}?specialization={{ value }}" class="text-decoration-none">
-    {% endif %}
-        <div class="card specialist-card border-0 shadow h-100 text-center rounded-4">
-            <div class="card-body">
-                <div class="mb-3">
-                    <i class="fa-solid {{ icon }} fa-3x text-success"></i>
-                </div>
-                <h5 class="card-title text-dark">{{ label }}</h5>
+            <div class="col-6 col-sm-4 col-md-3 col-lg-2 mb-4">
+                {% if value == 'lab' %}
+                    <a href="{% url 'appointments:patient_lab_tests' %}" class="text-decoration-none">
+                {% else %}
+                    <a href="{% url 'appointments:doctor_search' %}?specialization={{ value }}" class="text-decoration-none">
+                {% endif %}
+                    <div class="card specialist-card border-0 shadow-sm h-100 text-center rounded-4 p-3">
+                        <div class="card-body d-flex flex-column align-items-center">
+                            <i class="fa-solid {{ icon }} fa-2x mb-3 text-success"></i>
+                            <h6 class="text-dark text-center m-0 small fw-semibold">{{ label }}</h6>
+                        </div>
+                    </div>
+                </a>
             </div>
-        </div>
-    </a>
-</div>
-{% endfor %}
-
+            {% endfor %}
         </div>
     </div>
 </section>
+
 {% endblock %}
 
 {% block extra_css %}
 <style>
+.hero-section {
+    min-height: 60vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-position: center;
+    background-size: cover;
+}
 .search-card {
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    transition: all 0.3s ease-in-out;
+    border-radius: 1rem;
+    background-color: rgba(255, 255, 255, 0.9);
 }
 .specialist-card {
-    transition: transform 0.3s ease;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    background-color: #fdfdfd;
 }
 .specialist-card:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    transform: translateY(-6px);
+    box-shadow: 0 6px 20px rgba(0, 128, 0, 0.15);
 }
 </style>
 {% endblock %}

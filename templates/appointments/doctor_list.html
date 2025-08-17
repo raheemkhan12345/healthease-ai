@@ -2,31 +2,40 @@
 {% load widget_tweaks %}
 
 {% block content %}
+<div class="full-page-bg">
 <div class="container py-5">
     <!-- Search Form -->
     <div class="row mb-5">
-        <div class="col-md-10 mx-auto">
-            <div class="card border-0 shadow rounded-4">
-                <div class="card-body p-4">
-                    <h4 class="mb-4 text-center fw-bold text-primary">Find the Best Doctors</h4>
-                    <form method="get" class="row g-3">
-                        <div class="col-md-4">
-                            <label class="form-label fw-semibold">Specialization</label>
-                            {% render_field form.specialization class="form-select form-control shadow-sm rounded-3 py-2" %}
+        <div class="col-xl-10 col-lg-11 col-md-12 mx-auto">
+            <div class="card shadow-lg border-0 rounded-5 bg-light bg-glass">
+                <div class="card-body p-4 p-md-5">
+                    <h3 class="text-center fw-bold gradient-text mb-4">
+                        <i class="fas fa-search-location me-2"></i>Find Your Doctor
+                    </h3>
+                    <form method="get" class="row g-4 align-items-end">
+                        <div class="col-lg-4 col-md-6">
+                            <label class="form-label fw-semibold">
+                                <i class="fas fa-stethoscope me-1 text-primary"></i>Specialization
+                            </label>
+                            {% render_field form.specialization class="form-select shadow-sm rounded-4 py-2 px-3" %}
                         </div>
-                        <div class="col-md-4">
-                            <label class="form-label fw-semibold">Location</label>
-                            <input type="text" name="location" class="form-control shadow-sm rounded-3 py-2" placeholder="Location or hospital" list="location-suggestions">
+                        <div class="col-lg-4 col-md-6">
+                            <label class="form-label fw-semibold">
+                                <i class="fas fa-map-marker-alt me-1 text-danger"></i>Location
+                            </label>
+                            <input type="text" name="location" class="form-control shadow-sm rounded-4 py-2 px-3" placeholder="Enter Location" list="location-suggestions">
                             <datalist id="location-suggestions"></datalist>
                         </div>
-                        <div class="col-md-4">
-                            <label class="form-label fw-semibold">Search</label>
-                            <input type="text" name="query" class="form-control shadow-sm rounded-3 py-2" placeholder="Search by name" list="query-suggestions">
+                        <div class="col-lg-4 col-md-12">
+                            <label class="form-label fw-semibold">
+                                <i class="fas fa-user me-1 text-success"></i>Doctor Name
+                            </label>
+                            <input type="text" name="query" class="form-control shadow-sm rounded-4 py-2 px-3" placeholder="Enter Name" list="query-suggestions">
                             <datalist id="query-suggestions"></datalist>
                         </div>
-                        <div class="col-12 text-end">
-                            <button type="submit" class="btn btn-success px-4 mt-2">
-                                <i class="fas fa-search me-1"></i> Search Doctors
+                        <div class="col-12 text-center mt-4">
+                            <button type="submit" class="btn btn-primary px-4 py-2 rounded-pill shadow search-btn">
+                                <i class="fas fa-search me-2"></i>Search
                             </button>
                         </div>
                     </form>
@@ -36,35 +45,38 @@
     </div>
 
     <!-- Doctor Cards -->
-    <div class="row">
+    <div class="row gy-4">
         {% if doctors %}
             {% for doctor in doctors %}
-            <div class="col-12 mb-4">
-                <div class="card border-0 shadow rounded-4">
-                    <div class="card-body p-4 d-md-flex justify-content-between align-items-center">
-                        <div class="d-flex align-items-start">
-                            <img src="{{ doctor.profile_picture.url|default:'/static/images/default-doctor.jpg' }}" class="rounded-circle me-4" width="90" height="90" alt="{{ doctor.user.username }}">
+            <div class="col-12">
+                <div class="card border-0 shadow-lg doctor-card rounded-4 overflow-hidden">
+                    <div class="card-body d-flex flex-column flex-md-row align-items-center justify-content-between gap-4 p-4">
+                        <div class="d-flex flex-column flex-md-row align-items-center gap-4">
+                            <img src="{{ doctor.profile_picture.url|default:'/static/images/default-doctor.jpg' }}"
+                                 class="rounded-circle border border-3 border-primary"
+                                 width="100" height="100"
+                                 alt="{{ doctor.user.username }}">
                             <div>
-                                <h5 class="fw-bold mb-1">Dr. {{ doctor.user.username }}</h5>
-                                <p class="mb-1 text-muted"><strong>Specialization:</strong> {{ doctor.specialization }}</p>
-                                <p class="mb-1 text-muted"><strong>Qualification:</strong> {{ doctor.qualification }}</p>
-                                <p class="mb-1 text-muted"><strong>Experience:</strong> {{ doctor.experience }} years</p>
+                                <h5 class="fw-bold mb-1 text-primary">
+                                    <i class="fas fa-user-md me-2"></i>Dr. {{ doctor.user.username }}
+                                </h5>
+                                <p class="mb-1 text-muted"><i class="fas fa-user-tag me-2 text-secondary"></i>{{ doctor.specialization }}</p>
+                                <p class="mb-1 text-muted"><i class="fas fa-graduation-cap me-2 text-info"></i>{{ doctor.qualification }}</p>
+                                <p class="mb-1 text-muted"><i class="fas fa-briefcase me-2 text-warning"></i>{{ doctor.experience }} years</p>
                                 <p class="mb-0 text-muted">
-                                    <strong>Location:</strong> {{ doctor.hospital }}
+                                    <i class="fas fa-hospital-alt me-2 text-danger"></i>{{ doctor.hospital }}
                                     {% if doctor.hospital %}
-                                        <a href="https://www.google.com/maps/search/?api=1&query={{ doctor.hospital|urlencode }}" target="_blank" class="ms-2 text-decoration-none">
-                                            <i class="fas fa-map-marker-alt text-danger" title="View on Map"></i>
-                                        </a>
+                                    <a href="https://www.google.com/maps/search/?api=1&query={{ doctor.hospital|urlencode }}"
+                                       class="ms-1 text-decoration-none" target="_blank">
+                                        <i class="fas fa-map-marker-alt text-danger"></i>
+                                    </a>
                                     {% endif %}
                                 </p>
                             </div>
                         </div>
-                        <div class="text-center mt-3 mt-md-0">
-                            <a href="{% url 'appointments:video_consultation' doctor.id %}" class="btn btn-outline-primary w-100 mb-2">
-                            <i class="fas fa-video"></i> Video Consultation
-                            </a>
-                            <a href="{% url 'appointments:doctor_detail' doctor.id %}" class="btn btn-warning text-white w-100">
-                                Book Appointment
+                        <div class="d-flex flex-column gap-2 w-100 w-md-auto" style="max-width: 220px;">
+                            <a href="{% url 'appointments:doctor_detail' doctor.id %}" class="btn btn-warning text-white rounded-4 w-100">
+                                <i class="fas fa-calendar-plus me-1"></i>Book Appointment
                             </a>
                         </div>
                     </div>
@@ -72,47 +84,99 @@
             </div>
             {% endfor %}
         {% else %}
-            <div class="col-12">
-                <div class="alert alert-info text-center shadow-sm">
-                    No doctors found matching your criteria. Please try different search terms.
-                </div>
-            </div>
+        <div class="col-12">
+            <div class="alert alert-info text-center">No doctors found. Try different filters.</div>
+        </div>
         {% endif %}
     </div>
 
     <!-- Pagination -->
     {% if doctors.has_other_pages %}
-    <nav aria-label="Page navigation">
-        <ul class="pagination justify-content-center mt-4">
+    <nav class="mt-5">
+        <ul class="pagination justify-content-center">
             {% if doctors.has_previous %}
             <li class="page-item">
-                <a class="page-link" href="?page={{ doctors.previous_page_number }}{% if selected_specialization %}&specialization={{ selected_specialization }}{% endif %}{% if selected_location %}&location={{ selected_location }}{% endif %}{% if query %}&query={{ query }}{% endif %}">Previous</a>
+                <a class="page-link" href="?page={{ doctors.previous_page_number }}">Previous</a>
             </li>
             {% endif %}
-
             {% for i in doctors.paginator.page_range %}
             <li class="page-item {% if doctors.number == i %}active{% endif %}">
-                <a class="page-link" href="?page={{ i }}{% if selected_specialization %}&specialization={{ selected_specialization }}{% endif %}{% if selected_location %}&location={{ selected_location }}{% endif %}{% if query %}&query={{ query }}{% endif %}">{{ i }}</a>
+                <a class="page-link" href="?page={{ i }}">{{ i }}</a>
             </li>
             {% endfor %}
-
             {% if doctors.has_next %}
             <li class="page-item">
-                <a class="page-link" href="?page={{ doctors.next_page_number }}{% if selected_specialization %}&specialization={{ selected_specialization }}{% endif %}{% if selected_location %}&location={{ selected_location }}{% endif %}{% if query %}&query={{ query }}{% endif %}">Next</a>
+                <a class="page-link" href="?page={{ doctors.next_page_number }}">Next</a>
             </li>
             {% endif %}
         </ul>
     </nav>
     {% endif %}
 </div>
+</div>
 {% endblock %}
 
 {% block extra_css %}
 <style>
-.fa-map-marker-alt {
-    font-size: 1.1rem;
-    margin-left: 4px;
-    cursor: pointer;
+
+.full-page-bg {
+    background-color: aliceblue;
+    min-height: 100vh;
+    padding-top: 40px;
+    padding-bottom: 40px;
+}
+
+.bg-glass {
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(10px);
+    border-radius: 16px;
+}
+
+.gradient-text {
+     background: linear-gradient(to right, #00c6ff, #6610f2);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-weight: 700;
+}
+
+.text-primary {
+    color: #476da5 !important;
+}
+
+.doctor-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.doctor-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+}
+
+.search-btn {
+    font-weight: 600;
+    font-size: 1rem;
+}
+
+.rounded-circle {
+    object-fit: cover;
+    border-radius: 50% !important;
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+    .doctor-card img {
+        width: 80px;
+        height: 80px;
+    }
+
+    .doctor-card .btn {
+        font-size: 0.9rem;
+        padding: 10px 14px;
+    }
+
+    .search-btn {
+        width: 100%;
+    }
 }
 </style>
 {% endblock %}
@@ -120,14 +184,10 @@
 {% block extra_js %}
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    const locationInput = document.querySelector("input[name='location']");
-    const queryInput = document.querySelector("input[name='query']");
-
-    function setupAutocomplete(input, datalistId) {
-        input.addEventListener('input', function () {
+    const setupAutocomplete = (input, datalistId) => {
+        input.addEventListener('input', () => {
             const term = input.value;
             if (term.length < 1) return;
-
             fetch(`/appointments/autocomplete/?term=${encodeURIComponent(term)}&field=${input.name}`)
                 .then(res => res.json())
                 .then(data => {
@@ -140,10 +200,10 @@ document.addEventListener('DOMContentLoaded', function () {
                     });
                 });
         });
-    }
+    };
 
-    setupAutocomplete(locationInput, "location-suggestions");
-    setupAutocomplete(queryInput, "query-suggestions");
+    setupAutocomplete(document.querySelector("input[name='location']"), "location-suggestions");
+    setupAutocomplete(document.querySelector("input[name='query']"), "query-suggestions");
 });
 </script>
 {% endblock %}

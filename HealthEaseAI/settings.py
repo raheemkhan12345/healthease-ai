@@ -16,7 +16,7 @@ SECRET_KEY = 'django-insecure-oqoug=bkhe(ycke+(peb^v##&dgs+v3m79sg_0=&ak0$1z@p^7
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 # Application definition
 INSTALLED_APPS = [
@@ -112,12 +112,7 @@ LOGIN_REDIRECT_URL = 'home'
 LOGOUT_REDIRECT_URL = 'home'
 
 # Third-party API keys
-ZOOM_ACCOUNT_ID = "EnF7G5CjREORISeS_BLTzA"
-ZOOM_CLIENT_ID = "3vtJIQ7gT7OMj1lte0RA"
-ZOOM_CLIENT_SECRET = "bDFtQOx37K6Cc2RBWRqg2Q7mCXglpXMZ"
-ZOOM_TOKEN = "OOEWqkLbQ4mTraY1G0ZdzQ"
-ZOOM_VERIFICATION_TOKEN = "MH6nOp8CTBS-JRD-4DciVA"
-CHATBOT_API_KEY = 'your_chatbot_api_key'
+
 
 # Production security settings
 if not DEBUG:
@@ -130,3 +125,6 @@ if not DEBUG:
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
     SECURE_HSTS_PRELOAD = True
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+TIME_ZONE = 'Asia/Karachi'
+USE_TZ = True

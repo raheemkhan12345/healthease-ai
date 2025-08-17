@@ -4,6 +4,7 @@ from accounts.models import DoctorProfile, PatientProfile, TimeSlot
 from datetime import datetime, timedelta, timezone
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
+from django.utils.timezone import make_aware
 
 
 User = get_user_model()  # This ensures the correct User model is used
@@ -25,8 +26,11 @@ class Appointment(models.Model):
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
     notes = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
-    zoom_meeting_id = models.CharField(max_length=100, blank=True, null=True)
-    zoom_join_url = models.URLField(blank=True, null=True)
+    
+    @property
+    def jitsi_room_name(self):
+        return f"consult_{self.id}_{self.doctor.user.username}_{self.patient.user.username}".replace(" ", "_")
+
 
     class Meta:
         ordering = ['date', 'start_time']
@@ -38,6 +42,10 @@ class Appointment(models.Model):
         if not self.end_time:
             self.end_time = (datetime.combine(datetime.today(), self.start_time) + timedelta(minutes=30)).time()
         super().save(*args, **kwargs)
+        
+    def get_start_datetime(self):
+        from datetime import datetime
+        return make_aware(datetime.combine(self.date, self.start_time))
 
 
 class LabTest(models.Model):

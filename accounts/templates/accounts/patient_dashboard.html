@@ -1,122 +1,128 @@
 {% extends "base.html" %}
 {% load static %}
-
 {% block title %}Patient Dashboard - HealthEase AI{% endblock %}
 
 {% block content %}
 <div class="container-fluid py-4">
     <div class="row g-4">
         <!-- Sidebar Navigation -->
-        <div class="col-lg-3">
-            <div class="card border-0 shadow-sm rounded-3">
+        <div class="col-12 col-md-4 col-lg-3">
+            <div class="card border-0 shadow-sm rounded-3 h-100">
                 <div class="card-header bg-success text-white py-3 rounded-top">
                     <h5 class="mb-0"><i class="fas fa-user-circle me-2"></i>Patient Menu</h5>
                 </div>
                 <div class="list-group list-group-flush rounded-bottom">
-                    <a href="{% url 'accounts:patient_dashboard' %}" 
-                       class="list-group-item list-group-item-action border-0 py-3 active">
-                       <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                    <a href="{% url 'accounts:patient_dashboard' %}" class="list-group-item list-group-item-action border-0 py-3 active">
+                        <i class="fas fa-tachometer-alt me-2"></i>Dashboard
                     </a>
-                    <a href="{% url 'accounts:patient_profile' %}" 
-                       class="list-group-item list-group-item-action border-0 py-3">
-                       <i class="fas fa-user me-2"></i>My Profile
+                    <a href="{% url 'accounts:patient_profile' %}" class="list-group-item list-group-item-action border-0 py-3">
+                        <i class="fas fa-user me-2"></i>My Profile
                     </a>
-                    <a href="{% url 'appointments:patient_appointment_list' %}" 
-                       class="list-group-item list-group-item-action border-0 py-3">
-                       <i class="fas fa-calendar-check me-2"></i>Appointments
+                    <a href="{% url 'appointments:patient_appointment_list' %}" class="list-group-item list-group-item-action border-0 py-3">
+                        <i class="fas fa-calendar-check me-2"></i>Appointments
                     </a>
-                    <a href="{% url 'accounts:user_logout' %}" 
-                       class="list-group-item list-group-item-action border-0 py-3 text-danger">
-                       <i class="fas fa-sign-out-alt me-2"></i>Logout
+                    <a href="{% url 'accounts:user_logout' %}" class="list-group-item list-group-item-action border-0 py-3 text-danger">
+                        <i class="fas fa-sign-out-alt me-2"></i>Logout
                     </a>
                 </div>
             </div>
         </div>
 
         <!-- Main Content -->
-        <div class="col-lg-9">
+        <div class="col-12 col-md-8 col-lg-9">
             <div class="card border-0 shadow-sm rounded-3">
                 <div class="card-header bg-success text-white py-3 rounded-top">
-                    <h4 class="mb-0">
-                        <i class="fas fa-heartbeat me-2"></i>
-                        Welcome, {{ request.user.username|default:request.user.username }}!
-                    </h4>
+                    <h4 class="mb-0"><i class="fas fa-heartbeat me-2"></i>Welcome, {{ request.user.username|default:request.user.username }}!</h4>
                 </div>
+
                 <div class="card-body">
 
                     <!-- Stats Cards -->
                     <div class="row g-4 mb-4">
-                        <div class="col-md-6">
+                        <div class="col-sm-6">
                             <div class="card border-0 shadow-sm h-100">
                                 <div class="card-body text-center p-4">
                                     <div class="bg-success bg-opacity-10 rounded-circle p-3 mb-3 d-inline-block">
                                         <i class="fas fa-calendar-check text-success fs-4"></i>
                                     </div>
                                     <h6 class="text-muted mb-2">Upcoming Appointments</h6>
-                                    <h3 class="mb-0 fw-bold text-success">{{ appointments|length }}</h3>
+                                    <h3 class="fw-bold text-success mb-0">{{ appointments|length }}</h3>
                                 </div>
                             </div>
                         </div>
-                        
-                        <div class="col-md-6">
+                        <div class="col-sm-6">
                             <div class="card border-0 shadow-sm h-100">
                                 <div class="card-body text-center p-4">
                                     <div class="bg-success bg-opacity-10 rounded-circle p-3 mb-3 d-inline-block">
                                         <i class="fas fa-flask text-success fs-4"></i>
                                     </div>
                                     <h6 class="text-muted mb-2">Total Lab Tests</h6>
-                                    <h3 class="mb-0 fw-bold text-success">{{ lab_tests|length }}</h3>
+                                    <h3 class="fw-bold text-success mb-0">{{ lab_tests|length }}</h3>
                                 </div>
                             </div>
                         </div>
                     </div>
 
                     <!-- Recent Appointments -->
-                    <h5 class="mb-3 text-success">
+                    <h5 class="text-success mb-3">
                         <i class="fas fa-history me-2"></i>Recent Appointments
                     </h5>
                     <div class="table-responsive">
                         <table class="table table-hover align-middle">
                             <thead class="table-success">
-                                <tr>
+                                <tr class="text-nowrap">
                                     <th><i class="fas fa-user-md me-2"></i>Doctor</th>
                                     <th><i class="fas fa-calendar-day me-2"></i>Date</th>
-                                    <th><i class="fas fa-clock me-2"></i>Start Time</th>
+                                    <th><i class="fas fa-clock me-2"></i>Time</th>
                                     <th><i class="fas fa-info-circle me-2"></i>Status</th>
                                     <th><i class="fas fa-video me-2"></i>Action</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {% for appointment in appointments %}
-<tr>
-    <td>Dr. {{ appointment.doctor.user.username }}</td>
-    <td>{{ appointment.date|date:"M d, Y" }}</td>
-    <td>{{ appointment.start_time|time:"g:i A" }}</td>
-    <td>
-        <span class="badge rounded-pill 
-            {% if appointment.status == 'Approved' %}bg-success
-            {% elif appointment.status == 'Pending' %}bg-warning text-dark
-            {% elif appointment.status == 'Cancelled' %}bg-secondary
-            {% else %}bg-info{% endif %}">
-            {{ appointment.status }}
-        </span>
-    </td>
-
-    <!-- ✅ Suggested Video Call Button Logic -->
-    <td>
-        {% if appointment.status == 'Approved' and appointment.zoom_join_url and appointment.date == today and appointment.start_time <= now %}
-            <a href="{{ appointment.zoom_join_url }}" class="btn btn-sm btn-outline-success" target="_blank">
-                <i class="fas fa-video"></i> Join Call Consultation
-            </a>
-        {% else %}
-            <span class="text-muted small">Not available yet</span>
-        {% endif %}
-    </td>
-</tr>
+                                <tr>
+                                    <td>Dr. {{ appointment.doctor.user.username }}</td>
+                                    <td>{{ appointment.date|date:"M d, Y" }}</td>
+                                    <td>{{ appointment.start_time|time:"g:i A" }}</td>
+                                    <td>
+                                        <span class="badge rounded-pill 
+                                            {% if appointment.status == 'Approved' %}bg-success
+                                            {% elif appointment.status == 'Pending' %}bg-warning text-dark
+                                            {% elif appointment.status == 'Cancelled' %}bg-secondary
+                                            {% else %}bg-info{% endif %}">
+                                            {{ appointment.status }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        {% if appointment.status|lower == 'approved' and appointment.date == today and appointment.start_time <= now %}
+                                            <a href="{% url 'appointments:video_consultation' appointment.id %}" class="btn btn-sm btn-outline-success" target="_blank">
+                                                <i class="fas fa-video"></i> Join
+                                            </a>
+                                        {% else %}
+                                            <span class="text-muted small">Not available yet</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
                                 {% endfor %}
                             </tbody>
                         </table>
                     </div>
+
+                    <!-- Video Notification -->
+                    {% if upcoming_consultations %}
+                    <div class="alert alert-warning shadow-sm rounded text-center mt-4">
+                        <h5>🕒 Your video consultation is about to begin</h5>
+                        {% for appt in upcoming_consultations %}
+                            <p class="mb-1">
+                                <strong>Doctor:</strong> Dr. {{ appt.doctor.user.username }}<br>
+                                <strong>Time:</strong> {{ appt.date }} {{ appt.start_time }}
+                            </p>
+                            <a href="{% url 'appointments:video_consultation' appt.id %}" class="btn btn-sm btn-success mb-2">
+                                <i class="fas fa-video"></i> Join Now
+                            </a>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
 
                 </div>
             </div>
@@ -126,16 +132,20 @@
 
 <style>
     .card {
-        transition: all 0.3s ease;
+        transition: all 0.3s ease-in-out;
     }
+
     .card:hover {
         box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1) !important;
     }
+
     .list-group-item.active {
         background-color: #e8f5e9;
         color: #2e7d32;
         border-left: 3px solid #2e7d32;
+        font-weight: 500;
     }
+
     .list-group-item-action:hover {
         background-color: #f8f9fa;
     }

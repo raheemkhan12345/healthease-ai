@@ -18,6 +18,10 @@ def save_user_profile(sender, instance, **kwargs):
 # ─────────────── LOGIN LOG ─────────────── #
 @receiver(user_logged_in)
 def record_login(sender, request, user, **kwargs):
+    # Ensure session is created
+    if not request.session.session_key:
+        request.session.save()
+
     LoginLog.objects.create(
         user=user,
         session_key=request.session.session_key,
@@ -25,8 +29,12 @@ def record_login(sender, request, user, **kwargs):
         user_agent=request.META.get('HTTP_USER_AGENT'),
     )
 
+# ─────────────── LOGOUT LOG ─────────────── #
 @receiver(user_logged_out)
 def record_logout(sender, request, user, **kwargs):
+    if not request.session.session_key:
+        request.session.save()
+
     LoginLog.objects.filter(
         user=user,
         session_key=request.session.session_key,

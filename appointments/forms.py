@@ -80,11 +80,11 @@ class AppointmentForm(forms.ModelForm):
             raise ValidationError("Appointment date cannot be in the past.")
         return date
 
-    def clean_start_time(self):
-        start_time = self.cleaned_data.get('start_time')
-        if start_time < time(9, 0) or start_time > time(17, 0):
-            raise ValidationError("Appointments must be between 9 AM and 5 PM")
-        return start_time
+# def clean_start_time(self):
+#     start_time = self.cleaned_data.get('start_time')
+#     if start_time < time(9, 0) or start_time > time(20, 0):  # 20:00 is 8 PM
+#         raise ValidationError("Appointments must be between 9 AM and 8 PM")
+#     return start_time
 
 
 class LabTestForm(forms.ModelForm):
@@ -180,3 +180,6 @@ class LabReportUploadForm(forms.ModelForm):
         labels = {
             'notes_for_doctor': 'Lab Notes'
         }
+        
+    
+

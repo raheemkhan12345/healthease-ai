@@ -1,76 +1,122 @@
 {% extends "base.html" %}
-{% block title %}Complete Lab Details | HealthEase AI{% endblock %}
+{% load widget_tweaks %}
+{% block title %}Lab Test Confirmation | HealthEase AI{% endblock %}
 
 {% block content %}
-<div class="container py-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h4 class="mb-0">Complete Lab Test Details</h4>
-        <span class="badge bg-warning text-dark">Step 2 of 2</span>
+<style>
+    .modern-glass {
+        background: #cafeffc4;
+        backdrop-filter: blur(12px);
+        border-radius: 1.2rem;
+        border: 1px solid rgba(0, 0, 0, 0.08);
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.07);
+    }
+
+    .text-title-gradient {
+    background: linear-gradient(to right, #00c6ff, #6610f2);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text; /* for future compatibility */
+    color: transparent;
+    font-weight: 800;
+}
+
+    .highlight-box {
+        border-left: 5px solid #0dcaf0;
+        padding-left: 1rem;
+        background-color: #f8f9fa;
+        border-radius: 0.5rem;
+    }
+
+    .form-label i {
+        width: 20px;
+    }
+
+    .modern-btn {
+        background: linear-gradient(to right, #00c9ff, #92fe9d);
+        border: none;
+        color: white;
+        font-weight: 600;
+        transition: 0.3s ease;
+    }
+
+    .modern-btn:hover {
+        transform: scale(1.02);
+        box-shadow: 0 6px 12px rgba(0, 201, 255, 0.3);
+    }
+
+    .status-badge {
+        font-size: 0.85rem;
+        background: #0dcaf0;
+        color: #fff;
+        padding: 0.3rem 0.8rem;
+        border-radius: 50px;
+    }
+</style>
+
+<div class="container py-5">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-4">
+        <h2 class="text-title-gradient text-center text-md-start mb-3 mb-md-0">
+            🧪 Confirm Lab Details
+        </h2>
+        <span class="badge bg-success px-3 py-2 fs-6 shadow-sm rounded-pill">Step 2 of 2</span>
     </div>
-    
-    <div class="card shadow-lg border-0">
-        <div class="card-header bg-primary text-white">
-            <h5 class="mb-0">Test Information</h5>
-        </div>
-        <div class="card-body">
-            <div class="row mb-4">
-                <div class="col-md-6">
-                    <p class="mb-2">
-                        <strong><i class="fas fa-flask me-2"></i>Test Name:</strong>
-                        <span class="text-success">{{ test.test_name }}</span>
-                    </p>
-                    <p class="mb-2">
-                        <strong><i class="fas fa-user-md me-2"></i>Ordered By:</strong>
-                        Dr. {{ test.doctor.user.username }}
-                    </p>
+
+    <div class="modern-glass p-4 p-md-5">
+        <h5 class="fw-semibold mb-4"><i class="fas fa-vial me-2 text-info"></i> Lab Test Overview</h5>
+
+        <div class="row g-4 mb-4">
+            <div class="col-md-6">
+                <div class="highlight-box">
+                    <p class="mb-1"><strong><i class="fas fa-flask me-2 text-success"></i>Test Name:</strong> {{ test.test_name }}</p>
+                    <p><strong><i class="fas fa-user-md me-2 text-primary"></i>Ordered By:</strong> Dr. {{ test.doctor.user.username }}</p>
                 </div>
-                <div class="col-md-6">
-                    <p class="mb-2">
-                        <strong><i class="fas fa-calendar me-2"></i>Requested On:</strong>
-                        {{ test.created_at|date:"F j, Y" }}
-                    </p>
-                    <p class="mb-0">
-                        <strong><i class="fas fa-info-circle me-2"></i>Status:</strong>
-                        <span class="badge bg-info text-dark">{{ test.get_status_display }}</span>
+            </div>
+            <div class="col-md-6">
+                <div class="highlight-box">
+                    <p class="mb-1"><strong><i class="fas fa-calendar-day me-2 text-info"></i>Requested On:</strong> {{ test.created_at|date:"F j, Y" }}</p>
+                    <p><strong><i class="fas fa-info-circle me-2 text-warning"></i>Status:</strong>
+                        <span class="status-badge">{{ test.get_status_display }}</span>
                     </p>
                 </div>
             </div>
-
-            <hr>
-            
-            <h5 class="mb-3"><i class="fas fa-clipboard-check me-2"></i>Lab Details</h5>
-<form method="POST" action="" id="labDetailsForm">
-    {% csrf_token %}
-    
-    <!-- Form fields -->
-    <div class="mb-3">
-        <label class="form-label">Lab Facility</label>
-        {{ form.lab_name }}
-        {{ form.lab_name.errors }}
-    </div>
-    
-    <div class="mb-3">
-        <label class="form-label">Collection Address</label>
-        {{ form.sample_collection_address }}
-        {{ form.sample_collection_address.errors }}
-    </div>
-    
-    <button type="submit" class="btn btn-primary" id="submitBtn">
-        <i class="fas fa-paper-plane me-1"></i> Submit to Lab
-    </button>
-</form>
         </div>
+
+        <hr class="my-4">
+
+        <h5 class="fw-semibold mb-4"><i class="fas fa-microscope me-2 text-success"></i> Lab Assignment Details</h5>
+
+        <form method="POST" id="labDetailsForm" novalidate>
+            {% csrf_token %}
+
+            <div class="mb-4">
+                <label class="form-label fw-semibold"><i class="fas fa-hospital me-2 text-primary"></i> Lab Facility</label>
+                {{ form.lab_name|add_class:"form-select form-select-lg shadow-sm rounded-3" }}
+                <div class="text-danger small mt-1">{{ form.lab_name.errors }}</div>
+            </div>
+
+            <div class="mb-4">
+                <label class="form-label fw-semibold"><i class="fas fa-map-marker-alt me-2 text-danger"></i> Sample Collection Address</label>
+                {{ form.sample_collection_address|add_class:"form-control form-control-lg shadow-sm rounded-3" }}
+                <div class="text-danger small mt-1">{{ form.sample_collection_address.errors }}</div>
+            </div>
+
+            <div class="d-grid mt-4">
+                <button type="submit" class="btn btn-lg modern-btn shadow-sm" id="submitBtn">
+                    <i class="fas fa-paper-plane me-2"></i> Submit Lab Request
+                </button>
+            </div>
+        </form>
     </div>
 </div>
 {% endblock %}
 
 {% block extra_js %}
 <script>
-document.getElementById('labDetailsForm').addEventListener('submit', function(e) {
-    console.log('Form submission triggered'); // Debug line
-    const btn = document.getElementById('submitBtn');
-    btn.disabled = true;
-    btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Submitting...';
-});
+    document.getElementById('labDetailsForm').addEventListener('submit', function(e) {
+        const btn = document.getElementById('submitBtn');
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Submitting...';
+    });
 </script>
 {% endblock %}

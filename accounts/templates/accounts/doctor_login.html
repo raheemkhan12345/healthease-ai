@@ -16,13 +16,18 @@
     }
 
     .login-left img {
-        max-height: 200px;
+        max-height: 180px;
     }
 
     .login-card {
         background: rgba(255, 255, 255, 0.95);
         border-radius: 20px;
         box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .form-control-custom {
+        border-radius: 10px;
+        border: 1px solid #ddd;
     }
 
     .form-control-custom:focus {
@@ -33,11 +38,11 @@
     .input-group-text {
         background-color: #f1f1f1;
         border: none;
+        border-radius: 10px 0 0 10px;
     }
 
-    .form-control-custom {
-        border-radius: 10px;
-        border: 1px solid #ddd;
+    .toggle-password {
+        border-radius: 0 10px 10px 0;
     }
 
     .btn-primary {
@@ -49,19 +54,27 @@
     .text-muted a {
         text-decoration: none;
     }
+
+    @media (max-width: 767.98px) {
+        .login-left {
+            display: none !important;
+        }
+    }
 </style>
 
-<div class="container-fluid vh-100 d-flex align-items-center">
-    <div class="row flex-grow-1">
-        <!-- Left Illustration -->
-        <div class="col-md-6 login-left d-none d-md-flex">
-            <img src="{% static 'images/logo.JPG' %}" alt="Doctor Illustration">
-            <h2 class="mt-4">Welcome Back, Doctor</h2>
-            <p class="text-white-50">Login to access your dashboard and appointments.</p>
+<div class="container-fluid min-vh-100 d-flex align-items-center justify-content-center">
+    <div class="row w-100 gx-0">
+        <!-- Left Image / Branding -->
+        <div class="col-md-6 login-left d-none d-md-flex text-center">
+            <div>
+                <img src="{% static 'images/logo.JPG' %}" alt="Doctor Illustration" class="img-fluid mb-3">
+                <h2>Welcome Back, Doctor</h2>
+                <p class="text-white-50">Login to access your dashboard and appointments.</p>
+            </div>
         </div>
 
         <!-- Login Form -->
-        <div class="col-md-6 d-flex align-items-center justify-content-center">
+        <div class="col-12 col-md-6 d-flex align-items-center justify-content-center">
             <div class="card login-card p-4 p-md-5 w-100" style="max-width: 500px;">
                 <div class="text-center mb-4">
                     <h3 class="mb-2">Doctor Login</h3>
@@ -84,12 +97,11 @@
                         <div class="input-group">
                             <span class="input-group-text"><i class="fas fa-user-md"></i></span>
                             <input type="text" class="form-control form-control-custom"
-                                id="{{ form.username.id_for_label }}" name="{{ form.username.html_name }}"
-                                value="{{ form.username.value|default:'' }}" required>
+                                   id="{{ form.username.id_for_label }}"
+                                   name="{{ form.username.html_name }}"
+                                   value="{{ form.username.value|default:'' }}" required>
                         </div>
-                        <div class="invalid-feedback">
-                            {{ form.username.errors }}
-                        </div>
+                        <div class="invalid-feedback">{{ form.username.errors }}</div>
                     </div>
 
                     <!-- Password -->
@@ -98,14 +110,13 @@
                         <div class="input-group">
                             <span class="input-group-text"><i class="fas fa-lock"></i></span>
                             <input type="password" class="form-control form-control-custom"
-                                id="{{ form.password.id_for_label }}" name="{{ form.password.html_name }}" required>
+                                   id="{{ form.password.id_for_label }}"
+                                   name="{{ form.password.html_name }}" required>
                             <button class="btn btn-outline-secondary toggle-password" type="button">
                                 <i class="fas fa-eye"></i>
                             </button>
                         </div>
-                        <div class="invalid-feedback">
-                            {{ form.password.errors }}
-                        </div>
+                        <div class="invalid-feedback">{{ form.password.errors }}</div>
                         <div class="text-end mt-2">
                             {% url 'password_reset' as password_reset_url %}
                             {% if password_reset_url %}
@@ -124,13 +135,11 @@
                     <!-- Links -->
                     <div class="text-center mt-3">
                         <p class="text-muted">Don't have an account?
-                            <a href="{% url 'accounts:doctor_signup' %}" class="text-primary fw-semibold">Register
-                                here</a>
+                            <a href="{% url 'accounts:doctor_signup' %}" class="text-primary fw-semibold">Register here</a>
                         </p>
                         <hr>
                         <p class="text-muted">Are you a patient?
-                            <a href="{% url 'accounts:patient_login' %}" class="text-primary fw-semibold">Patient
-                                login</a>
+                            <a href="{% url 'accounts:patient_login' %}" class="text-primary fw-semibold">Patient login</a>
                         </p>
                     </div>
                 </form>
@@ -157,7 +166,7 @@
         });
     });
 
-    // Bootstrap validation
+    // Bootstrap form validation
     (() => {
         'use strict';
         const forms = document.querySelectorAll('.needs-validation');

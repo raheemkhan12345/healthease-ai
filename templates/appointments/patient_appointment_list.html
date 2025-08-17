@@ -5,98 +5,78 @@
 
 {% block content %}
 <div class="container py-5">
-    <!-- Back Button Row -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <a href="{% url 'accounts:patient_dashboard' %}" class="btn btn-outline-secondary">
-                <i class="fas fa-arrow-left me-2"></i> Back to Dashboard
-            </a>
-        </div>
+
+    <!-- Back Button -->
+    <div class="mb-4">
+        <a href="{% url 'accounts:patient_dashboard' %}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-2"></i> Back to Dashboard
+        </a>
     </div>
 
     <h2 class="mb-4 text-success fw-bold">My Appointments</h2>
-    
+
     {% if appointments %}
-        <div class="accordion shadow-lg rounded-3" id="appointmentsAccordion">
+        <div class="accordion shadow-lg" id="appointmentsAccordion">
             {% for appointment in appointments %}
-            <div class="accordion-item border-0 mb-3">
+            <div class="accordion-item mb-3 border-0 rounded-3 overflow-hidden">
                 <h2 class="accordion-header" id="heading{{ forloop.counter }}">
-                    <button class="accordion-button {% if not forloop.first %}collapsed{% endif %} bg-light-green text-dark fw-medium" type="button" data-bs-toggle="collapse" 
-                            data-bs-target="#collapse{{ forloop.counter }}" aria-expanded="{% if forloop.first %}true{% else %}false{% endif %}" 
-                            aria-controls="collapse{{ forloop.counter }}">
+                    <button class="accordion-button {% if not forloop.first %}collapsed{% endif %} bg-light-green text-dark fw-medium"
+                        type="button" data-bs-toggle="collapse"
+                        data-bs-target="#collapse{{ forloop.counter }}"
+                        aria-expanded="{{ forloop.first|yesno:'true,false' }}"
+                        aria-controls="collapse{{ forloop.counter }}">
                         <div class="d-flex flex-wrap w-100 justify-content-between align-items-center pe-3">
-                            <span class="me-3">
-                                <i class="fas fa-user-md me-2 text-success"></i>
-                                <strong>Dr. {{ appointment.doctor.user.get_full_name|default:appointment.doctor.user.username }}</strong>
-                            </span>
-                            <span class="me-3">
-                                <i class="fas fa-calendar-day me-2 text-success"></i>
-                                {{ appointment.date|date:"F j, Y" }}
-                            </span>
-                            <span class="me-3">
-                                <i class="fas fa-clock me-2 text-success"></i>
-                                {{ appointment.start_time|time:"g:i A" }} - {{ appointment.end_time|time:"g:i A" }}
-                            </span>
-                            <span>
-                                <span class="badge {% if appointment.status == 'Approved' %}bg-success{% elif appointment.status == 'Pending' %}bg-warning text-dark{% else %}bg-secondary{% endif %} rounded-pill px-3 py-2">
-                                    {{ appointment.status }}
-                                </span>
+                            <span><i class="fas fa-user-md me-2 text-success"></i>Dr. {{ appointment.doctor.user.get_full_name|default:appointment.doctor.user.username }}</span>
+                            <span><i class="fas fa-calendar-day me-2 text-success"></i>{{ appointment.date|date:"F j, Y" }}</span>
+                            <span><i class="fas fa-clock me-2 text-success"></i>{{ appointment.start_time|time:"g:i A" }} - {{ appointment.end_time|time:"g:i A" }}</span>
+                            <span class="badge {% if appointment.status == 'Approved' %}bg-success{% elif appointment.status == 'Pending' %}bg-warning text-dark{% else %}bg-secondary{% endif %} rounded-pill px-3 py-2">
+                                {{ appointment.status }}
                             </span>
                         </div>
                     </button>
                 </h2>
-                <div id="collapse{{ forloop.counter }}" class="accordion-collapse collapse {% if forloop.first %}show{% endif %}" 
-                     aria-labelledby="heading{{ forloop.counter }}" data-bs-parent="#appointmentsAccordion">
+                <div id="collapse{{ forloop.counter }}" class="accordion-collapse collapse {% if forloop.first %}show{% endif %}"
+                    aria-labelledby="heading{{ forloop.counter }}" data-bs-parent="#appointmentsAccordion">
                     <div class="accordion-body bg-white">
                         <div class="row">
+                            <!-- Appointment Details -->
                             <div class="col-md-6">
-                                <h5 class="text-success mb-3"><i class="fas fa-info-circle me-2"></i>Appointment Details</h5>
+                                <h5 class="text-success mb-3"><i class="fas fa-info-circle me-2"></i>Appointment Info</h5>
                                 <ul class="list-group list-group-flush">
-                                    <li class="list-group-item d-flex justify-content-between align-items-center border-0 ps-0">
-                                        <span><i class="fas fa-id-card me-2 text-success"></i>Doctor</span>
-                                        <span class="fw-medium">Dr. {{ appointment.doctor.user.username|default:appointment.doctor.user.username }}</span>
-                                    </li>
-                                    <li class="list-group-item d-flex justify-content-between align-items-center border-0 ps-0">
-                                        <span><i class="fas fa-calendar-alt me-2 text-success"></i>Date</span>
-                                        <span class="fw-medium">{{ appointment.date|date:"F j, Y" }}</span>
-                                    </li>
-                                    <li class="list-group-item d-flex justify-content-between align-items-center border-0 ps-0">
-                                        <span><i class="fas fa-clock me-2 text-success"></i>Time Slot</span>
-                                        <span class="fw-medium">{{ appointment.start_time|time:"g:i A" }} - {{ appointment.end_time|time:"g:i A" }}</span>
-                                    </li>
-                                    <li class="list-group-item d-flex justify-content-between align-items-center border-0 ps-0">
-                                        <span><i class="fas fa-stethoscope me-2 text-success"></i>Specialization</span>
-                                        <span class="fw-medium">{{ appointment.doctor.specialization }}</span>
-                                    </li>
+                                    <li class="list-group-item border-0"><i class="fas fa-id-card me-2 text-success"></i>Doctor: <strong>{{ appointment.doctor.user.username }}</strong></li>
+                                    <li class="list-group-item border-0"><i class="fas fa-calendar-alt me-2 text-success"></i>Date: <strong>{{ appointment.date|date:"F j, Y" }}</strong></li>
+                                    <li class="list-group-item border-0"><i class="fas fa-clock me-2 text-success"></i>Time: <strong>{{ appointment.start_time|time:"g:i A" }} - {{ appointment.end_time|time:"g:i A" }}</strong></li>
+                                    <li class="list-group-item border-0"><i class="fas fa-stethoscope me-2 text-success"></i>Specialization: <strong>{{ appointment.doctor.specialization }}</strong></li>
                                 </ul>
                             </div>
-                            
+
+                            <!-- Prescription Info -->
                             <div class="col-md-6">
-    <h5 class="text-success mb-3"><i class="fas fa-prescription-bottle-alt me-2"></i>Prescription</h5>
-    {% if appointment.prescription %}
-    <div class="list-group-item border-0 shadow-sm mb-2 rounded-3">
-        <div class="d-flex justify-content-between align-items-center">
-            <div>
-                <h6 class="mb-1 fw-bold">Prescription</h6>
-                <small class="text-muted">Issued on {{ appointment.date|date:"M j, Y" }}</small>
-            </div>
-            <div>
-                <a href="{{ appointment.prescription.url }}" class="btn btn-sm btn-outline-success me-2" target="_blank">
-                    <i class="fas fa-eye me-1"></i> View
-                </a>
-                <a href="{{ appointment.prescription.url }}" class="btn btn-sm btn-success" download>
-                    <i class="fas fa-download me-1"></i> Download
-                </a>
-            </div>
-        </div>
-    </div>
-    {% else %}
-    <div class="alert alert-light-green border d-flex align-items-center" role="alert">
-        <i class="fas fa-info-circle me-2 text-success"></i>
-        No prescription uploaded for this appointment.
-    </div>
-    {% endif %}
-</div>
+                                <h5 class="text-success mb-3"><i class="fas fa-prescription-bottle-alt me-2"></i>Prescription</h5>
+                                {% if appointment.prescription %}
+                                    <div class="p-3 shadow-sm border rounded-3 bg-light">
+                                        <div class="d-flex justify-content-between">
+                                            <div>
+                                                <h6 class="fw-bold mb-1">Issued on {{ appointment.date|date:"M j, Y" }}</h6>
+                                                <small class="text-muted">View or download below</small>
+                                            </div>
+                                            <div>
+                                                <a href="{{ appointment.prescription.url }}" target="_blank" class="btn btn-outline-success btn-sm me-2">
+                                                    <i class="fas fa-eye me-1"></i> View
+                                                </a>
+                                                <a href="{{ appointment.prescription.url }}" class="btn btn-success btn-sm" download>
+                                                    <i class="fas fa-download me-1"></i> Download
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% else %}
+                                    <div class="alert alert-light-green d-flex align-items-center mt-2" role="alert">
+                                        <i class="fas fa-info-circle me-2 text-success"></i>
+                                        No prescription uploaded for this appointment.
+                                    </div>
+                                {% endif %}
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -104,6 +84,7 @@
             {% endfor %}
         </div>
     {% else %}
+        <!-- No Appointments State -->
         <div class="text-center py-5">
             <img src="{% static 'images/no-appointments.svg' %}" alt="No appointments" class="img-fluid mb-4" style="max-width: 300px;">
             <h4 class="text-muted mb-3">You have no appointments yet</h4>
@@ -115,38 +96,25 @@
     {% endif %}
 </div>
 
+<!-- Custom Styles -->
 <style>
     .bg-light-green {
-        background-color: #e8f5e9; /* Light green background */
+        background-color: #e8f5e9;
     }
     .alert-light-green {
         background-color: #e8f5e9;
+        border-color: #c8e6c9;
     }
     .accordion-button:not(.collapsed) {
         background-color: #e8f5e9;
-        color: #2e7d32; /* Dark green text */
+        color: #2e7d32;
     }
     .accordion-button:focus {
-        box-shadow: 0 0 0 0.25rem rgba(46, 125, 50, 0.25); /* Green focus shadow */
-        border-color: #81c784; /* Medium green border */
+        box-shadow: 0 0 0 0.25rem rgba(46, 125, 50, 0.25);
+        border-color: #81c784;
     }
     .rounded-3 {
         border-radius: 1rem !important;
-    }
-    .text-success {
-        color: #2e7d32 !important; /* Dark green for text */
-    }
-    .btn-success {
-        background-color: #4caf50; /* Vibrant green for buttons */
-        border-color: #4caf50;
-    }
-    .btn-outline-success {
-        color: #4caf50;
-        border-color: #4caf50;
-    }
-    .btn-outline-success:hover {
-        background-color: #4caf50;
-        color: white;
     }
 </style>
 {% endblock %}

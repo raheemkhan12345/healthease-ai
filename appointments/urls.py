@@ -2,6 +2,7 @@ from django.urls import path
 from . import views
 from django.conf import settings
 from django.conf.urls.static import static
+from appointments.views import video_consultation
 
 app_name = 'appointments'
 urlpatterns = [
@@ -29,7 +30,7 @@ urlpatterns = [
     path('doctors/<int:doctor_id>/', views.doctor_detail, name='doctor_detail'),
     path('doctors/<int:doctor_id>/book/', views.book_appointment, name='book_appointment'),
     path('appointments/<int:appointment_id>/confirm/', views.appointment_confirmation, name='appointment_confirmation'),
-    path('appointments/<int:appointment_id>/video/', views.video_consultation, name='video_consultation'),
+    path('video/<int:appointment_id>/', video_consultation, name='video_consultation'),
     path('doctor/approve-appointment/<int:appointment_id>/', views.approve_appointment, name='approve_appointment'),
     path('confirmation/<int:appointment_id>/', views.appointment_confirmation, name='appointment_confirmation'),
     path('autocomplete/', views.autocomplete_suggestions, name='autocomplete'),
@@ -43,6 +44,9 @@ urlpatterns = [
     path('complete-lab-details/<int:test_id>/', views.complete_lab_details, name='complete_lab_details'),
     path('patient/appointments/', views.patient_appointment_list, name='patient_appointment_list'),
     path('chatbot/', views.chatbot_view, name='chatbot'),
+   path('approve/<int:appointment_id>/', views.approve_appointment, name='approve_appointment'),
+
+
 
 
 
