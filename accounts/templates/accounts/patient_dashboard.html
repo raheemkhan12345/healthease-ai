@@ -124,6 +124,15 @@
                     </div>
                     {% endif %}
 
+                    <!-- Doctor Approved Notification -->
+                    {% if messages %}
+                    {% for message in messages %}
+                    <div class="alert alert-success shadow-sm rounded text-center mt-4">
+                    {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+
                 </div>
             </div>
         </div>

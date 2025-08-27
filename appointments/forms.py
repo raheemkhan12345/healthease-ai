@@ -9,8 +9,6 @@ from .models import User, Appointment
 from accounts.models import DoctorProfile
 from django.core.exceptions import ValidationError
 
-
-
 class DoctorSignUpForm(UserCreationForm):
     # Add doctor-specific fields
     pass
@@ -25,9 +23,7 @@ class DoctorLoginForm(forms.Form):
 
 class PatientLoginForm(forms.Form):
     username = forms.CharField()
-    password = forms.CharField(widget=forms.PasswordInput)
-    
-    
+    password = forms.CharField(widget=forms.PasswordInput)   
     
 # search doctors.
 
@@ -52,13 +48,13 @@ class DoctorSearchForm(forms.Form):
         choices = [('', 'All Specializations')] + list(DoctorProfile.SPECIALIZATION_CHOICES)
         self.fields['specialization'].choices = choices
 
-
 class AppointmentForm(forms.ModelForm):
+    start_time = forms.ChoiceField()
+
     class Meta:
         model = Appointment
         fields = ['date', 'start_time', 'reason']
         widgets = {
-            'start_time': forms.TimeInput(attrs={'type': 'time'}),
             'reason': forms.Textarea(attrs={
                 'rows': 3,
                 'placeholder': 'Briefly describe your symptoms or reason for appointment'
@@ -66,27 +62,63 @@ class AppointmentForm(forms.ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
+        self.doctor = kwargs.pop("doctor", None)  # doctor pass karenge view se
         super(AppointmentForm, self).__init__(*args, **kwargs)
 
         today = timezone.now().date()
         self.fields['date'].widget = forms.DateInput(attrs={
             'type': 'date',
-            'min': today.strftime('%Y-%m-%d'),  # Allow today and future
+            'min': today.strftime('%Y-%m-%d'),
+            'class': 'form-control'
         })
 
-    def clean_date(self):
-        date = self.cleaned_data.get('date')
-        if date < timezone.now().date():
-            raise ValidationError("Appointment date cannot be in the past.")
-        return date
+        # ✅ Generate time slots
+        time_choices = []
+        start = datetime.strptime("09:00", "%H:%M")
+        end = datetime.strptime("20:00", "%H:%M")
+        step = timedelta(minutes=30)
 
-# def clean_start_time(self):
-#     start_time = self.cleaned_data.get('start_time')
-#     if start_time < time(9, 0) or start_time > time(20, 0):  # 20:00 is 8 PM
-#         raise ValidationError("Appointments must be between 9 AM and 8 PM")
-#     return start_time
+        while start <= end:
+            formatted_label = start.strftime("%I:%M %p")
+            value = start.strftime("%H:%M")
+            time_choices.append((value, formatted_label))
+            start += step
 
+        self.fields['start_time'] = forms.ChoiceField(
+            choices=[('', 'Select Time')] + time_choices,
+            required=True,
+            widget=forms.Select(attrs={'class': 'form-control'})
+        )
 
+    def clean(self):
+        cleaned_data = super().clean()
+        date = cleaned_data.get("date")
+        start_time = cleaned_data.get("start_time")
+
+        if date and date < timezone.now().date():
+            raise forms.ValidationError("⚠️ Please select a future date (not today).")
+
+        if date and start_time and self.doctor:
+            start_dt = datetime.combine(date, datetime.strptime(start_time, "%H:%M").time())
+            end_dt = start_dt + timedelta(minutes=30)
+
+            conflict = Appointment.objects.filter(
+                doctor=self.doctor,
+                date=date,
+                start_time__lt=end_dt.time(),
+                end_time__gt=start_dt.time(),
+                status__in=["pending", "confirmed", "approved"]
+            ).exists()
+
+            if conflict:
+                formatted_date = date.strftime("%B %d, %Y")
+                formatted_time = datetime.strptime(start_time, "%H:%M").strftime("%I:%M %p")
+                raise forms.ValidationError(
+                    f"❌ The slot {formatted_time} on {formatted_date} is already booked. "
+                    f"Please choose another time or try the next day."
+                )
+
+        return cleaned_data
 class LabTestForm(forms.ModelForm):
     TEST_CHOICES = [
         ('Blood Sugar', 'Blood Sugar'),

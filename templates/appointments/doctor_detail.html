@@ -6,15 +6,16 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 
 <div class="container py-3 py-md-5" style="font-family: 'Inter', sans-serif;">
-    <div class="row g-3 g-md-4 justify-content-center">  <!-- Added justify-content-center here -->
+    <div class="row g-3 g-md-4 justify-content-center">
 
-        <!-- Doctor Profile Card - Added mx-auto and text-center classes -->
+        <!-- Doctor Profile Card -->
         <div class="col-12 col-lg-4">
-            <div class="card profile-card border-0 shadow rounded-4 text-center p-3 p-md-4 mx-auto" style="max-width: 320px;">
+            <div class="card profile-card border-0 shadow rounded-4 text-center p-3 p-md-4 mx-auto"
+                style="max-width: 320px;">
                 <img src="{{ doctor.profile_picture.url|default:'/static/images/default-doctor.jpg' }}"
-                     class="rounded-circle border border-3 border-success mb-2 mb-md-3 img-fluid profile-img"
-                     alt="{{ doctor.user.username }}">
-                
+                    class="rounded-circle border border-3 border-success mb-2 mb-md-3 img-fluid profile-img"
+                    alt="{{ doctor.user.username }}">
+
                 <h4 class="mb-1 text-gradient">Dr. {{ doctor.user.username }}</h4>
                 <p class="text-muted mb-2 small">{{ doctor.specialization }}</p>
 
@@ -24,7 +25,8 @@
                 </div>
 
                 <p class="mt-2 text-secondary small">
-                    <i class="fas fa-graduation-cap text-warning me-1"></i>{{ doctor.qualification|default:"MBBS, FCPS" }}
+                    <i class="fas fa-graduation-cap text-warning me-1"></i>{{ doctor.qualification|default:"MBBS, FCPS"
+                    }}
                 </p>
             </div>
         </div>
@@ -35,14 +37,16 @@
                 <div class="card-header bg-transparent px-3 px-md-4 py-2 py-md-3 border-bottom-0">
                     <ul class="nav nav-pills justify-content-center gap-1 gap-md-2" id="doctorTab" role="tablist">
                         <li class="nav-item">
-                            <button class="nav-link rounded-pill px-3 px-md-4 py-1 py-md-2 {% if not form.errors %}active{% endif %}"
-                                    id="about-tab" data-bs-toggle="pill" data-bs-target="#about" type="button" role="tab">
+                            <button
+                                class="nav-link rounded-pill px-3 px-md-4 py-1 py-md-2 {% if not form.errors %}active{% endif %}"
+                                id="about-tab" data-bs-toggle="pill" data-bs-target="#about" type="button" role="tab">
                                 <i class="fas fa-user-md me-1 me-md-2"></i> About
                             </button>
                         </li>
                         <li class="nav-item">
-                            <button class="nav-link rounded-pill px-3 px-md-4 py-1 py-md-2 {% if form.errors %}active{% endif %}"
-                                    id="book-tab" data-bs-toggle="pill" data-bs-target="#book" type="button" role="tab">
+                            <button
+                                class="nav-link rounded-pill px-3 px-md-4 py-1 py-md-2 {% if form.errors %}active{% endif %}"
+                                id="book-tab" data-bs-toggle="pill" data-bs-target="#book" type="button" role="tab">
                                 <i class="fas fa-calendar-check me-1 me-md-2"></i> Book Appointment
                             </button>
                         </li>
@@ -50,17 +54,33 @@
                 </div>
 
                 <div class="card-body tab-content p-3 p-md-4">
+
                     <!-- About Tab -->
                     <div class="tab-pane fade {% if not form.errors %}show active{% endif %}" id="about">
                         <h5 class="mb-2 mb-md-3 text-success fw-semibold">Doctor Information</h5>
                         <div class="table-responsive">
                             <table class="table table-borderless small mb-0">
                                 <tbody>
-                                    <tr><th class="text-muted">👨‍⚕️ Name</th><td>Dr. {{ doctor.user.username }}</td></tr>
-                                    <tr><th class="text-muted">🩺Specialization</th><td>{{ doctor.specialization }}</td></tr>
-                                    <tr><th class="text-muted">🏥 Hospital</th><td>{{ doctor.hospital }}</td></tr>
-                                    <tr><th class="text-muted">🎓 Qualification</th><td>{{ doctor.qualification|default:"MBBS, FCPS" }}</td></tr>
-                                    <tr><th class="text-muted">📅 Experience</th><td>{{ doctor.experience }} years</td></tr>
+                                    <tr>
+                                        <th class="text-muted">👨‍⚕️ Name</th>
+                                        <td>Dr. {{ doctor.user.username }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th class="text-muted">🩺 Specialization</th>
+                                        <td>{{ doctor.specialization }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th class="text-muted">🏥 Hospital</th>
+                                        <td>{{ doctor.hospital }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th class="text-muted">🎓 Qualification</th>
+                                        <td>{{ doctor.qualification|default:"MBBS, FCPS" }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th class="text-muted">📅 Experience</th>
+                                        <td>{{ doctor.experience }} years</td>
+                                    </tr>
                                 </tbody>
                             </table>
                         </div>
@@ -74,12 +94,28 @@
                         <div class="alert alert-danger small">
                             <ul class="mb-0">
                                 {% for field in form %}
-                                    {% for error in field.errors %}
-                                        <li><strong>{{ field.label }}:</strong> {{ error }}</li>
-                                    {% endfor %}
+                                {% for error in field.errors %}
+                                <li><strong>{{ field.label }}:</strong> {{ error }}</li>
+                                {% endfor %}
                                 {% endfor %}
                                 {% for error in form.non_field_errors %}
-                                    <li>{{ error }}</li>
+                                <li>{{ error }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        {% endif %}
+
+                        <!-- ✅ Suggested Slots UI -->
+                        {% if suggested_slots %}
+                        <div class="alert alert-warning small">
+                            <strong>⚠️ This time is already booked.</strong><br>
+                            Suggested available times:
+                            <ul class="mb-0">
+                                {% for slot in suggested_slots %}
+                                <li>
+                                    {{ slot.date|date:"M d, Y" }} — {{ slot.start_time|time:"H:i" }} to {{
+                                    slot.end_time|time:"H:i" }}
+                                </li>
                                 {% endfor %}
                             </ul>
                         </div>
@@ -91,16 +127,15 @@
                                 <label class="form-label">📅 Date</label>
                                 <div class="input-group">
                                     <span class="input-group-text"><i class="fas fa-calendar"></i></span>
-                                    {{ form.date|add_class:"form-control" }}
+                                    <input type="date" name="date" class="form-control"
+                                        value="{{ selected_date|date:'Y-m-d' }}" required>
                                 </div>
                             </div>
-                            <div class="col-12 col-md-6">
-                                <label class="form-label">⏰ Time</label>
-                                <div class="input-group">
-                                    <span class="input-group-text"><i class="fas fa-clock"></i></span>
-                                    {{ form.start_time|add_class:"form-control" }}
-                                </div>
-                            </div>
+<div class="col-12 col-md-6">
+   <label for="id_start_time">⏰ Select Time</label>
+{{ form.start_time|add_class:"form-select" }}
+</div>
+
                             <div class="col-12">
                                 <label class="form-label">💬 Reason (optional)</label>
                                 {{ form.reason|add_class:"form-control" }}
@@ -118,118 +153,127 @@
 
     </div>
 </div>
-
 <style>
-body {
-    background: linear-gradient(135deg, #f3f9ff, #e6f7f1);
-}
+    body {
+        background: linear-gradient(135deg, #f3f9ff, #e6f7f1);
+    }
 
-.profile-img {
-    width: 110px;
-    height: 110px;
-    object-fit: cover;
-    transition: transform 0.3s ease;
-    margin: 0 auto;
-}
-
-.text-gradient {
-    background: linear-gradient(to right, #00c6ff, #6610f2);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    font-weight: 700;
-}
-
-.profile-card {
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(14px);
-    border-radius: 1.2rem;
-    transition: all 0.4s ease-in-out;
-    text-align: center;
-}
-.profile-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
-}
-
-.glass-section {
-    background: rgba(255, 255, 255, 0.9);
-    backdrop-filter: blur(16px);
-    border-radius: 1rem;
-    box-shadow: 0 12px 25px rgba(0, 0, 0, 0.05);
-}
-
-.btn-glow {
-    background: linear-gradient(to right, #0dcaf0, #198754);
-    color: #fff;
-    font-weight: 600;
-    border: none;
-    border-radius: 0.6rem;
-    padding: 0.65rem 1.4rem;
-    transition: 0.3s ease;
-}
-.btn-glow:hover {
-    background: linear-gradient(to right, #198754, #0dcaf0);
-    box-shadow: 0 0 12px rgba(13, 202, 240, 0.5);
-}
-
-.nav-pills .nav-link {
-    font-weight: 500;
-    color: #333;
-    background-color: #b3bbba;
-    transition: 0.3s ease;
-}
-.nav-pills .nav-link.active {
-    background: linear-gradient(to right, #0dcaf0, #198754);
-    color: white;
-}
-
-.table th {
-    width: 35%;
-    font-weight: 500;
-    color: #555;
-}
-
-/* Mobile-specific adjustments */
-@media (max-width: 576px) {
     .profile-img {
-        width: 100px;
-        height: 100px;
+        width: 110px;
+        height: 110px;
+        object-fit: cover;
+        transition: transform 0.3s ease;
+        margin: 0 auto;
     }
-    .profile-card {
-        padding: 1.5rem;
-        max-width: 100%;
-    }
-    .nav-pills .nav-link {
-        font-size: 0.85rem;
-        padding: 0.5rem 0.8rem;
-    }
-    .table th, .table td {
-        font-size: 0.85rem;
-        padding: 0.5rem;
-    }
-    .btn-glow {
-        padding: 0.6rem 1rem;
-        font-size: 0.9rem;
-    }
+
     .text-gradient {
-        font-size: 1.25rem;
+        background: linear-gradient(to right, #00c6ff, #6610f2);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        font-weight: 700;
     }
-    .row {
-        justify-content: center;
-    }
-}
 
-/* Tablet-specific adjustments */
-@media (min-width: 577px) and (max-width: 992px) {
-    .profile-img {
-        width: 100px;
-        height: 100px;
+    .profile-card {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(14px);
+        border-radius: 1.2rem;
+        transition: all 0.4s ease-in-out;
+        text-align: center;
     }
+
+    .profile-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+    }
+
+    .glass-section {
+        background: rgba(255, 255, 255, 0.9);
+        backdrop-filter: blur(16px);
+        border-radius: 1rem;
+        box-shadow: 0 12px 25px rgba(0, 0, 0, 0.05);
+    }
+
+    .btn-glow {
+        background: linear-gradient(to right, #0dcaf0, #198754);
+        color: #fff;
+        font-weight: 600;
+        border: none;
+        border-radius: 0.6rem;
+        padding: 0.65rem 1.4rem;
+        transition: 0.3s ease;
+    }
+
+    .btn-glow:hover {
+        background: linear-gradient(to right, #198754, #0dcaf0);
+        box-shadow: 0 0 12px rgba(13, 202, 240, 0.5);
+    }
+
     .nav-pills .nav-link {
-        padding: 0.6rem 1rem;
+        font-weight: 500;
+        color: #333;
+        background-color: #b3bbba;
+        transition: 0.3s ease;
     }
-}
 
+    .nav-pills .nav-link.active {
+        background: linear-gradient(to right, #0dcaf0, #198754);
+        color: white;
+    }
+
+    .table th {
+        width: 35%;
+        font-weight: 500;
+        color: #555;
+    }
+
+    /* Mobile-specific adjustments */
+    @media (max-width: 576px) {
+        .profile-img {
+            width: 100px;
+            height: 100px;
+        }
+
+        .profile-card {
+            padding: 1.5rem;
+            max-width: 100%;
+        }
+
+        .nav-pills .nav-link {
+            font-size: 0.85rem;
+            padding: 0.5rem 0.8rem;
+        }
+
+        .table th,
+        .table td {
+            font-size: 0.85rem;
+            padding: 0.5rem;
+        }
+
+        .btn-glow {
+            padding: 0.6rem 1rem;
+            font-size: 0.9rem;
+        }
+
+        .text-gradient {
+            font-size: 1.25rem;
+        }
+
+        .row {
+            justify-content: center;
+        }
+    }
+
+    /* Tablet-specific adjustments */
+    @media (min-width: 577px) and (max-width: 992px) {
+        .profile-img {
+            width: 100px;
+            height: 100px;
+        }
+
+        .nav-pills .nav-link {
+            padding: 0.6rem 1rem;
+        }
+    }
 </style>
 {% endblock %}

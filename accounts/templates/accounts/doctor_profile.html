@@ -26,10 +26,7 @@
         box-shadow: 0 4px 12px rgba(13, 110, 253, 0.3);
     }
 
-    .list-group-item-action:hover {
-        background-color: #f0f8ff;
-        color: #0d6efd;
-    }
+
 
     .card-header {
         background: linear-gradient(to right, #0d6efd, #1e90ff);
@@ -47,27 +44,34 @@
 <div class="container py-5">
     <div class="row gy-4">
         <!-- Sidebar -->
-        <div class="col-12 col-md-4 col-lg-3">
-            <div class="card shadow-sm border-0 h-100">
-                <div class="card-header text-white text-center">
-                    <h5 class="mb-0"><i class="fas fa-user-cog me-2"></i>Doctor Menu</h5>
-                </div>
-                <div class="list-group list-group-flush">
-                    <a href="{% url 'accounts:doctor_dashboard' %}" class="list-group-item list-group-item-action">
-                        <i class="fas fa-home me-2"></i> Dashboard
-                    </a>
-                    <a href="{% url 'accounts:doctor_profile' %}" class="list-group-item list-group-item-action active">
-                        <i class="fas fa-user-md me-2"></i> My Profile
-                    </a>
-                    <a href="{% url 'appointments:doctor_patients_list' %}" class="list-group-item list-group-item-action">
-                        <i class="fas fa-users me-2"></i> Patients
-                    </a>
-                    <a href="{% url 'accounts:user_logout' %}" class="list-group-item list-group-item-action text-danger">
-                        <i class="fas fa-sign-out-alt me-2"></i> Logout
-                    </a>
-                </div>
-            </div>
+<div class="col-12 col-md-4 col-lg-3">
+    <div class="card border-0 shadow-lg rounded-4 h-100">
+        <div class="card-header bg-primary text-white text-center rounded-top-4">
+            <h5 class="mb-0">
+                <i class="fas fa-user-md me-2"></i> Doctor Menu
+            </h5>
         </div>
+        <div class="list-group list-group-flush">
+            <a href="{% url 'accounts:doctor_dashboard' %}" 
+               class="list-group-item list-group-item-action {% if request.resolver_match.url_name == 'doctor_dashboard' %}active{% endif %}">
+                <i class="fas fa-home me-2"></i> Dashboard
+            </a>
+            <a href="{% url 'accounts:doctor_profile' %}" 
+               class="list-group-item list-group-item-action {% if request.resolver_match.url_name == 'doctor_profile' %}active{% endif %}">
+                <i class="fas fa-user-md me-2"></i> My Profile
+            </a>
+            <a href="{% url 'appointments:doctor_patients_list' %}" 
+               class="list-group-item list-group-item-action {% if request.resolver_match.url_name == 'doctor_patients_list' %}active{% endif %}">
+                <i class="fas fa-users me-2"></i> Patients
+            </a>
+            <a href="{% url 'accounts:user_logout' %}" 
+               class="list-group-item list-group-item-action text-danger">
+                <i class="fas fa-sign-out-alt me-2"></i> Logout
+            </a>
+        </div>
+    </div>
+</div>
+
 
         <!-- Profile Section -->
         <div class="col-12 col-md-8 col-lg-9">

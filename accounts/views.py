@@ -1,14 +1,15 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from django.db import transaction
+import notifications
 from .forms import DoctorSignUpForm, PatientSignUpForm, DoctorLoginForm, PatientLoginForm
 from .models import DoctorProfile, PatientProfile, User
-from appointments.models import Appointment, LabTest
-from notifications.models import Notification
+from appointments.models import Appointment, LabTest, Notification
+
 from appointments.models import Appointment
 from django.utils import timezone
 from django.utils.timezone import make_aware
@@ -131,7 +132,8 @@ def user_logout(request):
     return redirect('home')
 
 # ─────────────── Dashboards ─────────────── #
-from django.utils import timezone
+
+
 
 @login_required
 def doctor_dashboard(request):
@@ -141,26 +143,26 @@ def doctor_dashboard(request):
 
     profile, _ = DoctorProfile.objects.get_or_create(user=request.user)
     appointments = Appointment.objects.filter(doctor=profile).order_by('-date', '-start_time')
-    notifications = Notification.objects.filter(user=request.user, is_read=False).order_by('-created_at')
     now = timezone.localtime()
 
-    # ✅ Fix: Loop ke andar logic correctly applied
     upcoming_consultations = []
+
     for appt in appointments:
         appt_datetime = make_aware(datetime.combine(appt.date, appt.start_time))
-        diff = (appt_datetime - now).total_seconds() / 60
-        if 0 <= diff <= 5 and appt.status.lower() == 'approved':
+        join_window_start = appt_datetime - timedelta(minutes=15)  # 15 min before
+        join_window_end = appt_datetime + timedelta(minutes=45)    # 30 min consultation + 15 min after
+
+        if appt.status.lower() == 'approved' and join_window_start <= now <= join_window_end:
             upcoming_consultations.append(appt)
 
     context = {
         'doctor': request.user,
         'profile': profile,
         'appointments': appointments,
-        'notifications': notifications,
         'patient_count': appointments.values('patient').distinct().count(),
         'upcoming_consultations': upcoming_consultations,
-        'today': timezone.localtime().date(),
-        'now': timezone.localtime().time(),
+        'today': now.date(),
+        'now': now.time(),
     }
 
     return render(request, 'accounts/doctor_dashboard.html', context)
@@ -172,18 +174,30 @@ def patient_dashboard(request):
     now = timezone.localtime()
 
     upcoming_consultations = []
+    approved_appointments = []
+
+    # Patient ke liye notifications fetch karo
+    notifications = Notification.objects.filter(recipient=request.user, is_read=False)
+
     for appt in appointments:
-        appt_datetime = timezone.make_aware(datetime.combine(appt.date, appt.start_time))
-        diff = (appt_datetime - now).total_seconds() / 60
-        if 0 <= diff <= 5 and appt.status.lower() == 'approved':
+        appt_datetime = make_aware(datetime.combine(appt.date, appt.start_time))
+        join_window_start = appt_datetime - timedelta(minutes=15)
+        join_window_end = appt_datetime + timedelta(minutes=45)
+
+        if appt.status.lower() == 'approved' and join_window_start <= now <= join_window_end:
             upcoming_consultations.append(appt)
+
+        if appt.status.lower() == 'approved' and appt_datetime > now:
+            approved_appointments.append(appt)
 
     return render(request, 'accounts/patient_dashboard.html', {
         'appointments': appointments,
         'lab_tests': lab_tests,
         'upcoming_consultations': upcoming_consultations,
-        'today': timezone.localtime().date(),
-        'now': timezone.localtime().time(),
+        'approved_appointments': approved_appointments,
+        'notifications': notifications,  
+        'today': now.date(),
+        'now': now.time(),
     })
 
 # ─────────────── Profiles ─────────────── #

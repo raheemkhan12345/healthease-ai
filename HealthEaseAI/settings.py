@@ -30,9 +30,8 @@ INSTALLED_APPS = [
     # Local apps
     'accounts.apps.AccountsConfig',
     'appointments.apps.AppointmentsConfig',
-    # 'chat.apps.ChatConfig',
     "widget_tweaks",
-    'notifications',
+   
   
 ]
 
@@ -71,8 +70,8 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'healtheaseai_db',
-        'USER': 'django_user',  # Replace if needed
-        'PASSWORD': '1234',  # ✅ FIXED: put actual password
+        'USER': 'django_user',  
+        'PASSWORD': '1234',  
         'HOST': 'localhost',
         'PORT': '3306',
         'OPTIONS': {

@@ -5,20 +5,35 @@
 {% block content %}
 <div class="container py-4">
     <div class="row g-4">
-        <!-- Sidebar -->
-        <div class="col-12 col-md-4 col-lg-3">
-            <div class="card border-0 shadow-lg rounded-4">
-                <div class="card-header bg-primary text-white text-center rounded-top-4">
-                    <h5 class="mb-0"><i class="fas fa-user-md me-2"></i>Doctor Menu</h5>
-                </div>
-                <div class="list-group list-group-flush">
-                    <a href="{% url 'accounts:doctor_dashboard' %}" class="list-group-item list-group-item-action active"><i class="fas fa-chart-line me-2"></i>Dashboard</a>
-                    <a href="{% url 'accounts:doctor_profile' %}" class="list-group-item list-group-item-action"><i class="fas fa-user-circle me-2"></i>My Profile</a>
-                    <a href="{% url 'appointments:doctor_patients_list' %}" class="list-group-item list-group-item-action"><i class="fas fa-users me-2"></i>Patients</a>
-                    <a href="{% url 'accounts:user_logout' %}" class="list-group-item list-group-item-action text-danger"><i class="fas fa-sign-out-alt me-2"></i>Logout</a>
-                </div>
-            </div>
+       <!-- Sidebar -->
+<div class="col-12 col-md-4 col-lg-3">
+    <div class="card border-0 shadow-lg rounded-4 h-100">
+        <div class="card-header bg-primary text-white text-center rounded-top-4">
+            <h5 class="mb-0">
+                <i class="fas fa-user-md me-2"></i> Doctor Menu
+            </h5>
         </div>
+        <div class="list-group list-group-flush">
+            <a href="{% url 'accounts:doctor_dashboard' %}" 
+               class="list-group-item list-group-item-action {% if request.resolver_match.url_name == 'doctor_dashboard' %}active{% endif %}">
+                <i class="fas fa-home me-2"></i> Dashboard
+            </a>
+            <a href="{% url 'accounts:doctor_profile' %}" 
+               class="list-group-item list-group-item-action {% if request.resolver_match.url_name == 'doctor_profile' %}active{% endif %}">
+                <i class="fas fa-user-md me-2"></i> My Profile
+            </a>
+            <a href="{% url 'appointments:doctor_patients_list' %}" 
+               class="list-group-item list-group-item-action {% if request.resolver_match.url_name == 'doctor_patients_list' %}active{% endif %}">
+                <i class="fas fa-users me-2"></i> Patients
+            </a>
+            <a href="{% url 'accounts:user_logout' %}" 
+               class="list-group-item list-group-item-action text-danger">
+                <i class="fas fa-sign-out-alt me-2"></i> Logout
+            </a>
+        </div>
+    </div>
+</div>
+
 
         <!-- Main Content -->
         <div class="col-12 col-md-8 col-lg-9">
@@ -107,9 +122,9 @@
                                                     <button type="submit" class="btn btn-sm btn-success w-100"><i class="fas fa-check"></i> Approve</button>
                                                 </form>
                                                 {% endif %}
-                                                {% if appointment.status|lower == 'approved' and appointment.date == today and appointment.start_time <= now %}
+                                                {% if appointment in upcoming_consultations %}
                                                 <a href="{% url 'appointments:video_consultation' appointment.id %}" class="btn btn-sm btn-outline-primary w-100" target="_blank">
-                                                    <i class="fas fa-video"></i> Start
+                                                    <i class="fas fa-video"></i> Start Consultation
                                                 </a>
                                                 {% endif %}
                                             </div>
@@ -127,8 +142,8 @@
 
                     <!-- Upcoming Consultations -->
                     {% if upcoming_consultations %}
-                    <div class="alert alert-warning shadow-sm rounded text-center mt-4">
-                        <h5><i class="fas fa-clock me-2"></i>Upcoming Consultation(s) in 5 Minutes</h5>
+                    <div class="alert alert-success shadow-sm rounded text-center mt-4">
+                        <h5><i class="fas fa-video me-2"></i>Active Consultation Window (30 Minutes)</h5>
                         {% for appt in upcoming_consultations %}
                         <div class="mb-3">
                             <p class="mb-1"><strong>Patient:</strong> {{ appt.patient.user.username }}</p>

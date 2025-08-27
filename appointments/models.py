@@ -4,7 +4,7 @@ from accounts.models import DoctorProfile, PatientProfile, TimeSlot
 from datetime import datetime, timedelta, timezone
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
-from django.utils.timezone import make_aware
+from django.utils.timezone import make_aware, now
 
 
 User = get_user_model()  # This ensures the correct User model is used
@@ -12,6 +12,7 @@ User = get_user_model()  # This ensures the correct User model is used
 class Appointment(models.Model):
     STATUS_CHOICES = [
         ('pending', 'Pending'),
+        ('approved', 'Approved'),
         ('confirmed', 'Confirmed'),
         ('completed', 'Completed'),
         ('cancelled', 'Cancelled'),
@@ -46,6 +47,12 @@ class Appointment(models.Model):
     def get_start_datetime(self):
         from datetime import datetime
         return make_aware(datetime.combine(self.date, self.start_time))
+    def can_join_consultation(self):
+        """Check if patient/doctor can join consultation window."""
+        start_dt = self.get_start_datetime()
+        join_window_start = start_dt - timedelta(minutes=15)   # 15 min before
+        join_window_end = start_dt + timedelta(minutes=45)     # 30 min consult + 15 grace
+        return join_window_start <= now() <= join_window_end
 
 
 class LabTest(models.Model):
