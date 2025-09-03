@@ -6,7 +6,6 @@ from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.utils.timezone import make_aware, now
 
-
 User = get_user_model()  # This ensures the correct User model is used
 
 class Appointment(models.Model):
@@ -23,7 +22,7 @@ class Appointment(models.Model):
     date = models.DateField()
     start_time = models.TimeField()
     end_time = models.TimeField(blank=True, null=True)
-    reason = models.TextField(blank=True, null=True)
+    transaction_id = models.CharField(max_length=11, blank=True, null=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
     notes = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)

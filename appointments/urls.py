@@ -32,6 +32,7 @@ urlpatterns = [
     path('appointments/<int:appointment_id>/confirm/', views.appointment_confirmation, name='appointment_confirmation'),
     path('video/<int:appointment_id>/', video_consultation, name='video_consultation'),
     path('doctor/approve-appointment/<int:appointment_id>/', views.approve_appointment, name='approve_appointment'),
+    path("cancel/<int:appointment_id>/", views.cancel_appointment, name="cancel_appointment"),
     path('confirmation/<int:appointment_id>/', views.appointment_confirmation, name='appointment_confirmation'),
     path('autocomplete/', views.autocomplete_suggestions, name='autocomplete'),
     

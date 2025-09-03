@@ -25,8 +25,7 @@
                 </div>
 
                 <p class="mt-2 text-secondary small">
-                    <i class="fas fa-graduation-cap text-warning me-1"></i>{{ doctor.qualification|default:"MBBS, FCPS"
-                    }}
+                    <i class="fas fa-graduation-cap text-warning me-1"></i>{{ doctor.qualification|default:"MBBS, FCPS" }}
                 </p>
             </div>
         </div>
@@ -131,15 +130,25 @@
                                         value="{{ selected_date|date:'Y-m-d' }}" required>
                                 </div>
                             </div>
-<div class="col-12 col-md-6">
-   <label for="id_start_time">⏰ Select Time</label>
-{{ form.start_time|add_class:"form-select" }}
+                            <div class="col-12 col-md-6">
+                                <label for="id_start_time">⏰ Select Time</label>
+                                {{ form.start_time|add_class:"form-select" }}
+                            </div>
+
+                           <div class="col-12">
+    <label class="form-label">💳 Transaction ID</label>
+    <div class="input-group" req >
+        <span class="input-group-text bg-success text-white">
+            <i class="fas fa-mobile-alt"></i>
+        </span>
+        {{ form.transaction_id|add_class:"form-control"|attr:"required:true" }}
+    </div>
+    <small class="text-muted d-block mt-1">
+        <img src="{% static 'images/easypaisa.png' %}" alt="Easypaisa" style="height:20px; margin-right:5px;">
+        Send payment to <strong>03139922010</strong> via Easypaisa, then enter your Transaction ID above.
+    </small>
 </div>
 
-                            <div class="col-12">
-                                <label class="form-label">💬 Reason (optional)</label>
-                                {{ form.reason|add_class:"form-control" }}
-                            </div>
                             <div class="col-12">
                                 <button type="submit" class="btn btn-glow w-100 shadow-sm">
                                     <i class="fas fa-paper-plane me-1 me-md-2"></i> Submit Appointment

@@ -166,9 +166,16 @@ def doctor_dashboard(request):
     }
 
     return render(request, 'accounts/doctor_dashboard.html', context)
+
+
 @login_required
 def patient_dashboard(request):
-    patient = request.user.patientprofile
+    try:
+        patient = request.user.patientprofile
+    except PatientProfile.DoesNotExist:
+        messages.error(request, "⚠️ You must have a patient account to access the patient dashboard.")
+        return redirect("accounts:doctor_dashboard")  # ya koi safe page (home/doctor_dashboard)
+
     appointments = Appointment.objects.filter(patient=patient).order_by('-date')[:5]
     lab_tests = LabTest.objects.filter(patient=patient)
     now = timezone.localtime()
@@ -199,6 +206,7 @@ def patient_dashboard(request):
         'today': now.date(),
         'now': now.time(),
     })
+
 
 # ─────────────── Profiles ─────────────── #
 @login_required

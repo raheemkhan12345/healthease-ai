@@ -246,19 +246,28 @@ def doctor_detail(request, doctor_id):
         active_tab = "book"
 
         if form.is_valid():
-            patient = request.user.patientprofile
+            # ✅ Patient check pehle karo
+            try:
+                patient = request.user.patientprofile
+            except PatientProfile.DoesNotExist:
+                return redirect("accounts:patient_dashboard")
+
             appointment = form.save(commit=False)
             appointment.doctor = doctor
             appointment.patient = patient
             appointment.status = "pending"
-            # end_time auto calculate
+
+            # End time auto calculate
             start_time = datetime.strptime(form.cleaned_data["start_time"], "%H:%M").time()
             appointment.start_time = start_time
-            appointment.end_time = (datetime.combine(datetime.today(), start_time) + timedelta(minutes=30)).time()
-            appointment.save()
+            appointment.end_time = (
+                datetime.combine(datetime.today(), start_time) + timedelta(minutes=30)
+            ).time()
 
+            appointment.save()
             messages.success(request, "✅ Appointment booked successfully.")
             return redirect("appointments:appointment_confirmation", appointment.id)
+
     else:
         form = AppointmentForm(doctor=doctor)
         active_tab = "about"
@@ -268,7 +277,6 @@ def doctor_detail(request, doctor_id):
         "form": form,
         "active_tab": active_tab,
     })
-
 
 
 @login_required
@@ -365,6 +373,23 @@ def approve_appointment(request, appointment_id):
         messages.error(request, "You cannot approve a cancelled or completed appointment.")
         return redirect('accounts:doctor_dashboard')
 
+    # ✅ Transaction ID validation
+    if not appointment.transaction_id or len(appointment.transaction_id.strip()) < 5:
+        appointment.status = "cancelled"
+        appointment.save()
+
+        # Doctor ko message
+        messages.error(request, "❌ Invalid Transaction ID! Appointment cancelled.")
+
+        # Patient ko notification
+        Notification.objects.create(
+            recipient=appointment.patient.user,
+            message="❌ Your appointment has been cancelled because you typed invalid Transaction ID. "
+                    "Please try again and enter a correct Transaction ID.",
+            content_object=appointment
+        )
+        return redirect('accounts:doctor_dashboard')
+
     try:
         appointment.status = 'approved'
         appointment.full_clean()
@@ -373,10 +398,11 @@ def approve_appointment(request, appointment_id):
         # Doctor ko message
         messages.success(request, "✅ Appointment approved successfully.")
 
-        # Patient ke liye notification
+        # Patient ko notification
         Notification.objects.create(
             recipient=appointment.patient.user,
-            message=f"✅ Dr. {appointment.doctor.user.get_full_name() or appointment.doctor.user.username} has approved your appointment on {appointment.date} at {appointment.start_time}.",
+            message=f"✅ Dr. {appointment.doctor.user.get_full_name() or appointment.doctor.user.username} "
+                    f"has approved your appointment on {appointment.date} at {appointment.start_time}.",
             content_object=appointment
         )
 
@@ -385,6 +411,31 @@ def approve_appointment(request, appointment_id):
         messages.error(request, f"Approval failed: {msg}")
 
     return redirect('accounts:doctor_dashboard')
+
+
+@login_required
+def cancel_appointment(request, appointment_id):
+    appointment = get_object_or_404(Appointment, id=appointment_id)
+
+    if appointment.status.lower() == "pending":
+        appointment.status = "cancelled"
+        appointment.save()
+
+        # Doctor ke liye message
+        messages.success(request, "❌ Appointment cancelled successfully.")
+
+        # Patient ke liye notification
+        Notification.objects.create(
+            recipient=appointment.patient.user,
+            message=f"❌ Your appointment with Dr. {appointment.doctor.user.get_full_name()} "
+                    f"on {appointment.date} at {appointment.start_time} has been cancelled."
+        )
+
+    else:
+        messages.warning(request, "⚠️ Only pending appointments can be cancelled.")
+
+    return redirect("accounts:doctor_dashboard")
+
 
 
 
@@ -475,7 +526,7 @@ def suggest_lab_test(request, patient_id):
                         message=f"Dr. {doctor.user.get_full_name()} suggested a {lab_test.test_name} test."
                     )
                     messages.success(request, "Lab test suggested successfully!")
-                    return redirect('appointments:doctor_dashboard')
+                    return redirect('accounts:doctor_dashboard')
 
             except Exception as e:
                 messages.error(request, f"Error saving test: {str(e)}")

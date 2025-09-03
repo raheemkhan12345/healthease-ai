@@ -9,6 +9,8 @@ from .models import User, Appointment
 from accounts.models import DoctorProfile
 from django.core.exceptions import ValidationError
 
+
+
 class DoctorSignUpForm(UserCreationForm):
     # Add doctor-specific fields
     pass
@@ -53,11 +55,11 @@ class AppointmentForm(forms.ModelForm):
 
     class Meta:
         model = Appointment
-        fields = ['date', 'start_time', 'reason']
+        fields = ['date', 'start_time', 'transaction_id']
         widgets = {
-            'reason': forms.Textarea(attrs={
-                'rows': 3,
-                'placeholder': 'Briefly describe your symptoms or reason for appointment'
+             'transaction_id': forms.TextInput(attrs={
+                'placeholder': 'Enter your payment Transaction ID',
+                'class': 'form-control'
             }),
         }
 
@@ -94,6 +96,7 @@ class AppointmentForm(forms.ModelForm):
         cleaned_data = super().clean()
         date = cleaned_data.get("date")
         start_time = cleaned_data.get("start_time")
+        transaction_id = cleaned_data.get("transaction_id")
 
         if date and date < timezone.now().date():
             raise forms.ValidationError("⚠️ Please select a future date (not today).")
@@ -117,6 +120,8 @@ class AppointmentForm(forms.ModelForm):
                     f"❌ The slot {formatted_time} on {formatted_date} is already booked. "
                     f"Please choose another time or try the next day."
                 )
+            if not transaction_id: 
+                raise forms.ValidationError("⚠️ Please enter your Transaction ID after payment.")
 
         return cleaned_data
 class LabTestForm(forms.ModelForm):
