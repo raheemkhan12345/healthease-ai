@@ -55,111 +55,74 @@ class Appointment(models.Model):
 
 
 class LabTest(models.Model):
-    # Lab choices - predefined list of available labs
-    LAB_CHOICES = [
-        ('City Lab', 'City Lab'),
-        ('Shifa Diagnostics', 'Shifa Diagnostics'),
-        ('Excel Lab', 'Excel Lab'),
-    ]
-    
-
-    # Test stages - more granular status tracking
     STATUS_CHOICES = [
-        ('Suggested', 'Suggested by Doctor'),       # Doctor suggested test
-        ('Details Pending', 'Patient Details Needed'), # Waiting for patient info
-        ('Sent to Lab', 'Sent to Laboratory'),      # Details complete, sent to lab
-        ('Sample Collected', 'Sample Collected'),   # Lab collected sample
-        ('In Progress', 'Test in Progress'),        # Lab processing test
-        ('Completed', 'Test Completed'),           # Results available
-        ('Cancelled', 'Test Cancelled'),           # Test cancelled
+        ('Suggested', 'Suggested by Doctor'),         # Doctor suggested
+        ('Details Pending', 'Patient Details Needed'), 
+        ('Sent to Lab', 'Sent to Laboratory'),        # Patient submitted lab + address
+        ('Sample Collected', 'Sample Collected'),     
+        ('In Progress', 'Test in Progress'),          
+        ('Completed', 'Test Completed'),              # Report uploaded
+        ('Cancelled', 'Test Cancelled'),
     ]
 
-    # Test name - required field
-    test_name = models.CharField(
-        max_length=255,
-        help_text="Name of the laboratory test to be performed"
-    )
-
-    report_file = models.FileField(upload_to='lab_reports/', null=True, blank=True)
-
-    # Patient relationship - who the test is for
-    patient = models.ForeignKey(
-        PatientProfile, 
-        on_delete=models.CASCADE,
-        related_name='lab_tests',
-        help_text="Patient who needs this test"
-    )
-
-    # Doctor relationship - who ordered the test
+    # Relations
     doctor = models.ForeignKey(
         DoctorProfile, 
         on_delete=models.CASCADE,
         related_name='ordered_tests',
         help_text="Doctor who ordered this test"
     )
-
-    # Lab selection - where test will be performed
-    lab_name = models.CharField(
-        max_length=255, 
-        choices=LAB_CHOICES, 
-        blank=True, 
-        null=True,
-        help_text="Laboratory facility where test will be conducted"
+    patient = models.ForeignKey(
+        PatientProfile, 
+        on_delete=models.CASCADE,
+        related_name='lab_tests',
+        help_text="Patient who needs this test"
+    )
+    lab = models.ForeignKey(
+        "accounts.LabProfile",   # ✅ Each lab has its own dashboard
+        on_delete=models.SET_NULL,
+        null=True, blank=True,
+        related_name="lab_tests"
     )
 
-    # Test status - tracks progress through workflow
+    # Test details
+    test_name = models.CharField(max_length=255)
+    description = models.TextField(blank=True, null=True)
+
+    # Collection details
+    sample_collection_address = models.TextField(
+        blank=True, null=True,
+        help_text="Patient address for sample collection"
+    )
+
+    # File upload by lab
+    report_file = models.FileField(upload_to="lab_reports/", blank=True, null=True)
+
+    # Status
     status = models.CharField(
         max_length=20,
         choices=STATUS_CHOICES,
-        default='Suggested',
-        help_text="Current status of the test in the workflow"
-    )
-
-    # Test results - file upload for reports
-    report_file = models.FileField(upload_to='lab_reports/', blank=True, null=True)
-
-
-    # Collection address - where sample will be collected
-    sample_collection_address = models.TextField(
-        blank=True, 
-        null=True,
-        help_text="Complete address for sample collection"
+        default='Suggested'
     )
 
     # Timestamps
-    created_at = models.DateTimeField(
-        auto_now_add=True,
-        help_text="When the test was initially suggested"
-    )
-    updated_at = models.DateTimeField(
-        auto_now=True,
-        help_text="When the test record was last updated"
-    )
-    completed_at = models.DateTimeField(
-        blank=True,
-        null=True,
-        help_text="When the test was marked as completed"
-    )
-
-
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    completed_at = models.DateTimeField(blank=True, null=True)
 
     class Meta:
-        ordering = ['-created_at']  # Newest tests first by default
+        ordering = ['-created_at']
         verbose_name = 'Laboratory Test'
         verbose_name_plural = 'Laboratory Tests'
 
     def __str__(self):
-        return f"{self.test_name} for {self.patient.user.get_full_name()} (Status: {self.get_status_display()})"
+        return f"{self.test_name} for {self.patient.user.get_full_name()} ({self.get_status_display()})"
 
     def save(self, *args, **kwargs):
-        # Automatically set completed_at when status changes to Completed
+        from django.utils import timezone
         if self.status == 'Completed' and not self.completed_at:
             self.completed_at = timezone.now()
         super().save(*args, **kwargs)
-
-    def get_absolute_url(self):
-        from django.urls import reverse
-        return reverse('appointments:lab_test_detail', args=[str(self.id)])
 
     @property
     def is_completed(self):

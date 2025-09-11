@@ -31,6 +31,7 @@ INSTALLED_APPS = [
     'accounts.apps.AccountsConfig',
     'appointments.apps.AppointmentsConfig',
     "widget_tweaks",
+    
    
   
 ]

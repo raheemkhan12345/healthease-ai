@@ -9,9 +9,10 @@ class User(AbstractUser):
     USER_TYPE_CHOICES = (
         ('doctor', 'Doctor'),
         ('patient', 'Patient'),
+        ('lab', 'Lab Staff'),   # ✅ New user type
     )
     user_type = models.CharField(max_length=10, choices=USER_TYPE_CHOICES, default='patient')
-    
+
     @property
     def is_patient(self):
         return self.user_type == 'patient'
@@ -19,6 +20,13 @@ class User(AbstractUser):
     @property
     def is_doctor(self):
         return self.user_type == 'doctor'
+    
+    @property
+    def is_lab(self):
+        return self.user_type == 'lab'
+
+
+
 
 # ─────────────── DOCTOR PROFILE ─────────────── #
 class DoctorProfile(models.Model):
@@ -76,3 +84,18 @@ class LoginLog(models.Model):
     class Meta:
         db_table = 'login_log'
         ordering = ['-login_time']
+
+
+
+class LabProfile(models.Model):
+    LAB_CHOICES = [
+        ('city lab', 'city lab'),
+        ('shifa diagnostics', 'shifa diagnostics'),
+        ('excel lab', 'excel lab'),
+    ]
+
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    lab_name = models.CharField(max_length=100, choices=LAB_CHOICES)
+
+    def __str__(self):
+        return f"{self.lab_name} ({self.user.username})"

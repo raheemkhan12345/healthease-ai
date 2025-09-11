@@ -5,9 +5,9 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from django.db import transaction
-import notifications
-from .forms import DoctorSignUpForm, PatientSignUpForm, DoctorLoginForm, PatientLoginForm
-from .models import DoctorProfile, PatientProfile, User
+
+from .forms import DoctorSignUpForm, PatientSignUpForm, DoctorLoginForm, PatientLoginForm, LabSignupForm, LabLoginForm
+from .models import DoctorProfile, PatientProfile, User,LabProfile
 from appointments.models import Appointment, LabTest, Notification
 
 from appointments.models import Appointment
@@ -248,5 +248,47 @@ def doctor_search(request):
         'specializations': specializations
     })
 
+# lab staff 
+@login_required
+def lab_dashboard(request):
+    if request.user.user_type != "lab":
+        messages.error(request, "Access denied.")
+        return redirect("home")
+
+    lab_profile = request.user.labprofile
+    tests = LabTest.objects.filter(lab=lab_profile).order_by("-created_at")
+
+    return render(request, "accounts/lab_dashboard.html", {"tests": tests})
 
 
+
+def lab_login(request):
+    if request.method == "POST":
+        form = LabLoginForm(request.POST)
+        if form.is_valid():
+            username = form.cleaned_data["username"]
+            password = form.cleaned_data["password"]
+            user = authenticate(request, username=username, password=password)
+            if user is not None and user.user_type == "lab":
+                login(request, user)
+                return redirect("accounts:lab_dashboard")
+            else:
+                form.add_error(None, "Invalid username or password for lab account.")
+    else:
+        form = LabLoginForm()
+    
+    return render(request, "accounts/lab_login.html", {"form": form})
+
+
+def lab_signup(request):
+    if request.method == "POST":
+        form = LabSignupForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)
+            messages.success(request, "🎉 Your lab account has been created successfully!")
+            return redirect("accounts:lab_dashboard")
+    else:
+        form = LabSignupForm()
+
+    return render(request, "accounts/lab_signup.html", {"form": form})

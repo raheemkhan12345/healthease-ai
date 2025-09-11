@@ -13,8 +13,6 @@ urlpatterns = [
 
     path('login/doctor/', views.doctor_login, name='doctor_login'),
     path('login/patient/', views.patient_login, name='patient_login'),
-    path('signup/doctor/', views.doctor_signup, name='doctor_signup'),
-    path('signup/patient/', views.patient_signup, name='patient_signup'),
     path('logout/', views.user_logout, name='logout'),
     
     # Dashboard/Profile URLs
@@ -45,8 +43,8 @@ urlpatterns = [
     path('complete-lab-details/<int:test_id>/', views.complete_lab_details, name='complete_lab_details'),
     path('patient/appointments/', views.patient_appointment_list, name='patient_appointment_list'),
     path('chatbot/', views.chatbot_view, name='chatbot'),
-   path('approve/<int:appointment_id>/', views.approve_appointment, name='approve_appointment'),
-
+    path('approve/<int:appointment_id>/', views.approve_appointment, name='approve_appointment'),
+    path('lab-test-table/', views.lab_test_table, name='lab_test_table'),
 
 
 

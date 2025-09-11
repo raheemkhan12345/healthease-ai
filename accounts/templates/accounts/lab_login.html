@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+{% load static %}
+{% load widget_tweaks %}
+{% block content %}
+
+<style>
+    body {
+        font-family: 'Inter', sans-serif;
+        background-color: #f8f9fa;
+    }
+    .info-section {
+        background: linear-gradient(135deg, #0d6efd 0%, #0dcaf0 100%);
+    }
+    .info-section h2, 
+    .info-section p, 
+    .info-section li {
+        color: #fff;
+    }
+    .login-card {
+        border-radius: 16px;
+        overflow: hidden;
+    }
+    .login-btn {
+        transition: all 0.3s ease;
+    }
+    .login-btn:hover {
+        background-color: #0b5ed7;
+        transform: translateY(-2px);
+    }
+</style>
+
+<div class="min-vh-100 d-flex align-items-center justify-content-center py-5 px-3">
+    <div class="container" style="max-width: 1000px;">
+        <div class="row shadow-lg bg-white login-card">
+            
+            <!-- Left Section (Info) -->
+            <div class="col-md-6 info-section p-5 d-flex flex-column justify-content-center">
+                <h2 class="fw-bold mb-4">Lab Login</h2>
+                <p class="mb-4">
+                    Access your lab dashboard to manage patient test requests, upload reports,  
+                    and collaborate with doctors in real-time.
+                </p>
+                <ul class="list-unstyled">
+                    <li class="mb-3 d-flex align-items-center">
+                        <i class="fas fa-flask me-3"></i> Manage Patient Tests
+                    </li>
+                    <li class="mb-3 d-flex align-items-center">
+                        <i class="fas fa-upload me-3"></i> Upload Reports (PDF/JPG)
+                    </li>
+                    <li class="mb-3 d-flex align-items-center">
+                        <i class="fas fa-user-shield me-3"></i> Secure Access
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Right Section (Form) -->
+            <div class="col-md-6 p-5">
+                <h3 class="fw-semibold text-dark mb-4">Welcome Back</h3>
+                
+                <form method="post" novalidate>
+                    {% csrf_token %}
+                    
+                    <div class="mb-3">
+                        <label class="form-label fw-medium">Username</label>
+                        {{ form.username|add_class:"form-control form-control-lg" }}
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label fw-medium">Password</label>
+                        {{ form.password|add_class:"form-control form-control-lg" }}
+                    </div>
+
+                    {% if form.errors %}
+                        <div class="alert alert-danger mb-4">
+                            <ul class="mb-0">
+                                {% for field, errors in form.errors.items %}
+                                    {% for error in errors %}
+                                        <li>{{ error }}</li>
+                                    {% endfor %}
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    {% endif %}
+
+                    <button type="submit" class="btn btn-primary btn-lg w-100 fw-semibold py-2 login-btn">
+                        Login
+                    </button>
+                </form>
+
+                <p class="text-secondary mt-4 text-center">
+                    Don't have a lab account? 
+                    <a href="{% url 'accounts:lab_signup' %}" class="text-primary fw-semibold text-decoration-none">Sign up here</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+{% endblock %}

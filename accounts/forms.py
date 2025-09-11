@@ -2,13 +2,13 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.core.validators import MinValueValidator
 from django.contrib.auth import get_user_model
-from .models import DoctorProfile, PatientProfile
+from .models import DoctorProfile, PatientProfile, User, LabProfile
 from django.shortcuts import render, redirect
 from django.contrib.auth import login
 from django.urls import reverse
 
 from django.contrib.auth.forms import UserCreationForm
-from .models import User
+
 
 import re
 
@@ -111,3 +111,35 @@ class DoctorLoginForm(forms.Form):
 class PatientLoginForm(forms.Form):
     username = forms.CharField()
     password = forms.CharField(widget=forms.PasswordInput)
+
+
+class LabSignupForm(UserCreationForm):
+    lab_name = forms.CharField(max_length=255, required=True)
+    class Meta:
+        model = User
+        fields = ["username", "email", "password1", "password2"]
+
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        user.user_type = "lab"   # set lab type
+        if commit:
+            user.save()
+            lab_profile = LabProfile.objects.create(
+                user=user,
+                lab_name=self.cleaned_data["lab_name"],
+            )
+        return user
+    
+class LabLoginForm(forms.Form):
+    username = forms.CharField(
+        widget=forms.TextInput(attrs={
+            "class": "w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500",
+            "placeholder": "Enter your username"
+        })
+    )
+    password = forms.CharField(
+        widget=forms.PasswordInput(attrs={
+            "class": "w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500",
+            "placeholder": "Enter your password"
+        })
+    )

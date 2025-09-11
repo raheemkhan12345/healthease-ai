@@ -3,30 +3,6 @@
         overflow-x: auto;
         -webkit-overflow-scrolling: touch;
     }
-
-    @media (max-width: 768px) {
-        .table thead {
-            font-size: 0.85rem;
-        }
-
-        .table td,
-        .table th {
-            white-space: nowrap;
-            font-size: 0.8rem;
-        }
-
-        .table .btn {
-            font-size: 0.7rem;
-            padding: 0.25rem 0.5rem;
-        }
-    }
-
-    @media (max-width: 576px) {
-        .table td,
-        .table th {
-            padding: 0.5rem 0.6rem;
-        }
-    }
 </style>
 
 <div class="table-responsive-wrapper">
@@ -47,16 +23,11 @@
             <tr class="text-center">
                 <td>
                     <strong class="text-dark">{{ test.test_name }}</strong>
-                    {% if test.priority == 'Urgent' %}
-                        <span class="badge bg-danger ms-2">Urgent</span>
-                    {% elif test.priority == 'STAT' %}
-                        <span class="badge bg-warning text-dark ms-2"><i class="fas fa-bolt"></i> STAT</span>
-                    {% endif %}
                 </td>
                 <td><i class="fas fa-user-md me-1 text-success"></i>Dr. {{ test.doctor.user.username }}</td>
                 <td>
-                    {% if test.lab_name %}
-                        <i class="fas fa-flask me-1 text-info"></i>{{ test.lab_name }}
+                    {% if test.lab %}
+                        <i class="fas fa-flask me-1 text-info"></i>{{ test.lab.lab_name }}
                     {% else %}
                         <span class="text-muted">Not selected</span>
                     {% endif %}
@@ -78,14 +49,12 @@
                 </td>
                 <td>
                     {% if test.status == 'Suggested' %}
+                        <!-- ✅ Patient lab select + address -->
                         <a href="{% url 'appointments:complete_lab_details' test.id %}" class="btn btn-sm btn-outline-primary">
                             <i class="fas fa-edit"></i> Complete
                         </a>
-                    {% elif test.status == 'Sent to Lab' and not test.report_file %}
-                        <a href="{% url 'appointments:upload_lab_report' test.id %}" class="btn btn-sm btn-outline-info">
-                            <i class="fas fa-upload"></i> Upload
-                        </a>
                     {% elif test.report_file %}
+                        <!-- ✅ Report download after lab uploads -->
                         <a href="{{ test.report_file.url }}" target="_blank" class="btn btn-sm btn-outline-success" data-bs-toggle="tooltip" title="Download Report">
                             <i class="fas fa-download"></i>
                         </a>

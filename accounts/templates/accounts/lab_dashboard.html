@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4">Lab Dashboard</h2>
+
+    {% if tests %}
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Patient</th>
+                    <th>Doctor</th>
+                    <th>Test</th>
+                    <th>Address</th>
+                    <th>Status</th>
+                    <th>Report</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for test in tests %}
+                <tr>
+                    <td>{{ test.patient.user.username }}</td>
+                    <td>Dr. {{ test.doctor.user.username }}</td>
+                    <td>{{ test.test_name }}</td>
+                    <td>{{ test.sample_collection_address }}</td>
+                    <td>{{ test.get_status_display }}</td>
+                    <td>
+                        {% if test.report_file %}
+                            <a href="{{ test.report_file.url }}" target="_blank" class="btn btn-success btn-sm">View Report</a>
+                        {% else %}
+                            <a href="{% url 'appointments:upload_lab_report' test.id %}" class="btn btn-primary btn-sm">Upload Report</a>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>No lab tests assigned to your lab yet.</p>
+    {% endif %}
+</div>
+{% endblock %}

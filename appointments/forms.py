@@ -57,14 +57,15 @@ class AppointmentForm(forms.ModelForm):
         model = Appointment
         fields = ['date', 'start_time', 'transaction_id']
         widgets = {
-             'transaction_id': forms.TextInput(attrs={
+            'transaction_id': forms.TextInput(attrs={
                 'placeholder': 'Enter your payment Transaction ID',
-                'class': 'form-control'
+                'class': 'form-control',
+                'maxlength': '11'  # ✅ HTML level restriction
             }),
         }
 
     def __init__(self, *args, **kwargs):
-        self.doctor = kwargs.pop("doctor", None)  # doctor pass karenge view se
+        self.doctor = kwargs.pop("doctor", None)  
         super(AppointmentForm, self).__init__(*args, **kwargs)
 
         today = timezone.now().date()
@@ -74,7 +75,7 @@ class AppointmentForm(forms.ModelForm):
             'class': 'form-control'
         })
 
-        # ✅ Generate time slots
+        # ✅ Time slot generation
         time_choices = []
         start = datetime.strptime("09:00", "%H:%M")
         end = datetime.strptime("20:00", "%H:%M")
@@ -92,11 +93,24 @@ class AppointmentForm(forms.ModelForm):
             widget=forms.Select(attrs={'class': 'form-control'})
         )
 
+    def clean_transaction_id(self):
+        transaction_id = self.cleaned_data.get("transaction_id")
+
+        if not transaction_id:
+            raise ValidationError("⚠️ Please enter your Transaction ID after payment.")
+
+        if not transaction_id.isdigit():
+            raise ValidationError("⚠️ Transaction ID must contain only numbers.")
+
+        if len(transaction_id) != 11:
+            raise ValidationError("⚠️ Transaction ID must be exactly 11 digits long.")
+
+        return transaction_id
+
     def clean(self):
         cleaned_data = super().clean()
         date = cleaned_data.get("date")
         start_time = cleaned_data.get("start_time")
-        transaction_id = cleaned_data.get("transaction_id")
 
         if date and date < timezone.now().date():
             raise forms.ValidationError("⚠️ Please select a future date (not today).")
@@ -120,10 +134,9 @@ class AppointmentForm(forms.ModelForm):
                     f"❌ The slot {formatted_time} on {formatted_date} is already booked. "
                     f"Please choose another time or try the next day."
                 )
-            if not transaction_id: 
-                raise forms.ValidationError("⚠️ Please enter your Transaction ID after payment.")
 
         return cleaned_data
+
 class LabTestForm(forms.ModelForm):
     TEST_CHOICES = [
         ('Blood Sugar', 'Blood Sugar'),
@@ -150,9 +163,9 @@ class PatientLabDetailsForm(forms.ModelForm):
     
     LAB_CHOICES = [
         ('', '--- Select Lab ---'),
-        ('City Lab', 'City Lab'),
-        ('Shifa Diagnostics', 'Shifa Diagnostics'),
-        ('Excel Lab', 'Excel Lab'),
+        ('city lab', 'city lab'),
+        ('shifa diagnostics', 'shifa diagnostics'),
+        ('excel lab', 'excel lab'),
     ]
 
     lab_name = forms.ChoiceField(

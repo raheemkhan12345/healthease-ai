@@ -14,7 +14,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.timezone import make_aware, localtime, now
 from django.views.decorators.http import require_GET
-from accounts.models import User, DoctorProfile, PatientProfile
+from accounts.models import User, DoctorProfile, PatientProfile, LabProfile
 from .forms import (
     AppointmentForm,
     DoctorLoginForm,
@@ -545,50 +545,77 @@ def suggest_lab_test(request, patient_id):
 
 @login_required
 def patient_lab_tests(request):
-    if not hasattr(request.user, 'patientprofile'):
-        messages.warning(request, "Access denied: Patient profile required.")
-        return redirect('home')
+    # ✅ Agar user patient hai
+    if request.user.user_type == "patient":
+        if not hasattr(request.user, "patientprofile"):
+            messages.warning(request, "Patient profile not found.")
+            return redirect("home")
 
-    patient = request.user.patientprofile
-    all_tests = LabTest.objects.filter(patient=patient).order_by('-created_at')
+        patient = request.user.patientprofile
+        all_tests = LabTest.objects.filter(patient=patient).order_by("-created_at")
 
-    pending_tests = all_tests.filter(status__in=['Suggested', 'Details Pending', 'Sent to Lab'])
-    completed_tests = all_tests.filter(status='Completed')
+        pending_tests = all_tests.filter(status__in=["Suggested", "Details Pending", "Sent to Lab"])
+        completed_tests = all_tests.filter(status="Completed")
 
-    return render(request, 'appointments/patient_lab_tests.html', {
-        'pending_tests': pending_tests,
-        'completed_tests': completed_tests,
-        'tests': all_tests
-    })
+        return render(request, "appointments/patient_lab_tests.html", {
+            "pending_tests": pending_tests,
+            "completed_tests": completed_tests,
+            "tests": all_tests,
+            "is_patient": True,
+            "is_lab": False,
+        })
+
+    # ✅ Agar user lab hai
+    elif request.user.user_type == "lab":
+        if not hasattr(request.user, "labprofile"):
+            messages.warning(request, "Lab profile not found.")
+            return redirect("home")
+
+        lab_profile = request.user.labprofile
+        lab_tests = LabTest.objects.filter(lab=lab_profile).order_by("-created_at")
+
+        pending_tests = lab_tests.filter(status__in=["Suggested", "Details Pending", "Sent to Lab"])
+        completed_tests = lab_tests.filter(status="Completed")
+
+        return render(request, "appointments/patient_lab_tests.html", {
+            "lab": lab_profile,
+            "lab_tests": lab_tests,
+            "pending_tests": pending_tests,
+            "completed_tests": completed_tests,
+            "is_patient": False,
+            "is_lab": True,
+        })
+
+    # ❌ Agar user na patient hai na lab
+    else:
+        messages.warning(request, "Access denied: Only patients or labs can view tests.")
+        return redirect("home")
+
+
 
 
 @login_required
 def upload_lab_report(request, test_id):
-    lab_test = get_object_or_404(LabTest, id=test_id, status='Sent to Lab')
+    test = get_object_or_404(LabTest, id=test_id)
 
-    if request.method == 'POST':
-        form = LabReportUploadForm(request.POST, request.FILES, instance=lab_test)
+    # ✅ Sirf lab hi apne assigned tests me report upload kar sake
+    if request.user.user_type != "lab" or test.lab.user != request.user:
+        messages.error(request, "You are not authorized to upload this report.")
+        return redirect("accounts:lab_dashboard")
+
+    if request.method == "POST":
+        form = LabReportUploadForm(request.POST, request.FILES, instance=test)
         if form.is_valid():
-            lab_test = form.save(commit=False)
-            lab_test.status = 'Completed'
-            lab_test.completed_at = timezone.now()
-            lab_test.save()
-
-            Notification.objects.create(
-                recipient=lab_test.patient.user,
-                message=f"Your lab report for {lab_test.test_name} is now available."
-            )
-            Notification.objects.create(
-                recipient=lab_test.doctor.user,
-                message=f"Lab results for {lab_test.patient.user.get_full_name()}'s {lab_test.test_name} test are available."
-            )
-
-            messages.success(request, "Lab report uploaded successfully!")
-            return redirect('appointments:patient_lab_tests')
+            test = form.save(commit=False)
+            test.status = "Completed"  # ✅ Upload ke baad status completed
+            test.save()
+            messages.success(request, "Lab report uploaded successfully.")
+            return redirect("accounts:lab_dashboard")
     else:
-        form = LabReportUploadForm(instance=lab_test)
+        form = LabReportUploadForm(instance=test)
 
-    return render(request, 'appointments/upload_lab_report.html', {'form': form, 'test': lab_test})
+    return render(request, "appointments/upload_lab_report.html", {"form": form, "test": test})
+
 
 
 @login_required
@@ -636,7 +663,7 @@ def patient_detail(request, patient_id):
 def upload_prescription(request, appointment_id):
     appointment = get_object_or_404(Appointment, id=appointment_id)
 
-    if request.user != appointment.doctor.user:
+    if request.user != appointment.doctor.usesr:
         raise PermissionDenied("You are not authorized to upload prescription for this appointment.")
 
     if request.method == 'POST' and request.FILES.get('prescription'):
@@ -651,51 +678,48 @@ def upload_prescription(request, appointment_id):
 
 @login_required
 def complete_lab_details(request, test_id):
+    from accounts.models import LabProfile
+
+    # ✅ Ensure test belongs to this patient
     try:
-        lab_test = LabTest.objects.get(
-            id=test_id,
-            patient=request.user.patientprofile,
-            status__in=['Suggested', 'Details Pending']
-        )
+        lab_test = LabTest.objects.get(id=test_id, patient=request.user.patientprofile)
     except LabTest.DoesNotExist:
-        messages.error(request, "Test not found or not available for completion")
-        return redirect('appointments:patient_lab_tests')
+        messages.error(request, "Lab test not found.")
+        return redirect("appointments:patient_lab_tests")
 
-    if request.method == 'POST':
-        form = PatientLabDetailsForm(request.POST, instance=lab_test)
-        if form.is_valid():
+    if request.method == "POST":
+        selected_lab_id = request.POST.get("selected_lab")
+        address = request.POST.get("collection_address")
+
+        if not selected_lab_id or not address:
+            messages.error(request, "⚠️ Please select a lab and provide sample collection address.")
+        else:
             try:
-                with transaction.atomic():
-                    lab_test = form.save(commit=False)
-                    lab_test.status = 'Sent to Lab'
-                    lab_test.is_completed_by_patient = True
-                    lab_test.save()
-                    form.save_m2m()
+                selected_lab = LabProfile.objects.get(id=selected_lab_id)
 
-                    try:
-                        Notification.objects.create(
-                            recipient=lab_test.doctor.user,
-                            message=f"Patient {lab_test.patient.user.get_full_name()} has completed details for {lab_test.test_name}",
-                        )
-                    except Exception as e:
-                        logger.error(f"Failed to create notification: {str(e)}")
+                # ✅ Update lab + address + status
+                lab_test.lab = selected_lab
+                lab_test.sample_collection_address = address
+                lab_test.status = "Sent to Lab"
+                lab_test.save()
 
-                    messages.success(request, "Lab details submitted successfully! The lab will contact you soon.")
-                    return redirect('appointments:patient_lab_tests')
+                messages.success(
+                    request,
+                    f"✅ Lab test successfully sent to {selected_lab.user.get_full_name()}."
+                )
+                return redirect("appointments:patient_lab_tests")
 
-            except Exception as e:
-                messages.error(request, "An error occurred while saving your details. Please try again.")
-                logger.error(f"Error completing lab details: {str(e)}")
-    else:
-        form = PatientLabDetailsForm(instance=lab_test)
+            except LabProfile.DoesNotExist:
+                messages.error(request, "❌ Invalid lab selected.")
 
-    context = {
-        'form': form,
-        'test': lab_test,
-        'step': 2,
-        'page_title': f"Complete Details: {lab_test.test_name}"
-    }
-    return render(request, 'appointments/complete_lab_details.html', context)
+    # ✅ Fetch available labs for dropdown
+    labs = LabProfile.objects.all()
+
+    return render(request, "appointments/complete_lab_details.html", {
+        "lab_test": lab_test,
+        "labs": labs,
+    })
+
 
 
 @login_required
@@ -703,3 +727,31 @@ def patient_appointment_list(request):
     patient = request.user.patientprofile
     appointments = Appointment.objects.filter(patient=patient).prefetch_related('prescriptions', 'doctor__user')
     return render(request, 'appointments/patient_appointment_list.html', {'appointments': appointments})
+
+
+@login_required
+def lab_test_table(request):
+    user = request.user
+
+    # 👨‍⚕️ Agar patient hai
+    if hasattr(user, 'patientprofile'):
+        all_tests = LabTest.objects.filter(patient=user.patientprofile).order_by('-created_at')
+
+    # 🧪 Agar lab hai
+    elif hasattr(user, 'labprofile'):
+        all_tests = LabTest.objects.filter(lab=user.labprofile).order_by('-created_at')
+
+    # ❌ Agar dono nahi hai (doctor ya koi aur login hua)
+    else:
+        messages.warning(request, "Access denied: Only patients or labs can view lab tests.")
+        return redirect('home')
+
+    pending_tests = all_tests.filter(status__in=['Suggested', 'Details Pending', 'Sent to Lab'])
+    completed_tests = all_tests.filter(status='Completed')
+
+    return render(request, 'appointments/lab_test_table.html', {
+        'pending_tests': pending_tests,
+        'completed_tests': completed_tests,
+        'tests': all_tests
+    })
+

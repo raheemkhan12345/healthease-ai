@@ -1,0 +1,202 @@
+{% extends "base.html" %}
+{% load widget_tweaks %}
+{% load static %}
+{% block content %}
+
+<style>
+    body {
+        font-family: 'Inter', sans-serif;
+        background-color: #f8f9fa;
+    }
+    .info-section {
+        background: linear-gradient(135deg, #198754 0%, #20c997 100%);
+        position: relative;
+        overflow: hidden;
+    }
+    .info-section h2, 
+    .info-section p, 
+    .info-section li {
+        color: #fff;
+    }
+    .decor-circle {
+        position: absolute;
+        border-radius: 50%;
+        background-color: rgba(255, 255, 255, 0.15);
+    }
+    .decor-circle.top {
+        top: -80px;
+        right: -80px;
+        width: 200px;
+        height: 200px;
+    }
+    .decor-circle.bottom {
+        bottom: -80px;
+        left: -80px;
+        width: 200px;
+        height: 200px;
+    }
+    .testimonial-card {
+        background-color: rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(10px);
+        border-radius: 0.75rem;
+    }
+    .password-toggle {
+        position: absolute;
+        right: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        cursor: pointer;
+        color: #6c757d;
+        z-index: 5;
+    }
+    .form-group {
+        position: relative;
+    }
+    .error-message {
+        color: #dc3545;
+        font-size: 0.875rem;
+        margin-top: 0.25rem;
+    }
+    .success-message {
+        background-color: #198754;
+        color: #fff;
+        padding: 1rem;
+        border-radius: 0.5rem;
+        margin-bottom: 1.5rem;
+    }
+</style>
+
+<div class="min-vh-100 d-flex align-items-center justify-content-center py-5 px-3">
+    <div class="container">
+        <div class="row bg-white shadow-lg rounded-2xl overflow-hidden mx-auto" style="max-width: 1000px;">
+        
+            <!-- Left Section -->
+            <div class="col-md-6 info-section p-5 d-flex flex-column justify-content-center">
+                <div class="decor-circle top"></div>
+                <div class="decor-circle bottom"></div>
+
+                <h2 class="h1 fw-bold mb-4">Join Our Laboratory Network</h2>
+                <p class="mb-4 lh-lg">
+                    Create your lab account to manage patient test requests, upload reports, 
+                    and collaborate with healthcare professionals in real-time.
+                </p>
+                <ul class="list-unstyled">
+                    <li class="mb-3 d-flex align-items-center"><i class="fas fa-vials me-3 fa-lg"></i> Streamlined test management</li>
+                    <li class="mb-3 d-flex align-items-center"><i class="fas fa-file-medical me-3 fa-lg"></i> Secure report delivery system</li>
+                    <li class="mb-3 d-flex align-items-center"><i class="fas fa-shield-alt me-3 fa-lg"></i> HIPAA compliant data security</li>
+                    <li class="mb-3 d-flex align-items-center"><i class="fas fa-clock me-3 fa-lg"></i> 24/7 access to lab dashboard</li>
+                </ul>
+
+                <div class="mt-4 p-3 testimonial-card">
+                    <p class="fst-italic mb-2">"This platform has transformed how we manage lab workflows and collaborate with physicians."</p>
+                    <p class="mb-0 small">- Regional Diagnostic Center</p>
+                </div>
+            </div>
+
+            <!-- Right Section (Form) -->
+            <div class="col-md-6 p-5">
+                <div class="d-flex justify-content-center mb-2">
+                    <div class="w-25" style="height: 4px; background-color: rgba(108, 117, 125, 0.25); border-radius: 2px;"></div>
+                </div>
+                
+                <h3 class="h2 fw-semibold text-dark mb-2 text-center">Create Lab Account</h3>
+                <p class="text-secondary text-center mb-4">Register your laboratory to get started</p>
+                
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="alert alert-success">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+                
+                <form method="post" novalidate>
+                    {% csrf_token %}
+                    
+                    {% if form.errors %}
+                        <div class="alert alert-danger mb-4">
+                            Please correct the errors below.
+                        </div>
+                    {% endif %}
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6 mb-3 mb-md-0">
+                            <label class="form-label fw-medium">Username</label>
+                            {{ form.username|add_class:"form-control form-control-lg" }}
+                            {% if form.username.errors %}
+                                <div class="error-message">{{ form.username.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label fw-medium">Email</label>
+                            {{ form.email|add_class:"form-control form-control-lg" }}
+                            {% if form.email.errors %}
+                                <div class="error-message">{{ form.email.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-medium">Lab Name</label>
+                        {{ form.lab_name|add_class:"form-control form-control-lg" }}
+                        {% if form.lab_name.errors %}
+                            <div class="error-message">{{ form.lab_name.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6 mb-3 mb-md-0 form-group">
+                            <label class="form-label fw-medium">Password</label>
+                            {{ form.password1|add_class:"form-control form-control-lg" }}
+                            <i class="password-toggle fas fa-eye-slash" id="togglePassword1"></i>
+                            {% if form.password1.errors %}
+                                <div class="error-message">{{ form.password1.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-md-6 form-group">
+                            <label class="form-label fw-medium">Confirm Password</label>
+                            {{ form.password2|add_class:"form-control form-control-lg" }}
+                            <i class="password-toggle fas fa-eye-slash" id="togglePassword2"></i>
+                            {% if form.password2.errors %}
+                                <div class="error-message">{{ form.password2.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-success btn-lg w-100 fw-semibold py-2">
+                        Create Account
+                    </button>
+                </form>
+
+                <div class="mt-4 text-center">
+                    <p class="text-secondary mb-0">
+                        Already have a lab account? 
+                        <a href="{% url 'accounts:lab_login' %}" class="text-success fw-semibold text-decoration-none">Login here</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Password visibility toggle
+    document.addEventListener('DOMContentLoaded', function() {
+        function togglePassword(toggleId, inputId) {
+            const toggle = document.getElementById(toggleId);
+            const input = document.getElementById(inputId);
+            if (toggle && input) {
+                toggle.addEventListener('click', function() {
+                    const type = input.getAttribute('type') === 'password' ? 'text' : 'password';
+                    input.setAttribute('type', type);
+                    this.classList.toggle('fa-eye');
+                    this.classList.toggle('fa-eye-slash');
+                });
+            }
+        }
+        togglePassword('togglePassword1', '{{ form.password1.id_for_label }}');
+        togglePassword('togglePassword2', '{{ form.password2.id_for_label }}');
+    });
+</script>
+
+{% endblock %}
