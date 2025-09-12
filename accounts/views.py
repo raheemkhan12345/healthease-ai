@@ -255,10 +255,39 @@ def lab_dashboard(request):
         messages.error(request, "Access denied.")
         return redirect("home")
 
-    lab_profile = request.user.labprofile
+    lab_profile = request.user.labprofile  
+
+    # ✅ Sabhi tests jo is lab ke liye hain
     tests = LabTest.objects.filter(lab=lab_profile).order_by("-created_at")
 
-    return render(request, "accounts/lab_dashboard.html", {"tests": tests})
+    # ✅ Auto-update: "Sent to Lab" → "In Progress"
+    for test in tests.filter(status="Sent to Lab"):
+        test.status = "In Progress"
+        test.save()
+
+    # ✅ Get filter values
+    search = request.GET.get("search", "").strip()
+    status = request.GET.get("status", "").strip()
+
+    # ✅ Apply search filter
+    if search:
+        tests = tests.filter(
+            Q(patient__user__username__icontains=search) |
+            Q(doctor__user__username__icontains=search) |
+            Q(test_name__icontains=search)
+        )
+
+    # ✅ Apply status filter
+    if status:
+        tests = tests.filter(status=status)
+
+    return render(request, "accounts/lab_dashboard.html", {
+        "lab": lab_profile,   
+        "tests": tests,
+    })
+
+
+
 
 
 

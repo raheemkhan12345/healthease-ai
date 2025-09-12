@@ -63,6 +63,7 @@ class LabTest(models.Model):
         ('In Progress', 'Test in Progress'),          
         ('Completed', 'Test Completed'),              # Report uploaded
         ('Cancelled', 'Test Cancelled'),
+        ('Pending', 'Pending')
     ]
 
     # Relations
