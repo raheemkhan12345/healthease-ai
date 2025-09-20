@@ -9,7 +9,7 @@ class User(AbstractUser):
     USER_TYPE_CHOICES = (
         ('doctor', 'Doctor'),
         ('patient', 'Patient'),
-        ('lab', 'Lab Staff'),   # ✅ New user type
+        ('lab', 'Lab Staff'),   
     )
     user_type = models.CharField(max_length=10, choices=USER_TYPE_CHOICES, default='patient')
 
@@ -88,14 +88,8 @@ class LoginLog(models.Model):
 
 
 class LabProfile(models.Model):
-    LAB_CHOICES = [
-        ('city lab', 'city lab'),
-        ('shifa diagnostics', 'shifa diagnostics'),
-        ('excel lab', 'excel lab'),
-    ]
-
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    lab_name = models.CharField(max_length=100, choices=LAB_CHOICES)
+    lab_name = models.CharField(max_length=100)  
 
     def __str__(self):
         return f"{self.lab_name} ({self.user.username})"

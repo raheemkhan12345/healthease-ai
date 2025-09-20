@@ -46,7 +46,7 @@ class DoctorSearchForm(forms.Form):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        # ✅ Use fixed choices from model — not from database
+        # Use fixed choices from model — not from database
         choices = [('', 'All Specializations')] + list(DoctorProfile.SPECIALIZATION_CHOICES)
         self.fields['specialization'].choices = choices
 
@@ -60,7 +60,7 @@ class AppointmentForm(forms.ModelForm):
             'transaction_id': forms.TextInput(attrs={
                 'placeholder': 'Enter your payment Transaction ID',
                 'class': 'form-control',
-                'maxlength': '11'  # ✅ HTML level restriction
+                'maxlength': '11'  
             }),
         }
 
@@ -75,7 +75,7 @@ class AppointmentForm(forms.ModelForm):
             'class': 'form-control'
         })
 
-        # ✅ Time slot generation
+        # Time slot generation
         time_choices = []
         start = datetime.strptime("09:00", "%H:%M")
         end = datetime.strptime("20:00", "%H:%M")

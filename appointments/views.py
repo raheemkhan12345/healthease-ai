@@ -28,9 +28,6 @@ from .forms import (
 )
 from .models import Appointment, LabTest, Notification
 
-# ----------------------
-# Static pages / dashboards
-# ----------------------
 def home(request):
     form = DoctorSearchForm()
     context = {
@@ -54,7 +51,7 @@ def landing_page(request):
 def doctor_signup(request):
     return render(request, 'doctor_signup.urls')
 
-def patient_signup_page(request):  # renamed to avoid colliding with the real signup view below
+def patient_signup_page(request):  
     return render(request, 'patient_signup.urls')
 
 def doctor_dashboard(request):
@@ -246,7 +243,7 @@ def doctor_detail(request, doctor_id):
         active_tab = "book"
 
         if form.is_valid():
-            # ✅ Patient check pehle karo
+            
             try:
                 patient = request.user.patientprofile
             except PatientProfile.DoesNotExist:
@@ -325,7 +322,7 @@ def book_appointment(request, doctor_id):
             start_time = form.cleaned_data['start_time']
             end_time = form.cleaned_data['end_time']
 
-            # ✅ Check overlapping appointments for same doctor & date
+            #  Check overlapping appointments for same doctor & date
             conflict = Appointment.objects.filter(
                 doctor=doctor,
                 date=date,
@@ -335,7 +332,7 @@ def book_appointment(request, doctor_id):
             ).exists()
 
             if conflict:
-                # ❌ Do NOT auto-assign next day, just show message
+                #  do notT auto-assign next day, just show message
                 messages.error(
                     request,
                     f"❌ The slot {start_time.strftime('%I:%M %p')} - {end_time.strftime('%I:%M %p')} "
@@ -347,7 +344,7 @@ def book_appointment(request, doctor_id):
                     "form": form
                 })
 
-            # ✅ Save appointment if no conflict
+            #  Save appointment if no conflict
             appointment = form.save(commit=False)
             appointment.doctor = doctor
             appointment.patient = patient
@@ -373,7 +370,7 @@ def approve_appointment(request, appointment_id):
         messages.error(request, "You cannot approve a cancelled or completed appointment.")
         return redirect('accounts:doctor_dashboard')
 
-    # ✅ Transaction ID validation
+    #  Transaction ID validation
     if not appointment.transaction_id or len(appointment.transaction_id.strip()) < 5:
         appointment.status = "cancelled"
         appointment.save()
@@ -456,7 +453,7 @@ def video_consultation(request, appointment_id):
         messages.error(request, "Consultation is not available until the appointment is approved by the doctor.")
       
 
-    # ✅ Allow only within [start - 15, end + 15]
+    #  Allow only within [start - 15, end + 15]
     if not appointment.can_join_consultation():
         start_local = localtime(appointment.get_start_datetime())
         end_local = localtime(appointment.get_end_datetime())
@@ -545,7 +542,7 @@ def suggest_lab_test(request, patient_id):
 
 @login_required
 def patient_lab_tests(request):
-    # ✅ Agar user patient hai
+    # Agar user patient hai
     if request.user.user_type == "patient":
         if not hasattr(request.user, "patientprofile"):
             messages.warning(request, "Patient profile not found.")
@@ -565,7 +562,7 @@ def patient_lab_tests(request):
             "is_lab": False,
         })
 
-    # ✅ Agar user lab hai
+    # Agar user lab hai
     elif request.user.user_type == "lab":
         if not hasattr(request.user, "labprofile"):
             messages.warning(request, "Lab profile not found.")
@@ -598,7 +595,7 @@ def patient_lab_tests(request):
 def upload_lab_report(request, test_id):
     test = get_object_or_404(LabTest, id=test_id)
 
-    # ✅ Sirf lab hi apne assigned tests me report upload kar sake
+    #  Sirf lab hi apne assigned tests me report upload kar sake
     if request.user.user_type != "lab" or test.lab.user != request.user:
         messages.error(request, "You are not authorized to upload this report.")
         return redirect("accounts:lab_dashboard")
@@ -607,7 +604,7 @@ def upload_lab_report(request, test_id):
         form = LabReportUploadForm(request.POST, request.FILES, instance=test)
         if form.is_valid():
             test = form.save(commit=False)
-            test.status = "Completed"  # ✅ Upload ke baad status completed
+            test.status = "Completed"  # Upload ke baad status completed
             test.save()
             messages.success(request, "Lab report uploaded successfully.")
             return redirect("accounts:lab_dashboard")
@@ -663,7 +660,7 @@ def patient_detail(request, patient_id):
 def upload_prescription(request, appointment_id):
     appointment = get_object_or_404(Appointment, id=appointment_id)
 
-    if request.user != appointment.doctor.usesr:
+    if request.user != appointment.doctor.user:
         raise PermissionDenied("You are not authorized to upload prescription for this appointment.")
 
     if request.method == 'POST' and request.FILES.get('prescription'):
@@ -680,7 +677,7 @@ def upload_prescription(request, appointment_id):
 def complete_lab_details(request, test_id):
     from accounts.models import LabProfile
 
-    # ✅ Ensure test belongs to this patient
+    #  Ensure test belongs to this patient
     try:
         lab_test = LabTest.objects.get(id=test_id, patient=request.user.patientprofile)
     except LabTest.DoesNotExist:
@@ -697,7 +694,7 @@ def complete_lab_details(request, test_id):
             try:
                 selected_lab = LabProfile.objects.get(id=selected_lab_id)
 
-                # ✅ Update lab + address + status
+                #  Update lab + address + status
                 lab_test.lab = selected_lab
                 lab_test.sample_collection_address = address
                 lab_test.status = "Sent to Lab"
@@ -712,7 +709,7 @@ def complete_lab_details(request, test_id):
             except LabProfile.DoesNotExist:
                 messages.error(request, "❌ Invalid lab selected.")
 
-    # ✅ Fetch available labs for dropdown
+    #  Fetch available labs for dropdown
     labs = LabProfile.objects.all()
 
     return render(request, "appointments/complete_lab_details.html", {
@@ -733,15 +730,15 @@ def patient_appointment_list(request):
 def lab_test_table(request):
     user = request.user
 
-    # 👨‍⚕️ Agar patient hai
+    # Agar patient hai
     if hasattr(user, 'patientprofile'):
         all_tests = LabTest.objects.filter(patient=user.patientprofile).order_by('-created_at')
 
-    # 🧪 Agar lab hai
+    #  Agar lab hai
     elif hasattr(user, 'labprofile'):
         all_tests = LabTest.objects.filter(lab=user.labprofile).order_by('-created_at')
 
-    # ❌ Agar dono nahi hai (doctor ya koi aur login hua)
+    #  Agar dono nahi hai (doctor ya koi aur login hua)
     else:
         messages.warning(request, "Access denied: Only patients or labs can view lab tests.")
         return redirect('home')
