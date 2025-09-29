@@ -174,7 +174,7 @@ def patient_dashboard(request):
         patient = request.user.patientprofile
     except PatientProfile.DoesNotExist:
         messages.error(request, "⚠️ You must have a patient account to access the patient dashboard.")
-        return redirect("accounts:doctor_dashboard")  # ya koi safe page (home/doctor_dashboard)
+        return redirect("accounts:doctor_dashboard")  
 
     appointments = Appointment.objects.filter(patient=patient).order_by('-date')[:5]
     lab_tests = LabTest.objects.filter(patient=patient)
