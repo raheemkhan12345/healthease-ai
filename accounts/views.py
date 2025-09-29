@@ -21,18 +21,7 @@ def doctor_signup(request):
         if form.is_valid():
             try:
                 with transaction.atomic():
-                    user = form.save(commit=False)
-                    user.user_type = 'doctor'
-                    user.save()
-
-                    DoctorProfile.objects.create(
-                        user=user,
-                        specialization=form.cleaned_data['specialization'],
-                        hospital=form.cleaned_data['hospital'],
-                        experience=form.cleaned_data['experience'],
-                        profile_picture=form.cleaned_data.get('profile_picture')
-                    )
-
+                    user = form.save(commit=True)  # Ye hi DoctorProfile bhi banayega
                     login(request, user)
                     messages.success(request, 'Registration successful!')
                     return redirect('accounts:doctor_dashboard')
