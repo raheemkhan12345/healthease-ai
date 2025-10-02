@@ -21,7 +21,7 @@ def doctor_signup(request):
         if form.is_valid():
             try:
                 with transaction.atomic():
-                    user = form.save(commit=True)  # Ye hi DoctorProfile bhi banayega
+                    user = form.save(commit=True) 
                     login(request, user)
                     messages.success(request, 'Registration successful!')
                     return redirect('accounts:doctor_dashboard')
@@ -54,7 +54,7 @@ def patient_signup(request):
                     login(request, user)
                     messages.success(request, 'Registration successful!')
 
-                    # ✅ Handle redirect with ?next=...
+                    
                     next_url = request.GET.get('next')
                     if next_url:
                         return redirect(next_url)
@@ -246,19 +246,19 @@ def lab_dashboard(request):
 
     lab_profile = request.user.labprofile  
 
-    # ✅ Sabhi tests jo is lab ke liye hain
+    
     tests = LabTest.objects.filter(lab=lab_profile).order_by("-created_at")
 
-    # ✅ Auto-update: "Sent to Lab" → "In Progress"
+    
     for test in tests.filter(status="Sent to Lab"):
         test.status = "In Progress"
         test.save()
 
-    # ✅ Get filter values
+   
     search = request.GET.get("search", "").strip()
     status = request.GET.get("status", "").strip()
 
-    # ✅ Apply search filter
+    
     if search:
         tests = tests.filter(
             Q(patient__user__username__icontains=search) |
@@ -266,7 +266,7 @@ def lab_dashboard(request):
             Q(test_name__icontains=search)
         )
 
-    # ✅ Apply status filter
+   
     if status:
         tests = tests.filter(status=status)
 

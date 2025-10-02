@@ -6,7 +6,7 @@ from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.utils.timezone import make_aware, now
 
-User = get_user_model()  # This ensures the correct User model is used
+User = get_user_model()  
 
 class Appointment(models.Model):
     STATUS_CHOICES = [
@@ -50,37 +50,37 @@ class Appointment(models.Model):
         """Check if patient/doctor can join consultation window."""
         start_dt = self.get_start_datetime()
         join_window_start = start_dt - timedelta(minutes=15)   # 15 min before
-        join_window_end = start_dt + timedelta(minutes=45)     # 30 min consult + 15 grace
+        join_window_end = start_dt + timedelta(minutes=45)     # 30 min consult + 15 after
         return join_window_start <= now() <= join_window_end
 
 
 class LabTest(models.Model):
     STATUS_CHOICES = [
-        ('Suggested', 'Suggested by Doctor'),         # Doctor suggested
+        ('Suggested', 'Suggested by Doctor'),         
         ('Details Pending', 'Patient Details Needed'), 
-        ('Sent to Lab', 'Sent to Laboratory'),        # Patient submitted lab + address
+        ('Sent to Lab', 'Sent to Laboratory'),        
         ('Sample Collected', 'Sample Collected'),     
         ('In Progress', 'Test in Progress'),          
-        ('Completed', 'Test Completed'),              # Report uploaded
+        ('Completed', 'Test Completed'),             
         ('Cancelled', 'Test Cancelled'),
         ('Pending', 'Pending')
     ]
 
     # Relations
     doctor = models.ForeignKey(
-        DoctorProfile, 
+        DoctorProfile,              #  Each doctor has its own dashboard
         on_delete=models.CASCADE,
         related_name='ordered_tests',
         help_text="Doctor who ordered this test"
     )
     patient = models.ForeignKey(
-        PatientProfile, 
+        PatientProfile,            #  Each patient has its own dashboard
         on_delete=models.CASCADE,
         related_name='lab_tests',
         help_text="Patient who needs this test"
     )
     lab = models.ForeignKey(
-        "accounts.LabProfile",   # ✅ Each lab has its own dashboard
+        "accounts.LabProfile",   #  Each lab has its own dashboard
         on_delete=models.SET_NULL,
         null=True, blank=True,
         related_name="lab_tests"

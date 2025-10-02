@@ -583,7 +583,7 @@ def patient_lab_tests(request):
             "is_lab": True,
         })
 
-    # ❌ Agar user na patient hai na lab
+    
     else:
         messages.warning(request, "Access denied: Only patients or labs can view tests.")
         return redirect("home")
